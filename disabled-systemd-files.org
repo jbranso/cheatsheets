@@ -1,0 +1,104 @@
+android debugger                            - adb.service                                disabled
+let libreoffice/emacs find printers         - avahi-daemon.service                       enabled
+as above                                    - avahi-dnsconfd.service                     enabled
+finding block devices                       - blk-availability.service                   disabled
+play bootup sound                           - canberra-system-bootup.service             disabled
+play reboot sound                           - canberra-system-shutdown-reboot.service    disabled
+play shutdown sound                         - canberra-system-shutdown.service           disabled
+store data on computer clusters             - ceph-mds@.service                          disabled
+store data on computer clusters             - ceph-mon@.service                          disabled
+store data on computer clusters             - ceph-osd@.service                          disabled
+agetty manages TTYs                         - console-getty.service                      enabled
+single user login                           - console-shell.service                      enabled
+apply cpu power info                        - cpupower.service                           disabled
+cron scheduling                             - cronie.service                             disabled
+wanted by networkd                          - dbus-org.freedesktop.network1.service      enable
+wanted by networkd                          - dbus-org.freedesktop.resolve1.service      enable
+debug early boot                            - debug-shell.service                        disabled
+torrenting                                  - deluge-web.service                         disabled
+torrenting                                  - deluged.service                            disabled
+wireless get ip address                     - dhclient@.service                          disabled
+wireless get ip addr                        - dhcpcd.service                             disabled
+wireless get ip addr                        - dhcpcd@.service                            disabled
+lvm helper stuff                            - dm-event.service                           disabled
+local mail server for gnus                  - dovecot.service                            disabled
+dependancy for gst plugins bad              - fluidsynth.service                         disabled
+ftp daemon                                  - ftpd.service                               disabled
+my own script                               - github.service                             disabled
+accessing gnunet                            - gnunet.service                             disabled
+virtual console mouse server                - gpm.service                                disabled
+alternate way of encrypted authentication   - gssproxy.service                           enabled
+apache web server                           - httpd.service                              disabled
+netctl ethernet stuff                       - ifplugd@.service                           disabled
+ip6 stuff                                   - ip6tables.service                          disabled
+ an outdated encryption thing ?             - krb5-kadmind.service                       disabled
+outdated encrypted stuff                    - krb5-kdc.service                           disabled
+outdated encrypted stuff                    - krb5-kpropd.service                        disabled
+let laptop stuff spin down                  - laptop-mode.service                        disabled
+gnome boxes                                 - libvirt-guests.service                     disabled
+gnome boxes                                 - libvirtd.service                           disabled
+translate tv remote key press into commands - lircd.service                              disabled
+translate tv remote key press into commands - lircmd.service                             disabled
+laptop mode tools                           - lmt-poll.service                           disabled
+logical volume management                   - lvm2-lvmetad.service                       disabled
+logical volume management                   - lvm2-monitor.service                       disabled
+wifi stuff                                  - netctl-auto@.service                       disabled
+wifi stuff                                  - netctl-sleep.service                       disabled
+wifi stuff                                  - netctl.service                             disabled
+network file system                         - nfs-blkmap.service                         disabled
+network file system                         - nfs-server.service                         disabled
+nginx web server                            - nginx.service                              disabled
+name service cache daemon                   - nscd.service                               enabled
+pacman stuff                                - pacman_databas-_mon.service                disabled
+firefox sync cache                          - pdnsd.service                              disabled
+make php run fast                           - php-fpm.service                            disabled should be Enabled!
+a faster sendmail alternative               - postfix.service                            disabled should be Enabled!
+???                                         - prelink-tue.service                        disabled
+sync remote files                           - rsyncd.service                             disabled
+realtime policy and watchdog daemon         - rtkit-daemon.service                       disabled
+part of systemd                             - serial-getty@.service                      enabled
+systemd stuff                               - systemd-bootchart.service                  enabled
+systemd stuff                               - systemd-journal-upload.service             enabled
+systemd stuff                               - systemd-networkd-wait-online.service       enabled
+systemd stuff                               - systemd-networkd.service                   enabled
+systemd stuff                               - systemd-nspawn@.service                    enabled
+systemd stuff                               - systemd-resolved.service                   enabled
+man udisks                                  - udisks2.service                            enabled
+gnome stuff that gdm uses                   - upower.service                             disabled
+change the nice level of programs           - verynice.service                           disabled
+doing wifi stuff                            - wpa_supplicant-nl80211@.service            disabled
+doing wifi stuff                            - wpa_supplicant-wired@.service              disabled
+doing wifi stuff                            - wpa_supplicant.service                     disabled
+doing wifi stuff                            - wpa_supplicant@.service                    disabled
+find printers                               - avahi-daemon.socket                        enabled
+local mail server                           - dovecot.socket                             disabled should be Enabled!
+????                                        - git-daemon.socket                          disabled
+outdated encryption                         - krb5-kpropd.socket                         disabled
+used with kodi                              - lircd.socket                               disabled
+remote login                                - rlogin.socket                              disabled
+remote procedure calls                      - rpcbind.socket                             disabled should be Enabled?
+stuff                                       - rsh.socket                                 disabled
+stuff                                       - rsyncd.socket                              disabled
+should be enabled                           - sshd.socket                                enabled
+important                                   - systemd-journal-gatewayd.socket            enabled
+important                                   - systemd-journal-remote.socket              enabled
+important                                   - systemd-networkd.socket                    enabled
+outdated talking utility                    - talk.socket                                disabled
+outdated communication                      - telnet.socket                              disabled
+enabled                                     - uuidd.socket                               enabled
+virtual machine stuff                       - virtlockd.socket                           disabled
+virtual machine stuff                       - virtlogd.socket                            disabled
+force reboot                                - ctrl-alt-del.target                        enabled
+systemd stuff                               - exit.target                                enabled
+systemd stuff                               - halt.target                                enabled
+needed for ctl alt delete                   - kexec.target                               enabled
+systemd stuff                               - machines.target                            enabled
+network filesystem                          - nfs-client.target                          disabled should be Enabled!
+systemd stuff                               - poweroff.target                            enabled
+systemd stuff                               - reboot.target                              enabled
+systemd stuff                               - rescue.target                              enabled
+removed unused blocks on filesytem          - fstrim.timer                               enabled
+laptop mode tools                           - laptop-mode.timer                          disabled
+pacman-database-mon.timer                  disabled
+pacman keyring updater                      - pacman_keyring.timer                       enabled
+prelink-tue.timer                          disabled

@@ -1,0 +1,21 @@
+#+TITLE: Git CheatSheet
+#+AUTHOR: Joshua Branson
+
+* Introduction
+  Linus Torvalds created git to remind you how stupid you are.  In fact "git" is British slang for idiot.
+
+  It's syntax looks like git <command> [<args>]
+
+  You can always look up help on a specific git command with man git-<command>
+
+** Basic commands
+
+ - push your changes to a remote git repo
+   git push
+
+ - pulling your changes from a remote to a local git repo
+   git pull
+
+ - pulling changes from a remote repo and discarding your local changes
+   git fetch origin
+   git reset --hard origin/[master | tag | branch | commit-id ]

@@ -1,0 +1,54 @@
+#+TITLE:Isync Cheatsheat
+#+AUTHOR:Joshua Branson
+#+OPTIONS: H:10 toc:nil
+
+Isync fetches your email (like from your gmail account) and stores it locally on your computer.  Then, any email client that you run on your machine can fetch your mail in a local directory.  This makes browsing your email SUPER fast, and possible when you are not connected to the internet!  The email client must support Maildir or IMAP4 mailboxes, which is the format that isync saves your mail on your machine.
+
+* A working isync account from 1 email can be done by placing the following in your ~/.mbsyncrc
+
+#+BEGIN_SRC org
+  IMAPAccount gmail
+  # Address to connect to
+  Host imap.gmail.com
+  User jbranson@waypoint.agency
+  Pass SECRETPASSWORD
+  # To store the password in an encrypted file use PassCmd instead of Pass
+  # PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mailpass.gpg"
+  #
+  # Use SSL
+  SSLType IMAPS
+  # The following line should work. If get certificate errors, uncomment the two following lines and read the "Troubleshooting" section.
+  CertificateFile /etc/ssl/certs/ca-certificates.crt
+  #CertificateFile ~/.cert/imap.gmail.com.pem
+  #CertificateFile ~/.cert/Equifax_Secure_CA.pem
+
+  IMAPStore gmail-remote
+  Account gmail
+
+  MaildirStore gmail-local
+  # The trailing "/" is important
+  Path ~/.mail/gmail/
+  Inbox ~/.mail/gmail/Inbox
+
+  Channel gmail
+  Master :gmail-remote:
+  Slave :gmail-local:
+  # Exclude everything under the internal [Gmail] folder, except the interesting folders
+  Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+  # Or include everything
+  #Patterns *
+  # Automatically create missing mailboxes, both locally and on the server
+  Create Both
+  # Save the synchronization state files in the relevant directory
+  SyncState *
+#+END_SRC
+
+* Vocab
+- Stores
+  A store is either a remote or local folder.  This could be your gmail inbox folder, sent folder, drafts folder, etc.
+- Channel
+  A channel connects two Stores whilst also describing how they are synchronized. A channel might be "messages I've wrote", and it combines the stores gmail sent and draft folder.
+- Accounts
+  An Account describes the connection to a server.  This is something like imap.gmail.com.
+- Group
+  A group connects multiple channels.  On the command line, one might say mention gmail to examine their gmail inbox.

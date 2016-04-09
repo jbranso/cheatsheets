@@ -1,0 +1,222 @@
+#+TITLE:SQL Cheatsheat
+# DO NOT add this file to git!  It has private underage names in it.  I need to use my own fake database to demonstrate
+# these queries
+
+# The next lines says that I can make 10 levels of headlines, and org will treat those headlines as how to structure the book into
+
+# chapters, then sections, then subsections, then sub-sub-sections, etc.
+#+OPTIONS: H:10
+
+* DataTypes
+
+  MySQL comes with 4 groups of data types:
+
+  - Numbers
+  - Text
+  - Date and Time
+  - Defined groups
+
+**  The Numbers group has 1 group called integers.  These numbers can be used to utilize MySQL’s math functions:
+   You can find this table online at https://dev.mysql.com/doc/refman/5.0/en/integer-types.html
+   | DataType  | Storage required |   Minimum Value | Maximum Value   |
+   |-----------+------------------+-----------------+-----------------|
+   |           |                  | Signed/Unsigned | Signed/Unsigned |
+   |-----------+------------------+-----------------+-----------------|
+   | TINYINT   | 1 byte           |            -128 | 127             |
+   | TINYINT   |                  |               0 | 255             |
+   |-----------+------------------+-----------------+-----------------|
+   | SmallINT  | 2 bytes          |          -32768 | 32,767          |
+   |           |                  |               0 | 65,535          |
+   |-----------+------------------+-----------------+-----------------|
+   | MediumINT | 3 bytes          |        -8388608 | 8,388,607       |
+   |           |                  |               0 | 16,777,215      |
+   |-----------+------------------+-----------------+-----------------|
+   | INT       | 4 bytes          |   -214,748,3648 | 2,147,483,647   |
+   |           |                  |               0 | 4,294,967,295   |
+   |-----------+------------------+-----------------+-----------------|
+   | Big Int   | 8 bytes          |                 |                 |
+   |-----------+------------------+-----------------+-----------------|
+  SMALLINT  (-32,000 - 32,000)       or (0 - 65,000)
+  MEDIUMINT (-8 million- 8 million) or (0 - 16 million)
+  INT
+  BIGINT
+
+  Any of those types can be signed up unsigned.  *Signed* means the integer can be hold negative of or positive values.
+  *Unsigned* means the integer can only be positive.
+
+  MySQL also supports Numeric and Decimal data Types, which are data types that store numbers, but once stored cannot be changed.
+  This is a safety feature.  Suppose you want to store valuable numerical data, but do not want someone accidentally changed via a
+  MySQL’s mathematical function.
+
+  Float and double are also there.  They are for numbers like 5.23409348.  For comparision of equality of numbers, float is the
+  best option.
+
+**  Representing Text
+
+    Text has a couple of ways to be put in a MySQL database.
+
+    - Char      (a contstant length of a string, that will next change.  It can be between 1-255 characters long).
+    - varchar   (a string that might change.  It can be between 1-255 characters long).
+    - text      (a long string that might change)
+    - blob      (a long string that might change)
+
+    With both char and varchar, you can specify an upper limit of what the string might be.  For example, you can specify that for
+    all of your varchars in a particuar table are only going to store the news headlines that are not quite finished as articles.
+    The title may change, but you will probably not ever see a title that is 255 chars long.  You could make the maximum to be 70
+    chars long.
+
+    You can also do the same for a char, and specify the longest it will ever be in a table as well.  This speeds up access time!
+
+    Blob types are case sensitive.  So MySQL will order Johnny, jOhnny, joHnny, johNny, johnNy, johnnY a very certain way, but
+    text types will see no differance between those names.
+
+    You can choose from
+
+    - tinytext and tinyblob
+    - text and blob
+    - mediumtext and mediumblob
+    - longtext and longblob
+
+** time and date in MySQL
+
+   here in the format:
+
+   <YEAR>-<MONTH>-<Day> <Hour>-<Minutes>-<Seconds>
+
+** Set ond enum types
+
+   These are like structs in C.  You can group several different types inside on thing.
+
+* Inserting data into tables
+
+  -  INSERT ...  VALUES
+
+     -- INSERT INTO  <table_name>  [<column_name1>[,column_name2, ...]  VALUES  <column_value1>[, <column_value2>,...];
+
+     INSERT INTO duck_title
+     VALUES
+     (1, ’Mr.’),
+     (2, ’Ms.’),
+     (3, ’Mrs.’);
+
+  -  INSERT ...  SET
+
+     -- INSERT INTO <table_name>
+        SET <column_name>=<column_value>[, <column_name>=<column_value>,...];
+
+  -  INSERT ...  SELECT
+
+     -- INSERT INTO <table_name> [column_name1[, column_name2,...]
+        SELECT <select_value> FROM <table_name>;
+
+
+  -  LOAD DATA INFILE
+
+  - CREATE TABLE copy-table
+    SELECT * FROM original-table
+
+* COMMENT getting information from tables
+
+  - SELECT * from table-name;
+
+  - SELECT column1.table-name, column2.table-name[, column3.table-name...];
+
+  - SELECT * from table-name LIMIT number;
+    the number, limits how many results you get
+
+  - SELECT [DISTINCT] column-name FROM table-name
+    This ensures that there are no two of the same values returned for column-name
+
+  - SELECT car.length, car.color FROM car
+    WHERE car_color=“green”
+    AND car.length>72;
+
+  - SELECT person.fname, person.age FROM person
+    WHERE person.name=“John”
+    OR person.age>10;
+
+  - SELECT * FROM toys
+    WHERE toys.color IS <NOT NULL | NULL>
+
+  - SELECT * FROM dolls
+    WHERE price.dolls>10
+    ORDER BY name.dolls;
+
+  - SELECT SUM(house-points), AVG (student-tests) FROM hogwardsGryffendor;
+
+  - SELECT <MAX | MIN>  rent FROM apt;
+
+  - SELECT ROUND (going-out-to-eat) FROM expenses;
+
+  - SELECT fname, mname, lname FROM person;
+
+  - SELECT fname, lname FROM students
+    GROUB BY lname;
+
+    This groups the output by last name.  This would be a decent way to determine if you had any siblings at your school.
+
+  - SELECT fname, lname, score FROM students
+    GROUB BY lname
+    HAVING score>=200;
+
+*
+
+
+*
+* Sub Queries
+    :PROPERTIES:
+    :engine: mysql
+    :dbhost: setyourwaypoint.com
+    :dbuser: setyourw_admin
+    :dbpassword: ]#am!6QDxdkK
+    :database: setyourw_ihsb
+    :END:
+A sub query is running a query inside another query.
+
+It has the syntax
+
+#+BEGIN_SRC sql
+(select first from users limit 5)
+#+END_SRC
+
+#+RESULTS:
+| first  |
+|--------|
+| Steve  |
+| Jim    |
+| Fake   |
+| Rhonda |
+| Greg   |
+
+For example one might do something like this.  If you only know a bowler's ID how can I get their region?  Easy:
+You do a regular select query with the user's ID.  In that query you combine a mysql variable.
+
+
+#+BEGIN_SRC sql
+    SELECT users.first, users.last, users.ID, users.level, schools.name, images.ID
+    as sig, conference.region, @schoolID := schools.schoolID as schoolID,
+    @groupID := (SELECT groupID FROM schools WHERE schoolID = @schoolID) as groupID,
+    (SELECT region FROM conference WHERE groupID = @groupID) as region
+    FROM users
+    LEFT JOIN schools  ON users.schoolID=schools.schoolID
+    LEFT JOIN images   ON users.ID=images.ID
+    LEFT join conference on users.schoolID = conference.groupID
+    WHERE (level = '6' OR level = '3')  limit 2
+    #+END_SRC
+
+#+RESULTS:
+| first   | last      | ID | level | name                                | sig | region | schoolID | groupID | region              |
+|---------+-----------+----+-------+-------------------------------------+-----+--------+----------+---------+---------------------|
+| Linda   | Olszewski | 95 |     3 | This school is for testing purposes |  95 | NULL   |      714 |     955 | Testing Conference  |
+| Derrick | Bohn      | 99 |     3 | Clark                               |  99 | NULL   |      109 |      50 | Greater Lake County |
+* database engines
+ - innodb
+   when you apply foreign key, any transactions delete write or update will check the integrity
+
+   you can't accidentally delete everything
+
+   You can insert new data w/o doing integrity checks, because innodb does that stuff for you.
+
+-  myisam
+
+  You can put new data in, and it will not sanity check it for you.

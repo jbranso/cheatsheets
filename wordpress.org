@@ -1,0 +1,238 @@
+#+TITLE: Wordpress Cheatsheet
+#+AUTHOR: Joshua Branson
+
+* Vocab
+You can find more vocab words specific to wordpress [[https://codex.wordpress.org/Glossary][in the glossary,]]  and in the [[https://codex.wordpress.org/WordPress_Semantics][Semantics]]
+- *posts* are the elements that make up a web page.  Every time someone makes a blog post, they create a post.
+- *media* pictures, video, etc. that enhance a blog.
+- *categories* are a hierarchically taxonomies.  Each post is filed under 1 or more categories, and some categories can have parent categories.
+- *tags* are keywords that hint at the content in a post.  Tags are flat taxonomies.  They have no parent or child tags.
+- *taxonomies* are grouping constructs, of which the two default are tags and categories.
+- *custom taxonomies* are user created taxonomies that allow the end-user, which is the user visiting the site, to better search for posts, pages, or custom post types.  You could create a custom taxonomy called "post size", that would group
+  posts based on their length.  So if a post had many words, it would be large, then there would be a medium, and small.
+  You could then let a user select posts based on the post's length.
+- *custom post types* are web developer defined post types.  You could create a custom taxonomy to post types
+- *post meta data* is the information associated with a post.  This includes tags, categories, custom taxonomies, the author, date of publication, etc.  It is like the tag on a t-shirt.  It gives you extra information about the product, but the tag is /not/ the product.
+- *Meta Section* a section on the wordpress site that allows a user to log in.  It is like a front door in that you can walk and see the inside of the site if you log in, just like walking in a door.
+- *Pages* are static pages that are usually not changed often.
+- *custom post types* are like accrisoft's custom directories.  They group data in ways that can be queries and posted to the page.  They are like a new genetically engineered cloned new animal.  There is no other animal on earth like these clones, but I can create as many of them as I want.
+- *The Loop* processes the display of posts.  This is at the core of wordpress.  It loops over the title of an article, the excerpt, content, category, tag, etc.
+- *Template Tags* are a group of php functions that perform an action or display info. ie: wp_page_title ()
+- *Template Files* contain the programming things that control how a wordpress site looks
+- *widgets* are little programs that can be added to pages
+- *menus* a list of navigational items that help your user navigate the site
+- *Post Formats* allow one to control the display of a specific post
+- *Plugins* are add-ons that extend wordpress
+* Removing functions from wordpress themes
+[[http://code.tutsplus.com/tutorials/a-guide-to-overriding-parent-theme-functions-in-your-child-theme--cms-22623][removing functions in wordpress]]
+** Removing functions from from hooks via remove/add_action
+** Define the function in your child theme's function.php file
+Your child theme is loaded just before the parent theme, and if the parent theme is written properly, then the child's functions will override the parent's.
+
+The parent's function has to be written like this:
+
+# this is not C code, but I just wanted to get syntax highlighting to work
+#+BEGIN_SRC C
+  if ( ! function_exists( 'storefront_footer_widgets' ) ) {
+     /* some content here */
+   }
+#+END_SRC
+
+
+So if your child theme's function.php has the function
+
+#+BEGIN_SRC c
+  function storefront_footer_widgets () {
+  /* some code here */
+  }
+#+END_SRC
+
+Then your child theme's function will overwrite the parent's function.  Cool eh?
+* wordpress template hierarchy
+# https://developer.wordpress.org/themes/basics/template-hierarchy/
+
+When wordpress views a specific webpage, it selects in page that is the highest in the hierarchy.
+* Specific php files
+# I found this information here: https://yoast.com/wordpress-theme-anatomy/
+- *rtl.css*
+  The right to left stylesheet that is included automatically if this in an english blog
+- *The Loop* displays the contents of the main area of your site.
+- *index.php* This is the main template file.  It is required in all themes.  If *home.php* does not exist, and if your site does /NOT/
+have a specified static homepage, then *index.php* will be loaded (by default to list the latest blog posts).
+- *home.php* This is the home page by default, and it normally shows the latest blog posts.  BUT if you specify that your site should have a static front page, then *front-page.php* will be used instead.
+- *front-page.php* This page is loaded if a static front page is specified under Admin > Settings > Reading.
+- *header.php*
+  Displays the header of the website and sets the html element "meta" values.
+- *single.php* displays a single post.  So, when read you read a post in the blog, single.php generated it.  You can also specify if you want a sidebar to show here as well.  For this page and for all others, index.php is used if the query template is not present.
+- *single-{post-type}.php* This is user when the user views a single post from a custom post type.  For example, single-book.php is what wordpress would use to display a specific book that that user clicks on: ie:  Chronicles of Narnia.
+- *archive-{post-type}.php* displays old archive posts from a specific post type.  ie: /archive-books.php/ will display an archive of posts from the custom post type "books".  Do archive pages show many posts?  1, 2, or 3?  Or none?  If the user clicks on a specific post type but /archive-{post-type}.php/ does not exist, then wordpress uses /archive.php/ to load the page.
+- *archive.php* When viewing 10 or so archived articles blurbs, *archive.php* will configure how their appear on the page.
+- *page.php* controls what individual pages look like.  I can even specify sidebars or other element that I so desire.  I can apparently create new page templates by copying _page.php_, renaming it to whatever I want, then pasting in the following code:
+  #+BEGIN_SRC
+  <?php
+  /*
+  Template Name: YourNameHere
+  */
+  ?>
+  #+END_SRC
+
+But how would that work?  If I copy page.php on the server, then there would be 2 files: page.php & page.phpCopy.  This would not add a new page type.  If I copied page.php into a child theme, this would /not/ work either, because the child theme's page.php would over-ride the parent theme.  hmmm?
+- *page-{slug}.php* This determines what the user will see when visiting a specific page.  For example, when a user visits about.php, wordpress uses page-about.php to display the page.
+- *category.php* is word when users request posts by categories.
+- *tag.php* is used when when visitors request posts by tag.
+- *taxonomy.php* is used when a user of the site selects a sub-taxonomy in a costum taxonomy.php.  So perhaps you have a taxonomy called
+people.  You could have a sub-taxonomy called a /term/ Nationality with values in the database "Irish" and "German".
+- *comments.php* control the output of the comments
+- *single-<custom post type>.php* displays single custom defined posts.  For example, if you define a custom post type called "review", then you would call your file *single-review.php*, and somehow magic happens.
+* folders
+:PROPERTIES:
+:ORDERED:  t
+:END:
+- *wp-admin* is the directory in wordpress that manage the admin view of wordpress
+- *wp-content* is the dir where your wordpress site is stored
+  - *plugins* houses your wordpress plugins
+  - *themes* house your wordpress themes
+  - *uploads* are probably your media files
+- *wp-include*
+  are the core files of wordpress.  It is how wordpress communicates to the database.
+- *wp-config.php* is at the base of the wordpress install and it has all the information for your database connections.
+* The default "20" themes and _s (Underscores) theme
+wordpress wrote "20 14", "20 23", "20 12", and "20 10", for developers to study!  I can learn how wordpress builds themes by studying those themes.
+
+Developers should use the Underscores theme as a base for developing new themes.  It is a starter theme.  I can learn more about it here: http://underscores.me/
+* [[https://developer.wordpress.org/themes/getting-started/][Theme Handbook]]  I am more or less copying the theme handbook verbatium
+** Theme basics
+I'm going to learn theme files and post types.  I'll also learn about the loop, which Well it sureis what pulls information out of the wordpress database.
+** Template Files
+- Page Templates /only/ to specific pages, groups of pages, or a page section.  Page Templates intended to change a page/s look and feel. \\
+  So a page template is like a liquid file for shoppify.  A page template is like a the metal structure that encases a dam before workers pour concrete in the holes to fill it up.  The structure that builds a dam marks sections where concrete will be filled.  In this case the structure is the template and the concrete is the data that is filled.
+
+- Template tags are php functions that expand during the php execution. ie:
+
+  #+BEGIN_SRC
+  <?php
+  echo 'the_title()';
+  echo 'the_content()';
+  ?>
+  #+END_SRC
+
+  Template tags are like the titles of the temp workers at the dam.  There's a supervisor (Jim), concrete pourer (Rick), structural specialist (Don), etc.  During construction of the dam, you refer to these people as supervisor or boss, but when it's time to get execute processing of payment (executing the php code), then you have to expand the supervisor's name to "John Fullname".
+
+  - "Template hierarchy" is the chronological list that wordpress goes through to determine which theme template files to use.
+* Ajax links
+  [[http://www.fiftyfoureleven.com/resources/programming/xmlhttprequest/examples][Ajax Links]]
+  [[http://codex.wordpress.org/Function_Reference/WP_Ajax_Response][Ajax Response]]
+
+* for my test of wordpress I should know important wordpress glossary words that are found here [[http://codex.wordpress.org/Glossary][Glossary]]
+* I can generate cool wordpress stuff via this site: https://generatewp.com/
+* STARTED Building a test that I need to pass to "learn" wordpress
+:LOGBOOK:
+CLOCK: [2016-02-17 Wed 09:21]--[2016-02-17 Wed 09:28] =>  0:07
+CLOCK: [2016-02-16 Tue 17:08]--[2016-02-16 Tue 17:45] =>  0:37
+CLOCK: [2016-02-16 Tue 16:26]--[2016-02-16 Tue 16:52] =>  0:26
+CLOCK: [2016-02-16 Tue 15:28]--[2016-02-16 Tue 16:03] =>  0:35
+CLOCK: [2016-02-12 Fri 09:21]--[2016-02-12 Fri 09:29] =>  0:08
+CLOCK: [2016-02-11 Thu 13:37]--[2016-02-11 Thu 13:46] =>  0:09
+CLOCK: [2016-02-11 Thu 10:36]--[2016-02-11 Thu 11:55] =>  1:19
+CLOCK: [2016-02-11 Thu 10:02]--[2016-02-11 Thu 10:06] =>  0:04
+CLOCK: [2016-02-10 Wed 15:48]--[2016-02-10 Wed 15:58] =>  0:10
+CLOCK: [2016-02-10 Wed 15:24]--[2016-02-10 Wed 15:29] =>  0:05
+CLOCK: [2016-02-10 Wed 14:29]--[2016-02-10 Wed 15:22] =>  0:53
+CLOCK: [2016-02-10 Wed 13:59]--[2016-02-10 Wed 14:05] =>  0:06
+:END:
+** What's the difference between a taxonomy and a custom post type?
+A taxonomy is a way of grouping things.  categories and tags are taxonomies.
+
+A post is content that a user inserts into wordpress.
+
+The default post type is just the content that displays on every page.  So when a user browses the home page, the Loop queries the database for the post that is supposed to be on the home page.  That particular post is displayed.
+** How do I add a new page templates?
+** How do I use the loop? to implement pagination? to add various new content to a page? ie 5 posts
+** Widgets included with Wordpress are what?
+** What can widgets do?
+** What can plugins do?
+** can I use Ajax?  How?
+** what's the wordpress version of a custom directory?
+   A custom post type.
+** What's the wordpress version of a lister?
+   A php query that uses the loop.
+** What's the wordpress version of a default detail layout?
+   A page template
+** What's wordpresses's vocab word for page layouts?
+   A page template
+** How can I embed a form on wordpress?
+** How do I send email w/ wordpress?
+** How do I over-write a parent theme's function?
+   - How do you nullify a parent theme's function?
+     You can make the parent theme's function do nothing. Ie: your child theme's functions.php has this:
+
+     #+BEGIN_SRC
+     /* make the woocommerce_breadcrumb do nothing */
+     function woocommerce_breadcrumb () {
+
+     }
+     #+END_SRC
+   - How do you how do I hook in a function to run after a specified event?
+   - How do a remove a parent-theme's function in the child theme?
+** I should know at least 30% or the common action hooks and filter hooks that wordpress uses:
+http://codex.wordpress.org/Plugin_API/Action_Reference
+http://codex.wordpress.org/Plugin_API/Filter_Reference
+** Understand wordpress conceptually
+*** know 95% of wordpress' vocab found here:
+[[https://codex.wordpress.org/Glossary][in the glossary,]]  and in the [[https://codex.wordpress.org/WordPress_Semantics][Semantics]]
+**** Action
+An action is (it is also a type of hook) an event that happens on the server side when a client requests a page.  wp_loaded (when wordpress is fully loaded), shutdown (php execution is about to end), get_header (is the event that happens to load the top part of your webpage).
+
+- wp_head/wp_footer are the actions that load in the header and the footer
+- init is the action that is performed before any headers are sent to the client.  So If you wanted to redirect
+  a user to a different page, you could do this here:
+- wp_enqueue_scripts is the event that adds js files to your sites
+- post_class & body_class are actions that let you customize the classes that your post and body have.  This
+  makes it nice to give certain pages various css styles to affect how things look.
+**** Capabilities
+The permission to perform some task.  Some users of a wordpress site have certain abilities to perform some tasks, that others lack.  So a newbie admin might not have the ability to edit the home page
+**** CGI:
+ Common Gateway Interface specifies how the server can communicate with the client (web browser).  Forms use this.
+**** Content
+Is the information stored in a post.  It can be text, images, video?
+**** Deprecated
+these functions or variables will soon be obsolete or are already
+**** DOM
+document object model is a standard that allows programmers to to dynamically and programatically access HTML on the page
+**** Filter
+A filter is a php function that associates itself with an action (a php function that runs at a certain point).   It can filter some existing action to do anything else.  ie: A /custom filter/ (add_filter ()), replaces code from
+an action.  This is called "hooking."
+
+- the_content
+  You can filter (replace/update/remove) any of the stuff in the content with this.
+- the_excerpt
+  You can filter (replace/update/remove) any of the stuff in the except with this filter.
+**** Gallery
+Each post can have an associated gallery!  When you are editing a post, you can click on the gallery tab!  This lets you upload lots of images to your post!  When you have have more than 1 image in your gallery, the bottom of
+the gallery tab includes a shortcode that you can insert to display the photos.
+**** Hook
+This lets you run your own code at certain events.  A hook can either be an action or a filter.
+A hook lets you change all sorts of things about wordpress w/o diving into the core files, which is very nice.
+A list of all hooks is available here:
+http://adambrown.info/p/wp_hooks/version/4.1
+***** An Action hook (also called an action)
+Actions do things.
+ie: add content, perform some calculation, go to the mall, you name it.
+An action hook lets you specify that your code should run at a specific point.
+It does not change existing content.
+
+An action is like drinking dirty water.  You do something: ie drink dirty water.
+***** A filter hook (also called a filter)
+Filters change things.
+
+A filter hook lets you use a php function to do something to data before it is displayed.  ie:
+
+#+BEGIN_SRC
+$title = apply_filters('wp_title', $title, $sep, $seplocation);
+
+#+END_SRC
+
+This above is a code snippet from wordpress core that lets you do something to the title before it is
+rendered on the page, like truncating it if the title is too long, etc.
+
+A filter changes things.  So a filter is like filtering water.  You don't get changed.  The water doesn't really go anyplace special.  It just gets filtered.

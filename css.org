@@ -1,0 +1,54 @@
+#+TITLE:CSS Cheatsheat
+#+AUTHOR:Joshua Branson
+
+* Flexbox
+
+# Much of this content comes from [[https://css-tricks.com/snippets/css/a-guide-to-flexbox/][css tricks]] https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+
+The traditional CSS layout is crusty and does not work well for responsive design.  =display:inline;= is great for vertical layouts and =display:block;= is great for horizontal layouts.  But you can't mix and match both well, nor do these designs work well when the width and height of sections of your page are dynamic.  With flexbox, one can create layouts that are designed to expand and contract depending on the device used, or as the browser page is manually adjusted.
+
+To use flexbox, you need a parent container (flex container) and a child or children element/s.
+
+The flex container can either be vertically or horizontally based.  You can even specify the direction that the browser draws the elements on the screen.  So not only can you specify a vertical top down layout like this:
+
+#+BEGIN_EXAMPLE
+<div>1</div>
+<div>2</div>
+<div>2</div>
+#+END_EXAMPLE
+
+ | 1 |
+ | 2 |
+ | 3 |
+
+ You can also specify that the elements appear from the bottom up like this:
+
+#+BEGIN_EXAMPLE
+<div>1</div>
+<div>2</div>
+<div>2</div>
+#+END_EXAMPLE
+
+ | 3 |
+ | 2 |
+ | 1 |
+
+ The same is true for horizontal layouts.  They can look like:
+
+#+BEGIN_EXAMPLE
+<div>1</div>
+<div>2</div>
+<div>2</div>
+#+END_EXAMPLE
+
+ | 1 | 2 | 3 |
+
+ OR
+
+#+BEGIN_EXAMPLE
+<div>1</div>
+<div>2</div>
+<div>2</div>
+#+END_EXAMPLE
+
+| 3 | 2 | 1 |

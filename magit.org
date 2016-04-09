@@ -1,0 +1,51 @@
+
+
+#+TITLE:Magit Cheatsheat
+# The next lines says that I can make 10 levels of headlines, and org will treat those headlines as how to structure the book into
+
+# chapters, then sections, then subsections, then sub-sub-sections, etc.
+#+OPTIONS: H:10
+
+* Introduction to Magit
+Many commands in magit pop up a small buffer prompting you to specify options.  To see the commits for a specific file, in the git status buffer type "l -f <filename>".  Then you will see all of the commits for 1 file! cool!
+* Basic commands
+* magit commands in the status buffer
+
+   - ~$~ will add another buffer that shows you the commands magit is commiting
+
+   - ~s~ on a modified file will stage it
+
+   - ~S~ will stage all modified files
+
+   - ~i~ will add the current file to the project’s git ignore
+
+   - ~u~ will unstage the current modified file
+
+   - ~c c~ will commit your staged changes.  Type in a message in the buffer that appears, and then hit ~C-c C-c~ to close the buffer
+
+   - ~P P~ will push your changes
+
+   - ~F F~ will pull your changes
+
+   - =y= will take you to the branch manager
+
+** history commands
+- ~l r l~ will allow you to see the commits that make two branches differ.  This happens when branch "master" is behind branch "new feature".  You can see the differences between the two branches and cherrypick them.
+- ~a~ will apple the current commit to your current branch.  This allows me to cherry pick changes from one "bug fix" branch to the
+  "master" branch.
+- ~A~ does the same as above, but it tries to automatically commit the changes if there are no merge conflicts.
+- ~v~ will revert the commit.  It will apply the changes made by a commit in reverse.  But you still need to commit the changes.
+- ~.~ toggle mark on a commit
+- ~C-c u~ unmark marked commits
+- ~=~ show the differ between the marked commit and the commit under point
+** Branch Manager commands
+
+   - ~k~ will delete the branch under point
+
+   - ~C-u k~ will force delete a branch under point
+
+   - ~c~  will create a new branch
+
+   - ~r~ renames the branch
+
+   - ~T~ on a local branch changes which remote branch it tracks

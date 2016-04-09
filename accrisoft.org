@@ -1,0 +1,79 @@
+#+TITLE:Accrisoft Cheatsheat
+# The next lines says that I can make 10 levels of headlines, and org will treat those headlines as how to structure the book into
+
+# chapters, then sections, then subsections, then sub-sub-sections, etc.
+#+OPTIONS: H:10
+
+
+* Introduction to Accrisoft
+  Accrisoft is a CMS (Content management System) that is build on php.  It does NOT allow you to upload php files.  In this way,
+  it caters to web designers that do not understand how to include php files.  It tries to manage all of your include files in
+  /layouts/, all of your CSS stylesheet, and by default all of your paths to content are graphics/path/to/your/file.  Ie: if you
+  upload “boy.png” to Accrisoft in the images folder, then the image can be found in graphics/images/boy.png.
+
+  The same is true for all of your js files and bootstrap files.  So if you upload a “bootstrap.min.css” or a “script.js” in the
+  css and js folder respectively, then their paths are “graphics/css/bootstrap.min.css” and “graphics/js/script.js”
+
+  So if your index.php looks like this:
+
+  ~include <?php header.php; ?>~
+  ~Hello world!~
+  ~include <?php footer.php; ?>~
+
+  You have a problem, namely that accrisoft does not let you upload a php file to the server.  You have to turn the header.php
+  into a layout I believe, and then include it.
+
+  More annoying than that, Accrisoft does not allow any of your pages to include php code.  If you try to save a file with php
+  code, Accrisoft will change the php tags to html comments.
+
+  Accrisoft has a blue section and a green section.  The blue section is where a non-developer can include content. The green
+  section is where a developer configures the website.
+
+  Accrisoft has a ~[[Content] ]~ variable.  This variable lets the client insert content on a specific page.
+
+* Layouts
+  Accrisoft’s Layouts are how one designs a webpage.  Page layouts are files that contain html.  These files can then be added
+  into or included by any other webpage.
+
+  There are 4 default page layouts:
+
+  - Home, which determines the home page’s layout
+  - default, which determines the intererior page layouts
+  - landing, is used is a layout that is shown before the actual site is shown.  You could use this as a language selection button
+    or a flash intro.
+  - The default layout determines how the other pages are designed.
+
+  I’ve created a header and a footer layout.  The header and footer layout are inserted in all pages that use them.  A default
+  page might look like this;
+
+
+~[[page.header] ]~
+
+~[[Content] ]~
+
+~[[page.footer] ]~
+
+
+** Layout Modules
+   Freedom allows you to create layout modules, are are tiny html snippets.  Then you can add these layout modules anywhere in
+   your website and the client can edit that content at any time.
+
+** Stylesheets
+   Freedom also lets you create specific classes that the client can apply to various html elements, though I image the client
+   will only do this text.  Consider this example, suppose the client wants a default green bold h1 tag.  To make this possible,
+   in the green screen, click on stylesheets > Blue stylesheet.  Then you can create a custom stylesheet that the client can use
+   in accrisoft What You See Is What You Get editor.  Then the client can type some text in the editor, and to apply the green
+   bold banner to it, he or she can add the style to it, by highlighting the text, and then selecting the style from the Styles
+   drop down menu.
+
+** Modules: Directories
+   Apparently these are a way of storing client’s information and then easily displaying it.  But it sounds like this is for
+   displaying multiple data points on a page.  Like having a list of the latest blog titles.
+
+** Restricting what the client can edit in the blue interface
+
+** Display Types
+   These provide a way to make certain pages unique.  Suppose the client wants a different menu to appear on one page, or certain
+   jQuery to be run on another.  Display types let you handle this.
+
+   Display types can be assigned to a single web page, form, module categories, or to an entire module.

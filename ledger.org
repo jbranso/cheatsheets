@@ -1,0 +1,150 @@
+#+TITLE:Ledger Cheat Sheat
+#+AUTHOR:Joshua Branson
+* Accounting Concepts
+** Double Entry Accounting
+   Ledger is a double entry accounting system.  This means ledger is like the law of thermodymnics.  No energy is ever lost or destroyed.  In the same way no money is ever lost or destroyed.  So in ledger to say that you made $500 from your paycheck, your boss gave you $-500 dollars.
+
+   #+BEGIN_SRC ledger
+     2015/11/25  Paycheck
+         Assets:Checking      $25.00
+         Income:Salary        $-25.00
+   #+END_SRC
+
+
+* Making Transactions
+  Transactions happens when you money either leaves your bank account or enters your bank account. There are several possible
+  initials characters that Ledger must to see when reading a transaction.
+
+  - Date
+    DATE[=EDATE] [*|!] [<CODE>] DESC
+
+    If * follows the date, then it means that the trasaction has cleared.
+    If ! follows the date, it means that the transaction is pending.
+
+    The next line that follows must be
+    ACCOUNT AMOUNT [; NOTE]
+
+  - =
+    An automated transaction
+
+  - ~
+    A periodic transaction.
+
+  - ; # % | * are all comments
+
+  - 'indented ;'
+    If a comment is indented inside a transaction, it is parsed as persistent.   This lets you tags certain types of transactions.
+* Commands
+  - alias
+    alias Dining=Expenses:Entertainment:Dining
+    alias BMovie=Expenses:Entertainment:Bought Movie
+
+  - assert
+    throw an error if something is not met while Ledger runs through this file
+    assert <VALUE EXPRESSION BOOLEAN RESULT>
+
+  - bucket
+    Make one account the default account to balence my checkbook with.  IE, everytime that I make a transaction, I have to
+    have 2 transactions.  So when I buy a movie, the first transaction is a debit on my bank.  The second transaction gives the
+    same amount of money to walmart.
+    Instead of writing
+
+    2011/01/27 Book Store
+    Expenses:Books                       $20.00
+    Assets:Checking                      $-20.00
+
+    2011/12/01 Sale
+    Expenses:Entertainment:Date            $ 30.00
+    Assets:Checking                        $-30.00
+
+    I write
+
+    2011/01/27 Book Store
+    Expenses:Books                       $20.00
+
+    2011/12/01 Sale
+    Expenses:Entertainment:Date            $ 30.00
+
+    And ledger is smart enough to know what I mean.
+
+  - capture
+
+    Capture is amazing.  It lets you replace any regexp with an account name.  It's like alias on steroids
+
+    =capture Expenses:Debt:"College Loan"   Debt=
+
+    Now any time I write Debt as an occount, ledger know I'm referring to Expenses:Debt:"College Loan"
+
+  - define
+
+    Let's me define expressions for future use.
+
+    For example, let's say that my rent is currently $500 a month.
+
+    define rent=$500
+
+    2015/05/01  Rent
+    Expenses:Rent    rent
+
+    If sometime later rent changes I can just update the cost of rent
+
+    define rent=$600
+
+    You can also use define variables like
+
+    (rent*2)
+
+  - include
+    Include a stated file as if it were part of the current file.
+    This lets you break up your ledger files into multiple files.  You can break them up by month for example
+
+  - apply tag
+    Let's you apply a certain type of tag for all of the following transactions until and =end apply tag= is found.
+
+              apply tag hastag
+          apply tag nestedtag: true
+
+          2011/01/25 Tom's Used Cars
+              Expenses:Auto                    $ 5,500.00
+              ; :nobudget:
+              Assets:Checking
+
+          2011/01/27 Book Store
+              Expenses:Books                       $20.00
+              Liabilities:MasterCard
+
+          end apply tag
+
+          2011/12/01 Sale
+              Assets:Checking:Business            $ 30.00
+              Income:Sales
+
+          end apply tag
+
+     is the equivalent of:
+
+          2011/01/25 Tom's Used Cars
+              ; :hastag:
+              ; nestedtag: true
+              Expenses:Auto                    $ 5,500.00
+              ; :nobudget:
+              Assets:Checking
+
+          2011/01/27 Book Store
+              ; :hastag:
+              ; nestedtag: true
+              Expenses:Books                       $20.00
+              Liabilities:MasterCard
+
+          2011/12/01 Sale
+              ; :hastag:
+              Assets:Checking:Business            $ 30.00
+              Income:Sales
+
+  - year <year>
+    This lets you specify a year for all the following transactions that don't specify one
+
+
+-
+* Stuff Ledger Can Do
+  [[info:Archive%20old%20Records][Archive old Records]]

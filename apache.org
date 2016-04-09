@@ -1,0 +1,7 @@
+#+TITLE:Apache Cheatsheat
+#+AUTHOR:Joshua Branson
+
+* Tell Apache which file postfixes are php code
+  Add the following to /etc/httpd/conf/httpd.conf
+
+  =AddType application/x-httpd-php .php .phtml=

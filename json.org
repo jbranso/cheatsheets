@@ -1,0 +1,35 @@
+JSON  (Javascript Object Notation)
+
+* What is it?
+  JSON is a subset of javascript that lets you an object’s members and vaules as well as all of its children’s members and
+  values. The values that JSON can specify are:
+** a number
+** a string
+** a boolean (true or false)
+** an array (in square brackets)
+** an object (in curly braces)
+** null
+* Basic example of syntax
+** Create an object with lots of members with curly brackets {}:
+   var person = {
+   “firstName” : “John”,
+   “lastName”  : “Doe”,
+   “height”    : “6”,
+   “single”    : true,
+   “pet”       : null
+   }
+
+   person.firstName --> “John”
+   person.pet       -->  null
+** Create an object with members and a child array with brackets [];
+   var teacher = {
+   “name”   : “Mr. Boss”,
+   “classSize” : “20”,
+   “students” : [
+         “student1” : “Greg”,
+         “student2” : “Jane”
+   ]
+   }
+
+   teacher.name  --> “Mr. Boss”
+   teacher.students[0].student1 --> “Greg”

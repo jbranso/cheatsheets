@@ -1,0 +1,30 @@
+#+AUTHOR: Joshua Branson
+
+* Pacman CheatSheat
+
+ Pacman is Arch GNU/Linux's [fn:1] official package manager.  It is written in C and it's pretty rad.
+
+** Common Commands
+- =pacman -Syu=
+  upgrade all outdated packages
+- =pacman -S <package name> [<package name> [<package name> [ ... ]]]= a package
+-
+
+** Common Problems
+
+*** Failed to commit transaction package: /path/to/file exists in the filesystem
+
+# this came from https://wiki.archlinux.org/index.php/Pacman#pacman_crashes_during_an_upgrade
+#+BEGIN_SRC org
+  Why this is happening: pacman has detected a file conflict, and by design, will not overwrite files for you. This is a design feature, not a flaw.
+
+  The problem is usually trivial to solve. A safe way is to first check if another package owns the file (pacman -Qo /path/to/file). If the file is owned by another package, file a bug report. If the file is not owned by another package, rename the file which 'exists in filesystem' and re-issue the update command. If all goes well, the file may then be removed.
+
+  If you had installed a program manually without using pacman or a frontend, for example through make install, you have to remove it and all its files and reinstall properly using pacman. See also Pacman tips#Identify files not owned by any package.
+
+  Every installed package provides a /var/lib/pacman/local/$package-$version/files file that contains metadata about this package. If this file gets corrupted, is empty or goes missing, it results in file exists in filesystem errors when trying to update the package. Such an error usually concerns only one package. Instead of manually renaming and later removing all the files that belong to the package in question, you may exceptionally run pacman -S --force $package to force pacman to overwrite these files.
+
+#+END_SRC
+* Footnotes
+
+[fn:1] The Official name is Arch Linux, but I prefer to call it Arch GNU/Linux, to respect the hard word that GNU put into creating the GNU/Linux operating system.  For more information, you can check out: [[https://www.gnu.org/gnu/why-gnu-linux.html%20][What's in a Name?]]  and [[https://www.gnu.org/gnu/gnu-linux-faq.html][GNU/Linux FAQ]].

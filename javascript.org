@@ -1,0 +1,22 @@
+* Javascript manual
+** Objects and functions
+   Suppose, you have an object declared like this
+   var person = {
+   height : 6,
+   weight : 200,
+   change : function () {
+   this.height = 5;
+   }
+   }
+
+   When you first make this object like this:
+
+   var joshua = new person();
+
+   Then Joshua starts with a height of 6. But when you call his change method:
+
+   joshua.change();
+
+   Joshua’s height is now 5. So,
+
+   joshua.height will evaluate to 5.

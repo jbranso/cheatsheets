@@ -1,0 +1,101 @@
+#+AUTHOR: Joshua Branson
+#+TITLE: Common Networking Programs
+* Inetutils Cheatsheet
+This cheatsheet covers some of the basics of the GNU OS.  It is based on the inetutils manual.
+
+** Common Options
+ All programs accept
+
+ - =--help=
+
+ - =--usage=
+   how to use the program
+ - =--version=
+   the version number
+
+** Exit Status
+ Almost all programs have an exit status of 0 to mean success.
+ non-0 means failure.
+
+
+** dnsdomainname
+ will show the you the domain part of the fully qualified domain name.
+
+** hostname
+
+hostname [option]
+hostname NAME
+
+- =-d= get the domain name
+- =-f= fully qualified domain name
+- =-i= get the IP address
+
+get the hostname
+
+** traceroute [option] HOST
+[[info:inetutils#traceroute%20invocation][info:inetutils#traceroute invocation]]
+
+- =-f NUM=
+  make the package that you are sending not report information on the NUM of routers closest to you.
+  So if you know that there are 10 routers between you and the remote, this makes the package ignore the
+  first NUM routers
+
+- =-g GATES=
+  I can specify which gateways I want to send my package through.  The gates are specified by their hostname, IP address, and are seperated by commas, semicolans, or spaces.  At most 8 may be specified
+
+- =-I=
+  Use ICMP ECHO datagrams for probing the remote host
+
+- =-m NUM=
+ set the maximum time to live allowed for probing.  In other words stop probing when the hop distance is in excess of NUM.
+
+- M METHOD
+  Use either icmp or udp as the method to transfer packets
+
+-p PORT
+ set the destination of the target port
+
+ --resolve-hostnames
+ Attempt to resolve all addresses as hostnames
+
+** ftp [OPTION...] [HOST [PORT]]
+Once you are connected several commands become available
+- ls print dir on remote machine
+- lpwd pwd on local
+- cd change directory or the remote
+- lcd change directory on the local
+- get remote-file [local file]
+- put local-file [remote file]
+
+** rcp
+Copy files between remote machines
+
+** rexec
+Perhaps I could use this save files on a remote machine with ftp
+execute a program on a remote machine
+rexec --user=LOGIN --password=PASS --host=HOST [OPTION] COMMAND
+
+** rlogin
+ login to a remote server
+
+** rsh
+ executes commands on a remote host and copies the local stdin to that of the remote commands.  It also takes the remote standard output and makes it the local input!
+
+ And I can do this
+
+ #+BEGIN_SRC sh
+ ln -s $(which rsh) HOSTNAME
+ HOSTNAME ls
+ #+END_SRC
+
+
+Afterwards, HOSTNAME will be passed to 'rsh' as host name whenever the
+command HOSTNAME is issued.
+
+** talk PERSON [ttyname]
+
+ If you wish to talk to someone on your machine, the person is just the username of the person on your machine, if the person is on a different machine then use username@host
+
+ ttyname is typically of the form ttyXX
+
+** tftp

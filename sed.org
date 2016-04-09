@@ -1,0 +1,239 @@
+#+TITLE:Emacs Cheatsheat
+#+AUTHOR: Joshua Branson
+
+* Sed cheatsheat
+sed SCRIPT file
+sed [options] SCRIPT file
+** sed flags
+*** -n do not print out each line.  This means sed only prints things when it sees the p command.
+*** -r use extended regexps
+** Some sed example
+*** weird example
+#+BEGIN_SRC sh :dir ~/ :results output
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{print $1}' -
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+avahi-daemon.service
+avahi-dnsconfd.service
+console-getty.service
+console-shell.service
+gssproxy.service
+nscd.service
+serial-getty@.service
+systemd-bootchart.service
+systemd-journal-upload.service
+systemd-networkd-wait-online.service
+systemd-networkd.service
+systemd-nspawn@.service
+systemd-resolved.service
+udisks2.service
+avahi-daemon.socket
+sshd.socket
+systemd-journal-gatewayd.socket
+systemd-journal-remote.socket
+systemd-networkd.socket
+uuidd.socket
+ctrl-alt-del.target
+exit.target
+halt.target
+kexec.target
+machines.target
+poweroff.target
+reboot.target
+rescue.target
+fstrim.timer
+pacman_keyring.timer
+#+end_example
+*** make sed print out lines matching a regexp
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*" | sed -nr '/system/ p'
+#+END_SRC
+
+#+RESULTS:
+: Mar 30 07:49:51 parabola systemd-journald[168]: Runtime journal (/run/log/journal/) is 8.0M, max 184.7M, 176.7M free.
+: Mar 30 07:49:52 parabola systemd-journald[168]: System journal (/var/log/journal/) is 62.5M, max 50.0M, 0B free.
+: Mar 30 07:49:52 parabola systemd-journald[168]: Time spent on flushing to /var is 1.103ms for 2 entries.
+*** make sed print out a numbered line
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*" | sed -nr '1 p'
+#+END_SRC
+
+#+RESULTS:
+: -- Logs begin at Tue 2016-03-29 15:07:04 EDT, end at Wed 2016-03-30 08:01:28 EDT. --
+*** make sed print out lines 1-10 and matching regexps
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*" | sed -nr '1,10 p
+/cgroup/ p
+/linux/ p'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Tue 2016-03-29 15:07:04 EDT, end at Wed 2016-03-30 08:16:08 EDT. --
+Mar 30 07:49:51 parabola systemd-journald[168]: Runtime journal (/run/log/journal/) is 8.0M, max 184.7M, 176.7M free.
+Mar 30 07:49:52 parabola systemd-journald[168]: System journal (/var/log/journal/) is 62.5M, max 50.0M, 0B free.
+Mar 30 07:49:52 parabola systemd-journald[168]: Time spent on flushing to /var is 1.103ms for 2 entries.
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuset
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuset
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpu
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpu
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuacct
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuacct
+Mar 30 07:49:52 parabola kernel: Linux version 4.4.6-gnu-1 (builduser@emulatorman-pn) (gcc version 5.3.0 (GCC) ) #1 SMP PREEMPT Tue Mar 22 19:10:53 UYT 2016
+Mar 30 07:49:52 parabola kernel: Command line: BOOT_IMAGE=/vmlinuz-linux-libre root=UUID=159e1ea0-111c-4d3c-9ec2-c1bcd77e96ca rw quiet
+Mar 30 07:49:52 parabola kernel: Command line: BOOT_IMAGE=/vmlinuz-linux-libre root=UUID=159e1ea0-111c-4d3c-9ec2-c1bcd77e96ca rw quiet
+Mar 30 07:49:52 parabola kernel: x86/fpu: Supporting XSAVE feature 0x01: 'x87 floating point registers'
+#+end_example
+*** make sed select the odd lines
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*" | sed -nr '1~2 p'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Tue 2016-03-29 15:07:04 EDT, end at Wed 2016-03-30 08:03:18 EDT. --
+Mar 30 07:49:52 parabola systemd-journald[168]: System journal (/var/log/journal/) is 62.5M, max 50.0M, 0B free.
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuset
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuacct
+Mar 30 07:49:52 parabola kernel: Command line: BOOT_IMAGE=/vmlinuz-linux-libre root=UUID=159e1ea0-111c-4d3c-9ec2-c1bcd77e96ca rw quiet
+Mar 30 07:49:52 parabola kernel: x86/fpu: Supporting XSAVE feature 0x02: 'SSE registers'
+Mar 30 07:49:52 parabola kernel: x86/fpu: Using 'lazy' FPU context switches.
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000af000000-0x00000000beffffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bf719000-0x00000000bf938fff] ACPI NVS
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bfef9000-0x00000000bfefefff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000d3200000-0x00000000d3200fff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000fec00000-0x00000000fec00fff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000ffc00000-0x00000000ffffffff] reserved
+#+end_example
+*** make sed select the even lines
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*" | sed -nr '2~2 p'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Mar 30 07:49:51 parabola systemd-journald[168]: Runtime journal (/run/log/journal/) is 8.0M, max 184.7M, 176.7M free.
+Mar 30 07:49:52 parabola systemd-journald[168]: Time spent on flushing to /var is 1.103ms for 2 entries.
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpu
+Mar 30 07:49:52 parabola kernel: Linux version 4.4.6-gnu-1 (builduser@emulatorman-pn) (gcc version 5.3.0 (GCC) ) #1 SMP PREEMPT Tue Mar 22 19:10:53 UYT 2016
+Mar 30 07:49:52 parabola kernel: x86/fpu: Supporting XSAVE feature 0x01: 'x87 floating point registers'
+Mar 30 07:49:52 parabola kernel: x86/fpu: Enabled xstate features 0x3, context size is 576 bytes, using 'standard' format.
+Mar 30 07:49:52 parabola kernel: e820: BIOS-provided physical RAM map:
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x0000000000100000-0x00000000aeffffff] usable
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bf000000-0x00000000bf718fff] usable
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bf939000-0x00000000bfef8fff] ACPI data
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bfeff000-0x00000000bfefffff] ACPI data
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000f0000000-0x00000000f3ffffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000fee00000-0x00000000fee00fff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x0000000100000000-0x000000013fffffff] usable
+#+end_example
+*** delete the pattern space
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*"
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Tue 2016-03-29 15:07:04 EDT, end at Wed 2016-03-30 08:16:42 EDT. --
+Mar 30 07:49:51 parabola systemd-journald[168]: Runtime journal (/run/log/journal/) is 8.0M, max 184.7M, 176.7M free.
+Mar 30 07:49:52 parabola systemd-journald[168]: System journal (/var/log/journal/) is 62.5M, max 50.0M, 0B free.
+Mar 30 07:49:52 parabola systemd-journald[168]: Time spent on flushing to /var is 1.103ms for 2 entries.
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuset
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpu
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuacct
+Mar 30 07:49:52 parabola kernel: Linux version 4.4.6-gnu-1 (builduser@emulatorman-pn) (gcc version 5.3.0 (GCC) ) #1 SMP PREEMPT Tue Mar 22 19:10:53 UYT 2016
+Mar 30 07:49:52 parabola kernel: Command line: BOOT_IMAGE=/vmlinuz-linux-libre root=UUID=159e1ea0-111c-4d3c-9ec2-c1bcd77e96ca rw quiet
+Mar 30 07:49:52 parabola kernel: x86/fpu: Supporting XSAVE feature 0x01: 'x87 floating point registers'
+Mar 30 07:49:52 parabola kernel: x86/fpu: Supporting XSAVE feature 0x02: 'SSE registers'
+Mar 30 07:49:52 parabola kernel: x86/fpu: Enabled xstate features 0x3, context size is 576 bytes, using 'standard' format.
+Mar 30 07:49:52 parabola kernel: x86/fpu: Using 'lazy' FPU context switches.
+Mar 30 07:49:52 parabola kernel: e820: BIOS-provided physical RAM map:
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x0000000000100000-0x00000000aeffffff] usable
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000af000000-0x00000000beffffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bf000000-0x00000000bf718fff] usable
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bf719000-0x00000000bf938fff] ACPI NVS
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bf939000-0x00000000bfef8fff] ACPI data
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bfef9000-0x00000000bfefefff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000bfeff000-0x00000000bfefffff] ACPI data
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000d3200000-0x00000000d3200fff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000f0000000-0x00000000f3ffffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000fec00000-0x00000000fec00fff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000fee00000-0x00000000fee00fff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x00000000ffc00000-0x00000000ffffffff] reserved
+Mar 30 07:49:52 parabola kernel: BIOS-e820: [mem 0x0000000100000000-0x000000013fffffff] usable
+#+end_example
+*** do many s commands. NOT WORKING.
+How can I perform more than 1 command on one address?  A sed address is can be a REGEXP or a line number, etc.
+
+#+BEGIN_SRC sh :results output
+journalctl -b | grep -m 30 ".*" | sed -nr '1,10 {p}
+/cgroup/ {p}
+/linux/ {p}
+/BIOS/ {s/BIOS/HELLO/p}'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Tue 2016-03-29 15:07:04 EDT, end at Wed 2016-03-30 08:22:45 EDT. --
+Mar 30 07:49:51 parabola systemd-journald[168]: Runtime journal (/run/log/journal/) is 8.0M, max 184.7M, 176.7M free.
+Mar 30 07:49:52 parabola systemd-journald[168]: System journal (/var/log/journal/) is 62.5M, max 50.0M, 0B free.
+Mar 30 07:49:52 parabola systemd-journald[168]: Time spent on flushing to /var is 1.103ms for 2 entries.
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuset
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuset
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpu
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpu
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuacct
+Mar 30 07:49:52 parabola kernel: Initializing cgroup subsys cpuacct
+Mar 30 07:49:52 parabola kernel: Linux version 4.4.6-gnu-1 (builduser@emulatorman-pn) (gcc version 5.3.0 (GCC) ) #1 SMP PREEMPT Tue Mar 22 19:10:53 UYT 2016
+Mar 30 07:49:52 parabola kernel: Command line: BOOT_IMAGE=/vmlinuz-linux-libre root=UUID=159e1ea0-111c-4d3c-9ec2-c1bcd77e96ca rw quiet
+Mar 30 07:49:52 parabola kernel: Command line: BOOT_IMAGE=/vmlinuz-linux-libre root=UUID=159e1ea0-111c-4d3c-9ec2-c1bcd77e96ca rw quiet
+Mar 30 07:49:52 parabola kernel: x86/fpu: Supporting XSAVE feature 0x01: 'x87 floating point registers'
+Mar 30 07:49:52 parabola kernel: e820: HELLO-provided physical RAM map:
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x0000000000100000-0x00000000aeffffff] usable
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000af000000-0x00000000beffffff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000bf000000-0x00000000bf718fff] usable
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000bf719000-0x00000000bf938fff] ACPI NVS
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000bf939000-0x00000000bfef8fff] ACPI data
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000bfef9000-0x00000000bfefefff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000bfeff000-0x00000000bfefffff] ACPI data
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000d3200000-0x00000000d3200fff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000f0000000-0x00000000f3ffffff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000fec00000-0x00000000fec00fff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000fee00000-0x00000000fee00fff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x00000000ffc00000-0x00000000ffffffff] reserved
+Mar 30 07:49:52 parabola kernel: HELLO-e820: [mem 0x0000000100000000-0x000000013fffffff] usable
+#+end_example
+
+** How sed works
+sed goes through the input line by line, if a line matches a particular condition, then some action is performed.
+** selecting lines with sed
+*** NUMBER
+only select this line number
+*** FIRST~STEP
+select line number at number FIRST, then every following STEP-th number.
+
+ie: 1~2  selects all odd numbered lines
+ie: 2~2  selects all even numbered lines
+ie  5~5  selects all factors of 5
+*** /REGEXP/ match every line that matches that regexp
+** sed commands
+*** =#= comment
+*** =q= exit sed NOW
+*** =d= delete pattern space, start next cycle
+*** =p= print out the pattern space
+*** =s= the substitute command
+s/REGEXP/REPLACEMENT/FLAGS
+
+The most common flag used is "p", which is print.
+*** ={ COMMANDS }= do more than one command on one match

@@ -1,0 +1,279 @@
+#+TITLE: Emacs Lisp Cheat Sheet
+#+AUTHOR: Joshua Branson
+
+* The 3 fundamental Lisp Syntax things
+  1) =(<command> <arg1> <arg2> <arg3>)= means to run command with arguments 1-3.
+  2) ='(<command> <arg1> <arg2> <arg3>)=  is like a quoted string.  The computer does NOT run any command.
+  3) =;= is a comment.  Anything after the =;= on that line will not be interpreted as code by the elisp interpreter.
+* Flow Control/Conditionals
+  - *cond* is the most powerful of the conditionals, which is essentially a switch statement.  It looks like this:
+    #+BEGIN_SRC emacs-lisp
+      (cond
+       ((condition 1) body-forms)
+       ((condition 2) body-forms)
+       ((condition 3) body forms)
+       (t default-body-forms))
+    #+END_SRC
+
+  - *when* is a simple if statement with no attached else.
+    When =COND= is true evaluate the body forms and return the value of the last one, but if COND is not true, return nil.
+    #+BEGIN_SRC emacs-lisp
+    (when COND BODY...)
+  #+END_SRC
+* Buffers
+  - (buffer-name) is the name of the current buffer
+  - (buffer-file-name) is the full path of the current buffer
+  - (current-buffer) returns the full text in the current buffer.
+  - (other-buffer) returns the full text from the last visited buffer.
+  - You can switch to another buffer in emacs with
+    #+BEGIN_SRC emacs-lisp
+     (switch-to-buffer (other-buffer))
+    #+END_SRC
+
+    OR
+
+    #+BEGIN_SRC emacs-lisp
+     (switch-to-buffer (<buffer name>))
+    #+END_SRC
+  - (buffer-size) tells you the size of the current buffer
+  - (point) tells you how many chars are between the beginning of the buffer and point
+* defuns
+  a function definition,
+
+  #+BEGIN_SRC emacs-lisp
+     (defun FUNCTION-NAME (ARGUMENTS…)
+       "OPTIONAL-DOCUMENTATION…"
+       (interactive ARGUMENT-PASSING-INFO)     ; optional
+       BODY…)
+
+  #+END_SRC
+
+  The cool thing about lisp is that you DO NOT need to use (return) to return a value. Instead, the last evaluated form in a defun
+  is what is returned!
+** Sharpquoting
+
+Here is a sharp quote:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-mode-hook #'toggle-word-wrap)
+#+END_SRC
+
+You should only sharp quote something when you are quoting a named function.  This gives the byte compiler more useful information in case of future debugging.  BUT there's no need to sharp quote a lambda expression.  So don't do this:
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mime-html-hook #'(lambda ()
+                                    (org-mime-change-element-style
+                                     "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
+                                                   "#E6E1DC" "#232323"))))
+#+END_SRC
+
+* Data Types
+Lisp Date types are a way of categories each lisp object.  Every object has at least one type, but it can also have more than 1 type.  This is why you can ask if an object is of type =a=, but you cannot ask what type an object is.
+
+Each object in lisp not only stores that object's value, it also stores that objects type/s.  This means that if an object is of type number, then you cannot concatenate a string to it, because lisp knows that that object is a number, NOT a string, which is why this will fail:
+#+BEGIN_SRC emacs-lisp
+  (setq number 5)
+  (print (concat "5" number))
+#+END_SRC
+** Programming types
+*** Sequence Types
+   A sequence in lisp is a set of elements.  It can either be a "list" or a "array".
+
+   A list can hold elements of any type. ie:
+   #+BEGIN_SRC emacs-lisp
+   '(hello '(I am supper cool) '(hello again ) yup that is me)
+   #+END_SRC
+
+   So a list is like a digital shopping list.  The shopping list can have items from ANY store, and it can be nearly infinitely long!
+
+   An array is a fixed length sequence.  If the array can hold any element, then it is a
+   vector array.  A vector array is like a written shopping list, because a written shopping list can only hold soo many items on it.
+
+   Strings just hold characters. So string arrays are like a written novel w/o pictures.  The book can only have words and a written book cannot be infinitely long.
+
+   Bool-vectors are a sequence of t and nil in any order.  So bool vector are like lie detector games where you can only answer yes or no.
+
+   [[info:elisp#Sequence%20Type][info:elisp#Sequence Type]]
+   Char tables are like strings, except they can hold any valid character code like =?\C-t=
+
+   Lists string and arrays share some similiarities.  ie: all have a length L, and all are
+   indexed from 0 to L minus one.
+
+   Also take
+*** integer
+Integers are whole numbers lacking any fractional part.  So the following are all -1
+#+BEGIN_SRC emacs-lisp
+-1
+-1.
+#+END_SRC
+
+and the following are all 1
+#+BEGIN_SRC emacs-lisp
+1
++1
+1.
++1.
+#+END_SRC
+**** some interesting ints
+[[https://www.reddit.com/r/emacs/comments/48je3z/understanding_numbers_in_emacs_internals_int/][reddit]]
+- int is a C signed integer type.
+- EMACS_INT is a typedef in lisp.h - signed integer wide enough to hold an Emacs value. Either int, or long int, or long long int.
+- XINT is a macro for extracting integer. Something like # define lisp_h_XINT(a) (XLI (a) >> INTTYPEBITS). And XLI is # define lisp_h_XLI(o) ((o).i).
+- make_number is # define lisp_h_make_number(n) XIL ((EMACS_INT) (((EMACS_UINT) (n) << INTTYPEBITS) + Lisp_Int0))
+- CHARPOS is #define CHARPOS(POS) (POS).charpos.
+
+*** float
+Floats are for storing numbers that contain fractional parts.  They can be written with an explicit decimal part, or they can be written in scientific notation to be considered a float.
+
+All of the following numbers represent 150.0.
+#+BEGIN_SRC emacs-lisp
+150.0
+15e1
+.15e3
+1500e-1
+#+END_SRC
+
+#+RESULTS:
+: 150.0
+
+*** character types
+
+**** character
+A character is a letter.  Internally elisp stores chars as an integer, so "R" has the value:
+
+#+BEGIN_SRC emacs-lisp
+?R
+#+END_SRC
+
+#+RESULTS:
+: 82
+
+You can also discover the syntax for the special characters.
+
+#+BEGIN_SRC emacs-lisp
+?\(
+?\\
+#+END_SRC
+
+#+RESULTS:
+: 92
+
+#+BEGIN_SRC :exports code
+  ?\a ⇒ 7                 ; control-g, ‘C-g’
+  ?\b ⇒ 8                 ; backspace, <BS>, ‘C-h’
+  ?\t ⇒ 9                 ; tab, <TAB>, ‘C-i’
+  ?\n ⇒ 10                ; newline, ‘C-j’
+  ?\v ⇒ 11                ; vertical tab, ‘C-k’
+  ?\f ⇒ 12                ; formfeed character, ‘C-l’
+  ?\r ⇒ 13                ; carriage return, <RET>, ‘C-m’
+  ?\e ⇒ 27                ; escape character, <ESC>, ‘C-[’
+  ?\s ⇒ 32                ; space character, <SPC>
+  ?\\ ⇒ 92                ; backslash character, ‘\’
+  ?\d ⇒ 127               ; delete character, <DEL>
+#+END_SRC
+
+#+RESULTS:
+
+*** Boolean Values: nil and t
+nil has 3 separate values.  It can mean false, a symbol, and it is the empty list =()=.
+
+t is the boolean value true.  Technically any non-nil value will evaluate to a true value.
+
+For example =(when 5 BODY)= will evaluate the body forms because 5 is non-nil.
+
+#+BEGIN_SRC emacs-lisp :exports both
+  (when 5 (print "hello"))
+
+#+END_SRC
+
+#+RESULTS:
+: hello
+
+BUT =(booleanp 5) produces no output, because 5 is not boolean.
+#+BEGIN_SRC emacs-lisp  :exports both
+(booleanp 5)
+#+END_SRC
+
+#+RESULTS:
+
+*** cons
+A cons cell is an object has two slots the CAR and the CDR.  Each slot can "hold" any lisp object.
+
+(CAR . CDR)
+
+Emacs uses cons cells to link together elements to form lists.
+
+So the list =(a b c d)=
+
+internally looks like =(a . (b . (c . (d . nil))))
+
+*** associated lists
+Associated lists are also alists is a lisp list, where each element is a cons cell.  So for example:
+
+#+BEGIN_SRC emacs-lisp
+  (setq fibanocci-alist
+        '((0 . 1) (1 . 1) (2 . 2) (3 . 3) (4 . 5) (5 . 8)))
+#+END_SRC
+
+In the fibanocci-alist, the CARs of each element in the list, are reference points to each respective values of the list.
+
+If you have experience with C-like languages this is like an array.
+
+# FIXME give a better example.
+#+BEGIN_SRC C
+  char string[5] = "hello";
+  printf ("%d", string[3]);
+#+END_SRC
+
+#+RESULTS:
+: 108
+
+*** symbol
+=foo= and =Foo= are symbols
+*** string
+
+*** vector
+*** hash-table
+A good example of a hash-table is buffer objects like =(current-buffer)=.  Lisp tells you this when you evaluate
+#+BEGIN_SRC emacs-lisp :exports both
+(current-buffer)
+#+END_SRC
+
+#+RESULTS:
+: #<buffer elisp.org>
+
+The syntax #<buffer buffer-name> lets you know that that buffer is a hash table.
+
+*** subr
+*** other special types
+- byte-code function
+** Editing Types
+* let
+  is a special lisp form that lets you define local variables.  Since all variables in lisp are global,
+  you need to be able to say HEY, these variables are local to this defun
+
+  Let looks like
+
+  #+BEGIN_SRC emacs-lisp
+    (let VAR-LIST BODY)
+  #+END_SRC
+
+  http://www.emacswiki.org/emacs/DynamicBindingVsLexicalBinding
+  An interesting example:
+
+  A ‘let’ expression is indeed just “syntatic sugar”, a convenience, for the corresponding ‘lambda’ form:
+
+  #+BEGIN_SRC emacs-lisp
+    (let ((a 1)
+          (b 3))
+      (+ a b))
+
+  #+END_SRC
+
+  is equivalent to:
+
+  #+BEGIN_SRC emacs-lisp
+
+    ((lambda (a b) (+ a b)) 1 3)
+
+  #+END_SRC
