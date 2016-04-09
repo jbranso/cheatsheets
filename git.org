@@ -19,3 +19,23 @@
  - pulling changes from a remote repo and discarding your local changes
    git fetch origin
    git reset --hard origin/[master | tag | branch | commit-id ]
+
+** common tasks
+*** Removing a file from git
+=git rm -r --cached /path/to/file=
+
+Note that this DOES not delete the file.  It only makes git stop keeping track of it, and it removes it completely from the repo.
+To stop git from tracking the file add =/path/to/file= into the =.gitignore= file.
+
+*** push an existing repo to github
+
+Create a repo on github, and don't add a license or a readme.
+
+Go to the directory where you want to create the git repo:
+=git init=
+=touch README.md=
+=touch license=
+=git add README.md=
+=git add license=
+=git remote add origin https://path/to/your/github/account.git=
+=git push -u origin master=
