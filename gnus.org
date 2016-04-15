@@ -78,17 +78,12 @@
      - Su | u  toggles subscription of a usenet group
 *** The Group Buffer
 **** Various commands
-
    - ~m~
      send a new email
-
    - ~n~
      go to the next group that has unread mail
-
    - ~p~
      go to the previous group that has unread mail
-
-   - ~C-c C-a~ to attach a file
    - ~o~ over an attachment will save the file
    - ~Enter~ over an attachment when open the attachment
      On Linux you need to customize ~/.mailcap
@@ -123,6 +118,7 @@
    - =C-u RET= opens all email
    - =A u= lists all groups whether they have unread articles or not.
    - =G S u= sort by number of unread articles
+   - =S l= list the level of the current group. You are reccommeded to keep all of your groups on level 1 or 2 (low).
    - =G S v= sort by group score
    - =C= marked all articles in the buffer (even the ticked ones) as read
    - =c= mark all unticked articles as read
@@ -204,12 +200,9 @@
    - =K o= save the attached MIME part of the email
    - =^= show the parent of the current article
 
-
-
    - =S z= kill zombie groups
    - =c= mark all unticked articles in this group as read
    - =c= mark all articles in this group as read
-   - =S l= list the level of the current group. You are reccommeded to keep all of your groups on level 1 or 2 (low).
    - =G p/c= show the group parameters. p shows you the lisp, c shows you the customize interface.
    - =l= list all groups that have unread articles
    - =A != list groups with ticked articles
@@ -222,23 +215,24 @@
    - =B= browse foriegn server looking for groups
      kind of cool.
      [[info:gnus#Browse%20Foreign%20Server][info:gnus#Browse Foreign Server]]
+   - =T T= toggle showing threads
+   - =T k= kill all articles in the current thread
 **** Pick and Read.  You pick which articles you wish to read before you read them.  Very cool.
      [[info:gnus#Pick%20and%20Read][info:gnus#Pick and Read]]
 
 *** The Article Buffer
 
 **** various commands
+
+   + ~C-c C-a~ to attach a file
    + ~C-c C-m f~
      attach a file
-
    + ~C-c C-m C-s~
      sign the message
-
    + ~C-c C-m C-e~
      encrypt and sign the message
-
    + ~C-c C-m C-c~
-     encrypt the message
+     encrypt the message.  You do NOT have to enter in your password.
 
 **** Hiding Headers
      I could customize Gnus to only show me the author of the email and the subject and hide all other headers

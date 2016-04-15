@@ -437,17 +437,39 @@ ls | grep -m 5 -e ".*org" -
 
 Export specifies what needs to be saved when you export the document
 * Org spreadsheets/tables
-  | Money I earn in a month | Expenses  | Expenses$ | Total |
-  |-------------------------+-----------+-----------+-------|
-  |                    5000 | groceries | $500      |       |
-  |                         | gas       | $200      |       |
-  |                         |           |           |       |
+
+|-------------------------+-----------+-----------+-------|
+| Money I earn in a month | Expenses  | Expenses$ | Total |
+|-------------------------+-----------+-----------+-------|
+|                    2000 | groceries |       500 |       |
+|                     100 | gas       |       200 |       |
+|-------------------------+-----------+-----------+-------|
+|                         |           |       700 |       |
+|-------------------------+-----------+-----------+-------|
+#+TBLFM: $3=@2$3+@3$3
 
 
+One refers to a specific table in org, @ROW$COLUMN.  Sometimes its hard to see the column and row values.  To show these, anywhere in the table type =C-c }=. Typing =C-c }= again, will turn hide the row and column values.  You can add columns fairly easily.  For example, let's sum my expenses for the month: at the bottom of my expenses row, type in ~=@2$3 + @3$3~
+
+
+But let's say that you have lots of expenses.  How can I add a range of values? in the total section under expenses type:
+~=vsum(@2$3..@5$3)~
+|-------------------------+---------------+-----------+-------|
+| Money I earn in a month | Expenses      | Expenses$ | Total |
+|-------------------------+---------------+-----------+-------|
+|                    2000 | groceries     |       500 |       |
+|                     100 | gas           |       200 |       |
+|                     800 | rent          |       450 |       |
+|                      20 | entertainment |        20 |       |
+|-------------------------+---------------+-----------+-------|
+|                         |               |      1170 |       |
+|-------------------------+---------------+-----------+-------|
+#+TBLFM: $3=vsum(@2$3..@5$3)
 
 ** Commands
    - =C-c *= recalculates that table row
-   - =C-{= toggles showing the row and column numbers
+   - =C-}= toggles showing the row and column numbers
+   - =C-{= toggles formula debugging
    - =C-c |= convert the active region to a table
    - =TAB= moves you to the next column
    - =S-TAB= takes you back to the last column

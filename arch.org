@@ -402,7 +402,9 @@ Wed-Sat,Tue 12-10-15 1:2:3 → Tue-Sat 2012-10-15 01:02:03
 #+end_example
 
 ** journal commands
-*** -b show message from this boot
+*** -b show message from this org previous boots
+=journalctl -b= shows messages from this boot
+=journalctl -b -N= shows messages from the nth boot ago
 *** --since="<date> [time]"
 
 #+BEGIN_SRC sh :results output
@@ -490,6 +492,7 @@ journalctl -bu httpd.service
 
 #+RESULTS:
 
+I disabled the avahi daemon.  I do not need it.
 * Networking
 ** creating persistent internet device names
 https://wiki.archlinux.org/index.php/Network_configuration#Change_device_name
@@ -520,7 +523,8 @@ SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="60:33:4b:09:d2:da", NAME="wifi0
 #make my ethernet be
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="60:33:4b:8e:60:d0", NAME="neteth0"
 #+END_SRC
-** creating netctl profiles
+** Using netctl to connect to the internet automatically via wireless and ethernet
+
 https://wiki.archlinux.org/index.php/Netctl#Configuration
 
 Use some of the examples from
@@ -552,9 +556,34 @@ ls /etc/netctl/examples/
 | wireless-wpa-static        |
 
 
+*** Automatic wired connections
+
 =cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/ethernet-dhcp;=
 
- Then you just need to change the device name to your device.
+ Then you just need to change the device name to your device.  Here, I've changed Interface=eth0 to Interface=neteth0
+#+BEGIN_SRC sh :results output
+su
+  cat /etc/netctl/neteth0-dhcp | grep Interface
+#+END_SRC
+
+#+RESULTS:
+: Interface=neteth0
+
+Download and install ifplugd, which is the arch package that handles ethernet connections.
+
+#+BEGIN_SRC sh :results output
+su
+pacman -S ifplugd
+#+END_SRC
+
+#+BEGIN_SRC sh :results output
+su
+systemctl start netctl-ifplugd@neteth0.service
+systemctl enable netctl-ifplugd@neteth0.service
+#+END_SRC
+
+#+RESULTS:
+
 ** Controlling network traffick
 *** nftables is the NEW way of implementing networking rules on your machine:
 One can block all incoming traffic from Facebook, block specified ports, etc.
@@ -946,10 +975,14 @@ killall PROGRAMNAME
 Killall kills all processes with the name PROGRAMNAME.  You might have to run it twice to kill the program successfully.
 
 * Problems I'm trying to solve
-** TODO my ethernet randomly loses connection:
+** DONE my ethernet randomly loses connection:
+CLOSED: [2016-04-15 Fri 07:57]
 :LOGBOOK:
+- State "DONE"       from "TODO"       [2016-04-15 Fri 07:57]
 - State "TODO"       from              [2016-03-29 Tue 19:06]
 :END:
+
+I seemed to be using a bad ethernet cord.  I switched ethernet cords and my laptop now works fine.  BUT  the "bad" ethernet cord is powering my desktop, and it doesn't have a problem staying connected to the internet.  Maybe my laptop is just a wuss at connecting to the internet.
 
 When this happens, I try to see the status of my ethernet device.
 #+BEGIN_SRC sh :results output
@@ -1151,12 +1184,14 @@ systemctl disable reboot.target
 #+END_SRC
 
 #+RESULTS:
-** TODO I have a LOT of systemd services that are failing to start.
+** DONE I have a LOT of systemd services that are failing to start.
+CLOSED: [2016-04-15 Fri 07:59]
 :LOGBOOK:
+- State "DONE"       from "TODO"       [2016-04-15 Fri 07:59]
 - State "TODO"       from              [2016-03-31 Thu 19:00]
 :END:
 
-This thread suggested that I should uninstall laptop mode tools, which I did.
+The problem was laptop mode tools. This thread suggested that I should uninstall laptop mode tools, which I did.
 https://bbs.archlinux.org/viewtopic.php?id=209100
 
 And I uninstalled hdparm.

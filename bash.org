@@ -796,6 +796,17 @@ ip link | grep "2" | awk '{print $2}' | sed -n '1 p'
 #+RESULTS:
 : neteth0:
 
+
+*** Checking on the status of the ifplugd interface
+
+So this is odd.  This command outputs stuff in the terminal, but not here.
+#+BEGIN_SRC sh :results output
+su
+systemctl | grep -m 1 ifplugd | awk '{print $1}' | xargs systemctl status {}
+#+END_SRC
+
+#+RESULTS:
+
 ** Redirection
 
    Redirecting input can be of the form  [n]<word
