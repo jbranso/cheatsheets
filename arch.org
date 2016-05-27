@@ -1,0 +1,1433 @@
+#+Author: Joshua Branson
+#+Title: Arch GNU/Linux CheatSheet
+
+* Change the virtual console keyboard layout
+The virtual console is the "shell" that you use to log into and startx.  The virtual console is started before any graphical interface, and it's implemented in the kernel!!! wow!!!
+
+** temporarily
+loadkeys dvorak
+
+** permanently
+Create the following file with the following content.
+#+BEGIN_SRC sh :results output
+cat /etc/vconsole.conf
+#+END_SRC
+
+#+RESULTS:
+: KEYMAP=dvorak
+
+To see available keymaps =localectl lest-keymaps=
+#+BEGIN_SRC sh :results output
+localectl list-keymaps | egrep -m 10 ".*"
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ANSI-dvorak
+amiga-de
+amiga-us
+applkey
+atari-de
+atari-se
+atari-uk-falcon
+atari-us
+azerty
+backspace
+#+end_example
+
+* Configuring Xorg Settings (keyboard layout)
+You can tweak some of these settings w/ evtest tool
+** change the X keyboard layout & swap caps
+- do it through .xinitrc
+
+  #+BEGIN_SRC sh :results raw
+    cd ~/; cat .xinitrc | grep xkb;
+  #+END_SRC
+
+  #+RESULTS:
+  setxkbmap dvorak
+  setxkbmap -option 'ctrl:swapcaps'
+
+** tweaking X11 settings
+[[https://wiki.archlinux.org/index.php/Touchpad_Synaptics#Frequently_used_options][Frequently Used Options]]
+
+ #+BEGIN_SRC
+ Section "InputClass"
+    Identifier "touchpad"
+    Driver "synaptics"
+    MatchIsTouchpad "on"
+    # You can enable or disable tap buttons
+        Option "TapButton1" "1"
+        Option "TapButton2" "2"
+        Option "TapButton3" "3"
+
+        # disable trackpad whilst typing
+        PalmDetect=1
+        # tweak the minimum amount of touch your palm has to touch to be considered a touch
+        PalmMinWidth=8
+        # tweak the minimum pressure to be considered a palm
+        PalmMinZ=100
+        # scrolling when you slide your finger down the edge of the track pad
+        Option "VertEdgeScroll" "on"
+        Option "VertTwoFingerScroll" "on"
+        Option "HorizEdgeScroll" "on"
+        Option "HorizTwoFingerScroll" "on"
+        Option "CircularScrolling" "on"
+        Option "CircScrollTrigger" "2"
+        Option "EmulateTwoFingerMinZ" "40"
+        Option "EmulateTwoFingerMinW" "8"
+        Option "CoastingSpeed" "0"
+        Option "FingerLow" "35"
+        Option "FingerHigh" "40"
+EndSection
+ #+END_SRC
+*** [[https://wiki.archlinux.org/index.php/Touchpad_Synaptics#Disable_trackpad_while_typing][disable trackpad whilst typing]]
+
+ #+BEGIN_SRC
+ Section "InputClass"
+    Identifier "touchpad"
+    Driver "synaptics"
+    MatchIsTouchpad "on"
+    # You can enable or disable tap buttons
+        Option "TapButton1" "1"
+        Option "TapButton2" "2"
+        Option "TapButton3" "3"
+
+        # disable trackpad whilst typing
+        PalmDetect=1
+        # tweak the minimum amount of touch your palm has to touch to be considered a touch
+        PalmMinWidth=8
+        # tweak the minimum pressure to be considered a palm
+        PalmMinZ=100
+
+EndSection
+ #+END_SRC
+*** disable tapping buttons (lightly touching the mouse, NOT clicking it)
+
+ #+BEGIN_SRC
+ Section "InputClass"
+    Identifier "touchpad"
+    Driver "synaptics"
+    MatchIsTouchpad "on"
+    # You can enable or disable tap buttons
+        Option "TapButton1" "1"
+        Option "TapButton2" "2"
+        Option "TapButton3" "3"
+
+EndSection
+ #+END_SRC
+* auto login at end of boot and auto start x non-graphically
+** [[https://wiki.archlinux.org/index.php/Automatic_login_to_virtual_console][autologin to virtual console]]
+
+/etc/systemd/system/getty@tty1.service.d/override.conf
+
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin USERNAME --noclear %I $TERM
+** [[https://wiki.archlinux.org/index.php/Xinitrc#Autostart_X_at_login][auto start X at login]]
+- Install the xorg-xinit package
+- Add this to the bottom of ~/.bash_profile
+  #+BEGIN_EXAMPLE
+  [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
+  #+END_EXAMPLE
+- Add this to the bottom of your ~/.xinitrc
+  #+BEGIN_EXAMPLE
+  exec WINDOW-manager
+  #+END_EXAMPLE
+
+  It could be
+
+  #+BEGIN_EXAMPLE
+  exec awesome
+  #+END_EXAMPLE
+
+  Or
+  #+BEGIN_EXAMPLE
+  exec gnome-session
+  #+END_EXAMPLE
+
+  Or
+  #+BEGIN_EXAMPLE
+  startkde
+  #+END_EXAMPLE
+
+  If you do not see the desktop environment or window manager of your choice, check the arch wiki page of that environment or window manager.  It will normally tell you how to start it via ~/.xinitrc
+
+* systemd
+Systemd is the init system for Arch GNU/Linux and several other distros.  It replaces SvInit, which is a bash based init system, that is very outdated.  One can use systemd to start various programs on boot.  After boot, one can check the status of those programs, restart them, stop them, or enable new ones to start at boot.
+
+Systemd also comes bundled with a journal called journald.  Journald stores all of its logging information in a binary format, so to query the log, you need to use journald (or write your own piece of software to do it for you).
+** systemd commands
+*** Show the system status
+#+BEGIN_SRC sh :results output
+systemctl status
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+● arch
+    State: degraded
+     Jobs: 0 queued
+   Failed: 7 units
+    Since: Mon 2016-03-28 08:19:13 EDT; 2h 19min ago
+   CGroup: /
+           ├─init.scope
+           │ └─1 /sbin/init
+           ├─system.slice
+           │ ├─dbus.service
+           │ │ └─396 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+           │ ├─mysqld.service
+           │ │ └─376 /usr/bin/mysqld --pid-file=/run/mysqld/mysqld.pid
+           │ ├─nscd.service
+           │ │ └─365 /usr/sbin/nscd
+           │ ├─systemd-journald.service
+           │ │ └─148 /usr/lib/systemd/systemd-journald
+           │ ├─udisks2.service
+           │ │ └─378 /usr/lib/udisks2/udisksd --no-debug
+           │ ├─systemd-resolved.service
+           │ │ └─1489 /usr/lib/systemd/systemd-resolved
+           │ ├─php-fpm.service
+           │ │ ├─23655 php-fpm: master process (/etc/php/php-fpm.conf)
+           │ │ ├─23658 php-fpm: pool www
+           │ │ └─23659 php-fpm: pool www
+           │ ├─gssproxy.service
+           │ │ └─462 /usr/bin/gssproxy -D
+           │ ├─systemd-timesyncd.service
+           │ │ └─353 /usr/lib/systemd/systemd-timesyncd
+           │ ├─systemd-logind.service
+           │ │ └─359 /usr/lib/systemd/systemd-logind
+           │ ├─systemd-networkd.service
+           │ │ └─24152 /usr/lib/systemd/systemd-networkd
+           │ ├─system-getty.slice
+           │ │ └─getty@tty2.service
+           │ │   └─2345 /sbin/agetty --noclear tty2 linux
+           │ ├─systemd-udevd.service
+           │ │ └─201 /usr/lib/systemd/systemd-udevd
+           │ ├─haveged.service
+           │ │ └─363 /usr/bin/haveged -F -w 1024 -v 1
+           │ ├─polkit.service
+           │ │ └─1346 /usr/lib/polkit-1/polkitd --no-debug
+           │ ├─httpd.service
+           │ │ ├─23645 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23651 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23652 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23653 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23654 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23656 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23662 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ ├─23663 /usr/bin/httpd -k start -DFOREGROUND
+           │ │ └─23664 /usr/bin/httpd -k start -DFOREGROUND
+           │ ├─console-getty.service
+           │ │ └─24667 /sbin/agetty --noclear --keep-baud console 115200 38400 9600 linux
+           │ └─rtkit-daemon.service
+           │   └─10365 /usr/lib/rtkit/rtkit-daemon
+           └─user.slice
+             └─user-1000.slice
+               ├─user@1000.service
+               │ ├─gvfs-daemon.service
+               │ │ ├─4283 /usr/lib/gvfs/gvfsd
+               │ │ └─4300 /usr/lib/gvfs/gvfsd-fuse /run/user/1000/gvfs -f -o big_writes
+               │ ├─dbus.service
+               │ │ └─2529 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation
+               │ ├─pulseaudio.service
+               │ │ └─10345 /usr/bin/pulseaudio --daemonize=no
+               │ ├─emacs.service
+               │ │ ├─1667 /usr/bin/emacs --daemon
+               │ │ ├─2305 /usr/sbin/idn --quiet --idna-to-ascii --usestd3asciirules
+               │ │ └─4306 /usr/sbin/aspell -a -m -B --encoding=utf-8
+               │ └─init.scope
+               │   ├─1555 /usr/lib/systemd/systemd --user
+               │   └─1560 (sd-pam)
+               └─session-c3.scope
+                 ├─ 9780 login -- joshua
+                 ├─ 9797 /bin/sh /usr/bin/startx
+                 ├─ 9896 xinit /home/joshua/.xinitrc -- /etc/X11/xinit/xserverrc :1 vt1 -auth /tmp/serverauth.yDxfVOjcSU
+                 ├─ 9897 /usr/lib/xorg-server/Xorg -nolisten tcp :1 vt1 -auth /tmp/serverauth.yDxfVOjcSU
+                 ├─10329 awesome
+                 ├─19718 emacs -nc
+                 ├─19723 iceweasel -P new
+                 ├─19757 /usr/bin/idn --quiet --idna-to-ascii --usestd3asciirules
+                 ├─19813 /usr/bin/aspell -a -m -B --encoding=utf-8
+                 ├─20691 /home/joshua/.emacs.d/elpa/pdf-tools-20160203.1057/epdfinfo
+                 ├─24658 lxterminal
+                 ├─24659 /bin/bash
+                 ├─24681 sh
+                 └─24682 systemctl status
+#+end_example
+
+*** Check on an individual unit
+Let's see if Apache is running.
+#+BEGIN_SRC sh :results output
+systemctl status httpd.service
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+● httpd.service - Apache Web Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2016-03-28 09:28:07 EDT; 1h 11min ago
+  Process: 23639 ExecStop=/usr/bin/httpd -k graceful-stop (code=exited, status=0/SUCCESS)
+ Main PID: 23645 (httpd)
+    Tasks: 9 (limit: 512)
+   CGroup: /system.slice/httpd.service
+           ├─23645 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23651 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23652 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23653 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23654 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23656 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23662 /usr/bin/httpd -k start -DFOREGROUND
+           ├─23663 /usr/bin/httpd -k start -DFOREGROUND
+           └─23664 /usr/bin/httpd -k start -DFOREGROUND
+
+Mar 28 09:28:07 arch systemd[1]: Started Apache Web Server.
+#+end_example
+
+And it is good.
+
+*** stop/start/restart
+#+BEGIN_SRC sh :results output
+su
+systemctl stop httpd
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh
+su
+systemctl start httpd
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC sh
+su
+systemctl restart httpd
+#+END_SRC
+
+#+RESULTS:
+
+*** enable/disable systemd services
+#+BEGIN_SRC sh :results output
+su
+systemctl disable httpd
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results output
+su
+systemctl enable httpd
+#+END_SRC
+
+#+RESULTS:
+*** reload a unit's configuration
+=systemctl reload unit=
+#+BEGIN_SRC sh :results output
+su
+sudo systemctl reload mbsync@.service
+#+END_SRC
+
+#+RESULTS:
+
+** using systemd as a cron replacement
+Systemd's timestamps have the format
+
+[day] [<year>-<month>-<day>] [<hour in military time>:<minutes>:<seconds>]
+
+For example: =Tue 2015-01-03 16:34:42=
+
+Systemd is a much better replacement of using cron jobs!  It gives you some nice logging information about your units.  You can use the following units to refer to time:
+
+- s --> seconds ie: =5s= is 5 seconds
+- m --> minutes ie: =5m= is 5 minutes
+- h --> hours   ie: =5h= is 5 hours
+- d --> days    ie: =5d= is 5 days
+- w --> weeks   ie: =5w= is 5 weeks
+- m --> months  ie: =5m= is 5 months
+- y --> years   ie: =5y= is 5 years
+
+  Systemd's repeating events format is the following:
+
+  [<day of week>[,<another day of the week>][,...]] DAY TIME
+
+  An example of this is:
+  =Thu,Fri 2012-*-1,5 11:12:13=
+
+  This means that at approximately 11:12am of any month in 2012, where it is the 1st or 5th of the month, systemd will execute this unit.  Think of * as the regexp ".*", anything can go inside the "*".
+
+  To clarify systemd's repeating notation let's take a look at some examples:
+
+  =hourly → *-*-* *:00:00=
+  So valid timestamps that this includes are:
+  =2015-01-01=
+  =2015-01-02=
+  =2015-01-03=
+  =2015-02-01=
+  =2015-02-02=
+  =2015-02-03=
+  =2016-02-01=
+  =2016-02-02=
+  =2016-02-03=
+
+  This means that any day of the year this event will take place.  Ok what about at what time?
+  Well valid time stamps include every hour of the day! like these:
+  =*-*-* 06:00:00=
+  =*-*-* 07:00:00=
+  =*-*-* 08:00:00=
+  =*-*-* 10:00:00=
+  =*-*-* 11:00:00=
+  =*-*-* 12:00:00=
+  =*-*-* 18:00:00=
+  So, at every hour, this systemd will trigger this event.
+
+  Let's see what daily means.
+  =daily → *-*-* 00:00:00=
+  Valid timestamps that could fix here include:
+  =2016-01-01 00:00:00=
+  =2016-01-02 00:00:00=
+  =2016-01-03 00:00:00=
+  =2016-02-01 00:00:00=
+  =2016-02-02 00:00:00=
+  =2016-02-03 00:00:00=
+  =2015-02-01 00:00:00=
+  =2015-02-02 00:00:00=
+  =2015-02-03 00:00:00=
+
+  So on any day at midnight, systemd will trigger this event.
+
+
+  Here is a complicated example:
+
+  =mon,fri *-1/2-1,3 *:30:45 → Mon,Fri *-01/2-01,03 *:30:45=
+
+  This means that any Monday or Friday on any year, during January or February, on the 1st or 3rd day,
+
+  Here are some more examples taken from the [[https://www.freedesktop.org/software/systemd/man/systemd.time.html][systemd wiki]].
+  #+begin_example
+     Sat,Thu,Mon-Wed,Sat-Sun → Mon-Thu,Sat,Sun *-*-* 00:00:00
+     Mon,Sun 12-*-* 2,1:23 → Mon,Sun 2012-*-* 01,02:23:00
+                   Wed *-1 → Wed *-*-01 00:00:00
+           Wed-Wed,Wed *-1 → Wed *-*-01 00:00:00
+                Wed, 17:48 → Wed *-*-* 17:48:00
+Wed-Sat,Tue 12-10-15 1:2:3 → Tue-Sat 2012-10-15 01:02:03
+               *-*-7 0:0:0 → *-*-07 00:00:00
+                     10-15 → *-10-15 00:00:00
+       monday *-12-* 17:00 → Mon *-12-* 17:00:00
+ Mon,Fri *-*-3,1,2 *:30:45 → Mon,Fri *-*-01,02,03 *:30:45
+      12,14,13,12:20,10,30 → *-*-* 12,13,14:10,20,30:00
+ mon,fri *-1/2-1,3 *:30:45 → Mon,Fri *-01/2-01,03 *:30:45
+            03-05 08:05:40 → *-03-05 08:05:40
+                  08:05:40 → *-*-* 08:05:40
+                     05:40 → *-*-* 05:40:00
+    Sat,Sun 12-05 08:05:40 → Sat,Sun *-12-05 08:05:40
+          Sat,Sun 08:05:40 → Sat,Sun *-*-* 08:05:40
+          2003-03-05 05:40 → 2003-03-05 05:40:00
+05:40:23.4200004/3.1700005 → 05:40:23.420000/3.170001
+      2003-03-05 05:40 UTC → 2003-03-05 05:40:00 UTC
+                2003-03-05 → 2003-03-05 00:00:00
+                     03-05 → *-03-05 00:00:00
+                    hourly → *-*-* *:00:00
+                     daily → *-*-* 00:00:00
+                 daily UTC → *-*-* 00:00:00 UTC
+                   monthly → *-*-01 00:00:00
+                    weekly → Mon *-*-* 00:00:00
+                    yearly → *-01-01 00:00:00
+                  annually → *-01-01 00:00:00
+                     *:2/3 → *-*-* *:02/3:00
+#+end_example
+
+** journal commands
+*** -b show message from this org previous boots
+=journalctl -b= shows messages from this boot
+=journalctl -b -N= shows messages from the nth boot ago
+*** --since="<date> [time]"
+
+#+BEGIN_SRC sh :results output
+ journalctl --since="2016-03-28 10:42:16"
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Sat 2016-03-26 19:35:43 EDT, end at Mon 2016-03-28 10:43:08 EDT. --
+Mar 28 10:42:27 arch agetty[24813]: checkname failed: Operation not permitted
+Mar 28 10:42:37 arch systemd[1]: console-getty.service: Service has no hold-off time, scheduling restart.
+Mar 28 10:42:37 arch systemd[1]: Stopped Console Getty.
+Mar 28 10:42:37 arch systemd[1]: Started Console Getty.
+Mar 28 10:43:07 arch systemd[1]: Starting Mailbox synchronization service for user joshua...
+Mar 28 10:43:07 arch mbsync[24826]: Reading configuration file /home/joshua/.mbsyncrc
+Mar 28 10:43:07 arch mbsync[24826]: Channel gmail
+Mar 28 10:43:07 arch mbsync[24826]: Opening master store gmail-remote...
+Mar 28 10:43:07 arch mbsync[24826]: Resolving imap.gmail.com...
+Mar 28 10:43:07 arch mbsync[24826]: Error: Cannot resolve server 'imap.gmail.com': Name or service not known
+Mar 28 10:43:07 arch systemd[1]: mbsync@joshua.service: Main process exited, code=exited, status=1/FAILURE
+Mar 28 10:43:08 arch systemd[1]: Failed to start Mailbox synchronization service for user joshua.
+Mar 28 10:43:08 arch systemd[1]: mbsync@joshua.service: Unit entered failed state.
+Mar 28 10:43:08 arch systemd[1]: mbsync@joshua.service: Failed with result 'exit-code'.
+#+end_example
+*** show messages tied to 1 binary
+journalctl "path to binary"
+
+#+BEGIN_SRC sh :results output
+journalctl -b /usr/lib/systemd/systemd-networkd
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Sat 2016-03-26 18:46:19 EDT, end at Mon 2016-03-28 10:46:36 EDT. --
+Mar 28 08:19:29 arch systemd-networkd[1093]: Enumeration completed
+Mar 28 08:19:29 arch systemd-networkd[1093]: neteth0: Renamed to eth0
+Mar 28 08:19:29 arch systemd-networkd[1093]: eth0: Renamed to neteth0
+Mar 28 08:19:29 arch systemd-networkd[1093]: wifi0: Renamed to wlan0
+Mar 28 08:19:29 arch systemd-networkd[1093]: wlan0: Renamed to wifi0
+Mar 28 08:19:29 arch systemd-networkd[1093]: neteth0: Gained carrier
+Mar 28 08:19:30 arch systemd-networkd[1093]: neteth0: DHCPv4 address 172.16.112.126/22 via 172.16.112.1
+Mar 28 08:19:30 arch systemd-networkd[1093]: neteth0: Gained IPv6LL
+Mar 28 08:19:43 arch systemd-networkd[1093]: neteth0: Starting DHCPv6 client after NDisc timeout failed: Invalid argument
+Mar 28 08:19:43 arch systemd-networkd[1093]: neteth0: Configured
+Mar 28 09:28:58 arch systemd-networkd[1093]: neteth0: Lost carrier
+Mar 28 09:28:58 arch systemd-networkd[1093]: neteth0: DHCP lease lost
+Mar 28 09:38:55 arch systemd-networkd[23979]: neteth0: Gained IPv6LL
+Mar 28 09:38:55 arch systemd-networkd[23979]: Enumeration completed
+Mar 28 09:38:55 arch systemd-networkd[23979]: neteth0: Could not drop address: No such process
+Mar 28 09:39:23 arch systemd-networkd[24007]: neteth0: Gained IPv6LL
+Mar 28 09:39:23 arch systemd-networkd[24007]: Enumeration completed
+Mar 28 09:39:23 arch systemd-networkd[24007]: neteth0: Could not drop address: No such process
+Mar 28 09:50:43 arch systemd-networkd[24078]: neteth0: Gained IPv6LL
+Mar 28 09:50:43 arch systemd-networkd[24078]: Enumeration completed
+Mar 28 09:50:43 arch systemd-networkd[24078]: neteth0: Could not drop address: No such process
+Mar 28 09:51:07 arch systemd-networkd[24152]: neteth0: Gained IPv6LL
+Mar 28 09:51:07 arch systemd-networkd[24152]: Enumeration completed
+Mar 28 09:51:07 arch systemd-networkd[24152]: neteth0: Could not drop address: No such process
+#+end_example
+*** filter by process id
+#+BEGIN_SRC sh :results output
+ps -e | grep httpd
+#+END_SRC
+
+#+RESULTS:
+: 24738 ?        00:00:00 httpd
+: 24740 ?        00:00:00 httpd
+: 24741 ?        00:00:00 httpd
+: 24742 ?        00:00:00 httpd
+: 24743 ?        00:00:00 httpd
+: 24744 ?        00:00:00 httpd
+
+Let's see any logs from pid 24738
+#+BEGIN_SRC sh :results ouput
+journalctl -b _PID=24738
+#+END_SRC
+
+#+RESULTS:
+: -- No entries --
+*** filter by unit
+
+#+BEGIN_SRC sh :results output
+journalctl -bu httpd.service
+#+END_SRC
+
+#+RESULTS:
+
+I disabled the avahi daemon.  I do not need it.
+* Networking
+** creating persistent internet device names
+https://wiki.archlinux.org/index.php/Network_configuration#Change_device_name
+
+When you first start your computer your internet device names will be odd like this:
+
+#+BEGIN_SRC sh :results raw
+ip link
+#+END_SRC
+
+#+RESULTS:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp0s1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+3: wlanp01: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 60:33:4b:09:d2:da brd ff:ff:ff:ff:ff:ff
+
+To fix this, just create some default rules that use the devices MAC address to name it something readable.
+
+#+BEGIN_SRC sh export:code
+  cat /etc/udev/rules.d/10-network.rules;
+#+END_SRC
+
+#+BEGIN_SRC
+# make my wifi be named wifi0
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="60:33:4b:09:d2:da", NAME="wifi0"
+#make my ethernet be
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="60:33:4b:8e:60:d0", NAME="neteth0"
+#+END_SRC
+** Using netctl to connect to the internet automatically via wireless and ethernet
+
+https://wiki.archlinux.org/index.php/Netctl#Configuration
+
+Use some of the examples from
+
+#+BEGIN_SRC sh
+ls /etc/netctl/examples/
+#+END_SRC
+
+#+RESULTS:
+| bonding                    |
+| bridge                     |
+| ethernet-custom            |
+| ethernet-dhcp              |
+| ethernet-static            |
+| macvlan-dhcp               |
+| macvlan-static             |
+| mobile_ppp                 |
+| openvswitch                |
+| pppoe                      |
+| tunnel                     |
+| tuntap                     |
+| vlan-dhcp                  |
+| vlan-static                |
+| wireless-open              |
+| wireless-wep               |
+| wireless-wpa               |
+| wireless-wpa-config        |
+| wireless-wpa-configsection |
+| wireless-wpa-static        |
+
+
+*** Automatic wired connections
+
+=cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/ethernet-dhcp;=
+
+ Then you just need to change the device name to your device.  Here, I've changed Interface=eth0 to Interface=neteth0
+#+BEGIN_SRC sh :results output
+su
+  cat /etc/netctl/neteth0-dhcp | grep Interface
+#+END_SRC
+
+#+RESULTS:
+: Interface=neteth0
+
+Download and install ifplugd, which is the arch package that handles ethernet connections.
+
+#+BEGIN_SRC sh :results output
+su
+pacman -S ifplugd
+#+END_SRC
+
+#+BEGIN_SRC sh :results output
+su
+systemctl start netctl-ifplugd@neteth0.service
+systemctl enable netctl-ifplugd@neteth0.service
+#+END_SRC
+
+#+RESULTS:
+
+** Controlling network traffick
+*** nftables is the NEW way of implementing networking rules on your machine:
+One can block all incoming traffic from Facebook, block specified ports, etc.
+*** IPTables is the OLD way of implementing networking rules on your machine.
+With it you can block all incoming data from facebook, a specified port, etc.
+**** If you totally screw up your iptables, you can change them back to the default [[https://wiki.archlinux.org/index.php/Iptables#Resetting_rules][values]]:
+I tried to set up the simple stateful firewall, but then my internet would randomly go down.
+So I'm guessing that whoever made that firewall on the wiki didn't really know what they were doing.  Anyway,
+the next time that you try to do the simple stateful firewall, you can always put the system back to the way that it was with the following script:
+
+#+BEGIN_SRC sh :results output
+  su
+    iptables -F
+    iptables -X
+    iptables -t nat -F
+    iptables -t nat -X
+    iptables -t mangle -F
+    iptables -t mangle -X
+    iptables -t raw -F
+    iptables -t raw -X
+    iptables -t security -F
+    iptables -t security -X
+    iptables -P INPUT ACCEPT
+    iptables -P FORWARD ACCEPT
+    iptables -P OUTPUT ACCEPT
+    iptables-save > /etc/iptables/iptables.rules
+    cat /etc/iptables/iptables.rules
+    systemctl restart iptables
+    ip link set neteth0 up
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# Generated by iptables-save v1.4.21 on Fri Mar 25 17:11:35 2016
+*security
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+# Completed on Fri Mar 25 17:11:35 2016
+# Generated by iptables-save v1.4.21 on Fri Mar 25 17:11:35 2016
+*raw
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+# Completed on Fri Mar 25 17:11:35 2016
+# Generated by iptables-save v1.4.21 on Fri Mar 25 17:11:35 2016
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+# Completed on Fri Mar 25 17:11:35 2016
+# Generated by iptables-save v1.4.21 on Fri Mar 25 17:11:35 2016
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+COMMIT
+# Completed on Fri Mar 25 17:11:35 2016
+# Generated by iptables-save v1.4.21 on Fri Mar 25 17:11:35 2016
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+# Completed on Fri Mar 25 17:11:35 2016
+#+end_example
+
+You can then check the state of the device via:
+#+BEGIN_SRC sh :results output
+ip link
+#+END_SRC
+
+#+RESULTS:
+: 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1
+:     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+: 2: neteth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+: 3: wifi0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:09:d2:da brd ff:ff:ff:ff:ff:ff
+
+Now don't think that this is the typical output.  I've personally [[https://wiki.archlinux.org/index.php/Network_configuration#Check_the_device_name][renamed my internet devices,]] so your names might look different.
+Your wifi device is probably starts with a "w" and the ethernet with a "e".
+
+
+#+BEGIN_SRC sh :results output
+ip link show dev neteth0
+#+END_SRC
+
+#+RESULTS:
+: 2: neteth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+
+If you see "state UP", then the device is connected!
+
+If you see "state DOWN", then the device is not connected.
+**** simple state firewall
+#+BEGIN_SRC sh :results output
+cat /etc/iptables/iptables.rules.backup
+
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# Generated by iptables-save v1.4.21 on Fri Mar 25 10:32:59 2016
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:TCP - [0:0]
+:UDP - [0:0]
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+-A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+-A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+-A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+-A INPUT -p tcp -j REJECT --reject-with tcp-reset
+-A INPUT -j REJECT --reject-with icmp-proto-unreachable
+-A TCP -p tcp -m tcp --dport 80 -j ACCEPT
+-A TCP -p tcp -m tcp --dport 443 -j ACCEPT
+-A UDP -p udp -m udp --dport 53 -j ACCEPT
+COMMIT
+# Completed on Fri Mar 25 10:32:59 2016
+#+end_example
+
+** Apache
+** Mariadb
+*** Unable to get the mariadb daemon to start
+    #+BEGIN_SRC sh
+      sudo systemctl start mysqld.service
+    #+END_SRC
+
+    # FIXME the command for this is on the arch wiki
+    You might try a:
+
+    #+BEGIN_SRC sh
+      mysql_update_root -p
+    #+END_SRC
+** enabling and disabling network interfaces (turning on/off wifi and ethernet)
+
+#+BEGIN_SRC sh :results raw
+  ip addr show
+#+END_SRC
+
+#+RESULTS:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: neteth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+    inet 172.16.112.114/22 brd 172.16.115.255 scope global neteth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::6233:4bff:fe8e:60d0/64 scope link
+       valid_lft forever preferred_lft forever
+3: wifi0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 60:33:4b:09:d2:da brd ff:ff:ff:ff:ff:ff
+
+#+BEGIN_SRC sh
+  su
+  ip link set neteth0 up
+#+END_SRC
+
+#+RESULTS:
+** openDNS.  Changing your DNS server:
+   To use alternative DNS servers, edit /etc/resolv.conf and add them to the top of the file so they are used first,
+   optionally removing or commenting out already listed servers.
+   https://wiki.archlinux.org/index.php/Resolv.conf#Preserve_DNS_settings
+** ip
+ip is the new command to configure your network connections.
+
+** Show your internet devices:
+
+#+BEGIN_SRC sh :results output
+ip addr show
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: neteth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::6233:4bff:fe8e:60d0/64 scope link
+       valid_lft forever preferred_lft forever
+3: wifi0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 60:33:4b:09:d2:da brd ff:ff:ff:ff:ff:ff
+#+end_example
+
+
+** See the status for just 1 device, and you can see that the device "neteth0", which is my ethernet card, is not connected to the internet.  I know that because I see =state DOWN=.
+#+BEGIN_SRC sh :results output
+ip link show dev neteth0
+#+END_SRC
+
+#+RESULTS:
+: 2: neteth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+** set a device UP or DOWN
+
+#+BEGIN_SRC sh
+su
+ip link set neteth0 up
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh
+su
+ip link set neteth0 down
+#+END_SRC
+
+#+RESULTS:
+
+* Apache
+** getting .phtml files to run as php code and php-fpm
+
+php-fpm is a module for apache that runs php code super fast.  To let phtml code to run you'll need to follow [[https://wiki.archlinux.org/index.php/Apache_HTTP_Server#Using_php-fpm_and_mod_proxy_fcgi][this]] guide, but change =etc/httpd/conf/extra/php-fpm.conf= to
+
+#+BEGIN_SRC html
+<FilesMatch \.ph[phtml].*$>
+    SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://localhost/"
+</FilesMatch>
+<Proxy "fcgi://localhost/" enablereuse=on max=10>
+</Proxy>
+<IfModule dir_module>
+    DirectoryIndex index.php index.html
+</IfModule>
+#+END_SRC
+
+You may also need to uncomment the following line in =/etc/php/php-fpm.d/www.conf= and add ".phtml"
+
+#+BEGIN_SRC sh :results output
+cat /etc/php/php-fpm.d/www.conf | grep -B 6 "phtml"
+#+END_SRC
+
+#+RESULTS:
+: ; Limits the extensions of the main script FPM will allow to parse. This can
+: ; prevent configuration mistakes on the web server side. You should only limit
+: ; FPM to .php extensions to prevent malicious users to use other extensions to
+: ; exectute php code.
+: ; Note: set an empty value to allow all extensions.
+: ; Default Value: .php
+: security.limit_extensions = .php .phtml
+
+
+Then you will have to restart httpd and php-fpm
+#+BEGIN_SRC sh
+  su
+  systemctl restart httpd
+  systemctl restart php-fpm
+#+END_SRC
+
+#+RESULTS:
+** localhost and localhost/waypoint/ibca show nothing
+If your local running php files are not working.  What could be wrong?
+*** Enable the httpd, mysql, and php-fpm services, and start/restart them.
+#+BEGIN_SRC sh
+su
+systemctl enable httpd
+systemctl enable mysql
+systemctl enable php-fpm
+systemctl start httpd
+systemctl start mysql
+systemctl start php-fpm
+systemctl restart httpd
+systemctl restart mysql
+systemctl restart php-fpm
+#+END_SRC
+
+#+RESULTS:
+*** Permissions error?
+Your browser will usually tell you if you do not have permission to access the page.  That is how you will know that you have a permissions error.
+
+Apache runs as user "http" and serves the files from /http/.  Perhaps your files do not have the correct permissions?
+I have my html in ~/programming/waypoint, but I've created a symlink from /srv/http/ to ~/programming/waypoint.  That is why you see the lots of "->" in the next command.  "->" means symlink.
+
+#+BEGIN_SRC sh :results output
+ls -lh /srv/http
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+total 28K
+-rwxr-xr-x 1 root   root    0 Jan 15  2015 #_asudo_broot@arch_b_asrv_ahttp_aindex.php#
+drwxr-xr-x 5 root   root 4.0K Jan 15  2015 bs3.3
+lrwxrwxrwx 1 joshua 1000   39 Mar  4  2015 dad_site -> /home/joshua/programming/html/dad_site/
+-rwxr-xr-x 1 joshua 1000    0 Apr 21  2015 hello
+-rwxr-xr-x 1 joshua root  343 Jan 13 09:36 index.php
+lrwxrwxrwx 1 joshua 1000   42 Feb 21  2015 kill-em-all -> /home/joshua/programming/html/kill-em-all/
+lrwxrwxrwx 1 joshua root   48 Jan 21  2015 my-site -> /home/joshua/programming/html/purdue_site/site1/
+lrwxrwxrwx 1 joshua 1000   43 Feb 25  2015 phaser-games -> /home/joshua/programming/html/phaser-games/
+lrwxrwxrwx 1 joshua 1000   29 May  3  2015 php -> /home/joshua/programming/php/
+lrwxrwxrwx 1 joshua 1000   36 Mar  7  2015 piano -> /home/joshua/programming/html/piano/
+drwxr-sr-x 9 joshua 1000 4.0K Apr 10  2015 shania
+lrwxrwxrwx 1 joshua 1000   32 Feb  6  2015 soihub -> /home/joshua/programming/soihub/
+-rwxr-xr-x 1 joshua root  284 Jan 15  2015 style.css
+-rwxr-xr-x 1 root   root 3.6K Jan 15  2015 _template-bottom.php
+-rwxr-xr-x 1 root   root 2.4K Jan 15  2015 _template-top.php
+-rwxr-xr-x 1 joshua root 2.8K Feb  6  2015 test.php
+lrwxrwxrwx 1 joshua 1000   34 Apr 15  2015 waypoint -> /home/joshua/programming/waypoint/
+#+end_example
+
+#+BEGIN_SRC sh :results output
+ls -lh ~/programming/ | grep waypoint
+#+END_SRC
+
+#+RESULTS:
+: drwxrwx--- 21 joshua http 4.0K Mar 22 19:16 waypoint
+
+You can see that the owner is "joshua" and the group is "http".
+** [WARNING] [pool www] server reached pm.max_children setting (5), consider raising it
+Arch GNU/Linux configuration is located in =/etc/php/php-fpm.d/www.conf=, and pm.max_children is
+
+
+    The number of child processes to be created when pm is set to static and the maximum number of child processes to be created when pm is set to dynamic. This option is mandatory.
+
+    This option sets the limit on the number of simultaneous requests that will be served. Equivalent to the ApacheMaxClients directive with mpm_prefork and to the PHP_FCGI_CHILDREN environment variable in the original PHP FastCGI.
+
+    You can read more [[http://www.php.net/manual/en/install.fpm.configuration.php][here]].
+
+
+
+
+
+    #+BEGIN_SRC sh :results output
+    cat /etc/php/php-fpm.d/www.conf | grep "pm.max_children" -A 5 -B 3
+    #+END_SRC
+
+    #+RESULTS:
+    #+begin_example
+
+    ; Choose how the process manager will control the number of child processes.
+    ; Possible Values:
+    ;   static  - a fixed number (pm.max_children) of child processes;
+    ;   dynamic - the number of child processes are set dynamically based on the
+    ;             following directives. With this process management, there will be
+    ;             always at least 1 children.
+    ;             pm.max_children      - the maximum number of children that can
+    ;                                    be alive at the same time.
+    ;             pm.start_servers     - the number of children created on startup.
+    ;             pm.min_spare_servers - the minimum number of children in 'idle'
+    ;                                    state (waiting to process). If the number
+    ;                                    of 'idle' processes is less than this
+    --
+    ;                                    number then some children will be killed.
+    ;  ondemand - no children are created at startup. Children will be forked when
+    ;             new requests will connect. The following parameter are used:
+    ;             pm.max_children           - the maximum number of children that
+    ;                                         can be alive at the same time.
+    ;             pm.process_idle_timeout   - The number of seconds after which
+    ;                                         an idle process will be killed.
+    ; Note: This value is mandatory.
+    pm = dynamic
+    --
+    ; forget to tweak pm.* to fit your needs.
+    ; Note: Used when pm is set to 'static', 'dynamic' or 'ondemand'
+    ; Note: This value is mandatory.
+    pm.max_children = 7
+
+    ; The number of child processes created on startup.
+    ; Note: Used only when pm is set to 'dynamic'
+    ; Default Value: min_spare_servers + (max_spare_servers - min_spare_servers) / 2
+    pm.start_servers = 2
+#+end_example
+
+* killing programs
+
+The information for killing programs for this program was be found [[http://www.cyberciti.biz/faq/kill-process-in-linux-or-terminate-a-process-in-unix-or-linux-systems/][here.]]
+
+** killall
+killall PROGRAMNAME
+
+Killall kills all processes with the name PROGRAMNAME.  You might have to run it twice to kill the program successfully.
+
+For example to kill all the terminals with:
+#+BEGIN_SRC sh :results output
+killall lxterminal
+#+END_SRC
+
+#+RESULTS:
+
+That command sends the termination signal to all processes with the name "lxterminal".  =killall NAME= is the safest way to kill a non-responsive (or even responsive) program.
+
+BUT, if your program does not shutoff when you execute =killall name=, you can try
+
+#+BEGIN_SRC sh :results output
+killall -SIGHUG NAME
+#+END_SRC
+
+This reloads configuration files and open/closes log files.  I'm not sure if it actually kills the program.
+
+
+If you still can't close the program try:
+#+BEGIN_SRC sh :results output
+killall -SIGKILL
+#+END_SRC
+
+This sends the kill signal.  The program exists as fast as it can, without saving any data.
+
+** kill
+kill <process ID>
+
+kill, kills the process ID.
+
+So suppose I have several firefox instances running.  =killall firefox= would kill every instance of firefox.  I only want to
+kill the nonresponsive firefox.  That's where kill comes it.  It only kills the 1 process ID.
+
+kill PROGRAMNAME
+
+Kill with the name PROGRAMNAME.  You might have to run it twice to kill the program successfully.
+
+For example to kill all the terminals with:
+#+BEGIN_SRC sh :results output
+kill lxterminal
+#+END_SRC
+
+#+RESULTS:
+
+That command sends the termination signal to all processes with the name "lxterminal".  =kill NAME= is the safest way to kill a non-responsive (or even responsive) program.
+
+BUT, if your program does not shutoff when you execute =kill name=, you can try
+
+#+BEGIN_SRC sh :results output
+kill -SIGHUG NAME
+#+END_SRC
+
+This reloads configuration files and open/closes log files.  I'm not sure if it actually kills the program.
+
+
+If you still can't close the program try:
+#+BEGIN_SRC sh :results output
+kill -SIGKILL NAME
+#+END_SRC
+
+This sends the kill signal.  The program exists as fast as it can, without saving any data.
+
+* VLC web interface
+VLC can be controlled by a web browser.
+
+#+BEGIN_SRC sh :results output
+vlc --extraintf=http --http-host 0.0.0.0:8080 --http-password 'YourPasswordHere'
+#+END_SRC
+
+Now navigate to [[http://127.0.0.1:8080][http://127.0.0.1:8080]], and you can manage VLC with your web browser!
+
+Just enter in the password and leave the username blank.
+* Problems I'm trying to solve
+** DONE my ethernet randomly loses connection:
+CLOSED: [2016-04-15 Fri 07:57]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-04-15 Fri 07:57]
+- State "TODO"       from              [2016-03-29 Tue 19:06]
+:END:
+
+I seemed to be using a bad ethernet cord.  I switched ethernet cords and my laptop now works fine.  BUT  the "bad" ethernet cord is powering my desktop, and it doesn't have a problem staying connected to the internet.  Maybe my laptop is just a wuss at connecting to the internet.
+
+When this happens, I try to see the status of my ethernet device.
+#+BEGIN_SRC sh :results output
+su
+ip link show dev neteth0
+#+END_SRC
+
+#+RESULTS:
+: 2: neteth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+
+
+Apparently my ethernet device is currently down.  Ok, let's set it up.
+
+#+BEGIN_SRC sh
+su
+ip link set neteth0 up
+#+END_SRC
+
+#+RESULTS:
+
+Let's see if that turned the device up.
+#+BEGIN_SRC sh :results output
+su
+ip link show dev neteth0
+#+END_SRC
+
+#+RESULTS:
+: 2: neteth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+
+
+Nope the device is still down.  Ok let's see what systemd can tell us.  Let's check on the status of systemd-networkd, which is what I use to configure my dhcp ethernet connection.
+
+#+BEGIN_SRC sh :results output
+su
+systemctl status systemd-networkd
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+● systemd-networkd.service - Network Service
+   Loaded: loaded (/usr/lib/systemd/system/systemd-networkd.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2016-03-28 09:51:07 EDT; 10min ago
+     Docs: man:systemd-networkd.service(8)
+ Main PID: 24152 (systemd-network)
+   Status: "Processing requests..."
+    Tasks: 1 (limit: 512)
+   CGroup: /system.slice/systemd-networkd.service
+           └─24152 /usr/lib/systemd/systemd-networkd
+
+Mar 28 09:51:07 arch systemd[1]: Starting Network Service...
+Mar 28 09:51:07 arch systemd-networkd[24152]: neteth0: Gained IPv6LL
+Mar 28 09:51:07 arch systemd-networkd[24152]: Enumeration completed
+Mar 28 09:51:07 arch systemd-networkd[24152]: neteth0: Could not drop address: No such process
+Mar 28 09:51:07 arch systemd[1]: Started Network Service.
+#+end_example
+
+It looks like networkd is still running, but I don't have internet either.
+
+Well I see an error for =neteth0: Could not drop address: No such process=.  Maybe I can get some more details by consulting the journal.  Let's only show messages from this boot and only showing the logging info from networkd binary.
+
+
+#+BEGIN_SRC sh :results output
+journalctl -b /usr/lib/systemd/systemd-networkd
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-- Logs begin at Sat 2016-03-26 18:46:19 EDT, end at Mon 2016-03-28 10:04:07 EDT. --
+Mar 28 08:19:29 arch systemd-networkd[1093]: Enumeration completed
+Mar 28 08:19:29 arch systemd-networkd[1093]: neteth0: Renamed to eth0
+Mar 28 08:19:29 arch systemd-networkd[1093]: eth0: Renamed to neteth0
+Mar 28 08:19:29 arch systemd-networkd[1093]: wifi0: Renamed to wlan0
+Mar 28 08:19:29 arch systemd-networkd[1093]: wlan0: Renamed to wifi0
+Mar 28 08:19:29 arch systemd-networkd[1093]: neteth0: Gained carrier
+Mar 28 08:19:30 arch systemd-networkd[1093]: neteth0: DHCPv4 address 172.16.112.126/22 via 172.16.112.1
+Mar 28 08:19:30 arch systemd-networkd[1093]: neteth0: Gained IPv6LL
+Mar 28 08:19:43 arch systemd-networkd[1093]: neteth0: Starting DHCPv6 client after NDisc timeout failed: Invalid argument
+Mar 28 08:19:43 arch systemd-networkd[1093]: neteth0: Configured
+Mar 28 09:28:58 arch systemd-networkd[1093]: neteth0: Lost carrier
+Mar 28 09:28:58 arch systemd-networkd[1093]: neteth0: DHCP lease lost
+Mar 28 09:38:55 arch systemd-networkd[23979]: neteth0: Gained IPv6LL
+Mar 28 09:38:55 arch systemd-networkd[23979]: Enumeration completed
+Mar 28 09:38:55 arch systemd-networkd[23979]: neteth0: Could not drop address: No such process
+Mar 28 09:39:23 arch systemd-networkd[24007]: neteth0: Gained IPv6LL
+Mar 28 09:39:23 arch systemd-networkd[24007]: Enumeration completed
+Mar 28 09:39:23 arch systemd-networkd[24007]: neteth0: Could not drop address: No such process
+Mar 28 09:50:43 arch systemd-networkd[24078]: neteth0: Gained IPv6LL
+Mar 28 09:50:43 arch systemd-networkd[24078]: Enumeration completed
+Mar 28 09:50:43 arch systemd-networkd[24078]: neteth0: Could not drop address: No such process
+Mar 28 09:51:07 arch systemd-networkd[24152]: neteth0: Gained IPv6LL
+Mar 28 09:51:07 arch systemd-networkd[24152]: Enumeration completed
+Mar 28 09:51:07 arch systemd-networkd[24152]: neteth0: Could not drop address: No such process
+#+end_example
+
+Well I see that neteth0 was renamed to eth0, then renamed to neteth0 again.  Is that causing an issue?  I see that IPv6 is being used.  How can I shut that off?
+
+I also see that neteth0 lost the carrier.  What does that mean?
+
+I also see that neteth0 could not drop address: No such process.  What does that mean?  Maybe my resolv.conf doesn't have any DHCP servers available. Let's check:
+
+#+BEGIN_SRC sh :results output
+su
+cat /etc/resolv.conf
+#+END_SRC
+
+#+RESULTS:
+: # This file is managed by systemd-resolved(8). Do not edit.
+: #
+: # Third party programs must not access this file directly, but
+: # only through the symlink at /etc/resolv.conf. To manage
+: # resolv.conf(5) in a different way, replace the symlink by a
+: # static file or a different symlink.
+:
+: nameserver 50.116.40.226
+: nameserver 107.150.40.234
+
+Well I have 2 nameservers defined.  I believe those are from OpenDNS or something, NOT the default matchbox ones.
+
+So what is wrong?  Why am I losing my internet connection?
+
+
+Something ping does not work.
+#+BEGIN_SRC sh :results output
+ping -c 5 www.google.com
+#+END_SRC
+
+#+RESULTS:
+: www.google.com Name or service not known
+
+BUT I'm still connected to the internet!??
+#+BEGIN_SRC sh :results output
+ip link show dev neteth0
+#+END_SRC
+
+#+RESULTS:
+: 2: neteth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+:     link/ether 60:33:4b:8e:60:d0 brd ff:ff:ff:ff:ff:ff
+** DONE make mbsync sync every 5 minutes
+CLOSED: [2016-03-29 Tue 19:43]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-03-29 Tue 19:43]
+- State "TODO"       from              [2016-03-29 Tue 19:43]
+:END:
+change the line in the config file to run every 5 minutes:
+
+#+BEGIN_SRC sh :results output
+grep "OnCalendar=" /etc/systemd/system/mbsync@.timer
+#+END_SRC
+
+#+RESULTS:
+: OnCalendar=*-*-* *:*:*0,5
+
+Reload the configuration
+
+#+BEGIN_SRC sh :results output
+su
+systemctl daemon-reload
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results output
+su
+systemctl daemon-reload
+systemctl start mbsync@joshua.timer
+#+END_SRC
+
+#+RESULTS:
+
+** TODO Well when I turn on my computer, it shuts down
+:LOGBOOK:
+- State "TODO"       from "DONE"       [2016-03-31 Thu 18:59]
+- State "DONE"       from "TODO"       [2016-03-29 Tue 19:06]
+- State "TODO"       from              [2016-03-29 Tue 19:05]
+:END:
+What service could it be?
+
+#+BEGIN_SRC sh
+su
+sudo systemctl disable halt.service
+sudo systemctl disable poweroff.service
+sudo systemctl disable reboot.service
+#+END_SRC
+
+
+#+RESULTS:
+
+Well I am going to try to disable these services, and see if that helps
+#+BEGIN_SRC sh :results output
+su
+systemctl disable ctrl-alt-del.target
+systemctl disable exit.target
+systemctl disable halt.target
+systemctl disable poweroff.target
+systemctl disable reboot.target
+
+#+END_SRC
+
+#+RESULTS:
+** DONE I have a LOT of systemd services that are failing to start.
+CLOSED: [2016-04-15 Fri 07:59]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-04-15 Fri 07:59]
+- State "TODO"       from              [2016-03-31 Thu 19:00]
+:END:
+
+The problem was laptop mode tools. This thread suggested that I should uninstall laptop mode tools, which I did.
+https://bbs.archlinux.org/viewtopic.php?id=209100
+
+And I uninstalled hdparm.
+** DONE How do I kill a program if killall PROGRAMNAME and kill PID fails?
+CLOSED: [2016-04-16 Sat 09:58]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2016-04-16 Sat 09:58]
+- State "TODO"       from              [2016-04-01 Fri 08:31]
+:END:
+** TODO When I shutdown ifplugd causes systemd to pause while it tries to shutoff.
+:LOGBOOK:
+- State "TODO"       from              [2016-04-18 Mon 08:43]
+:END:
+** TODO I cannot print any files in GNU/Linux
+:LOGBOOK:
+- State "TODO"       from              [2016-04-16 Sat 09:58]
+:END:
+Read the relevant documentation on [[https://wiki.archlinux.org/index.php/CUPS][CUPS]] and [[https://wiki.archlinux.org/index.php/LPRng#Configuration][LPRng]]
+avahi daemon apparently can help me find printers on the network!
+** Various issues I saw with systemd's log when examinging =journalctl -b -1=
+*** avahi  scan the network looking for printers
+#+BEGIN_EXAMPLE
+Apr 18 08:11:04 parabola nscd[352]: 352 cannot create /var/db/nscd/passwd; no persistent database used
+Apr 18 08:11:04 parabola nscd[352]: 352 cannot create /var/db/nscd/group; no persistent database used
+Apr 18 08:11:04 parabola nscd[352]: 352 cannot create /var/db/nscd/hosts; no persistent database used
+Apr 18 08:11:04 parabola nscd[352]: 352 cannot create /var/db/nscd/services; no persistent database used
+Apr 18 08:11:04 parabola nscd[352]: 352 cannot create /var/db/nscd/netgroup; no persistent database used
+#+END_EXAMPLE
+
+avahi, is a program that scans the network looking for printers.
+#+BEGIN_EXAMPLE
+Apr 18 08:11:05 parabola avahi-daemon[335]: Failed to find group 'avahi'.
+#+END_EXAMPLE
+
+*** php stuff
+**** My php.ini file has a syntax error.
+#+BEGIN_EXAMPLE
+Apr 18 08:11:06 parabola php-fpm[337]: PHP:  syntax error, unexpected '$' in /etc/php/php.ini on line 1876
+
+#+END_EXAMPLE
+
+**** php can't load a module
+#+BEGIN_EXAMPLE
+Apr 18 08:11:07 parabola php-fpm[337]: [18-Apr-2016 08:11:07] NOTICE: PHP message: PHP Warning:  PHP Startup: Unable to load dynamic library '/usr/lib/php/modules/openssl.so' - /usr/lib/php/modules/openssl.so: cannot open shared object file: No such file or directory in Unknown on line 0
+#+END_EXAMPLE
+
+*** Event buttons.  Cool!
+#+BEGIN_EXAMPLE
+Apr 18 08:11:08 parabola systemd-logind[332]: Watching system buttons on /dev/input/event4 (Power Button)
+Apr 18 08:11:08 parabola systemd-logind[332]: Watching system buttons on /dev/input/event5 (Video Bus)
+Apr 18 08:11:08 parabola systemd-logind[332]: Watching system buttons on /dev/input/event2 (Power Button)
+Apr 18 08:11:08 parabola systemd-logind[332]: Watching system buttons on /dev/input/event1 (Lid Switch)
+Apr 18 08:11:08 parabola systemd-logind[332]: Watching system buttons on /dev/input/event3 (Sleep Button)
+#+END_EXAMPLE
+*** What is this http error?
+#+BEGIN_EXAMPLE
+Apr 18 08:11:08 parabola httpd[341]: AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using fe80::6233:4bff:fe8e:60d0. Set the 'ServerName' directive globally to suppress this message
+#+END_EXAMPLE
+*** The shutdown error?
+Is it a logind thing?
+
+#+BEGIN_EXAMPLE
+Apr 18 08:11:13 parabola systemd-logind[332]: System is powering down.
+Apr 18 08:11:13 parabola login[457]: pam_tally(login:auth): pam_get_uid; no such user
+Apr 18 08:11:13 parabola systemd[1]: Closed Load/Save RF Kill Switch Status /dev/rfkill Watch.
+Apr 18 08:11:13 parabola login[453]: pam_systemd(login:session): Failed to create session: Start job for unit user@1000.service failed with 'canceled'
+Apr 18 08:11:13 parabola systemd[1]: Stopping Save/Restore Sound Card State...
+Apr 18 08:11:13 parabola polkitd[422]: Unregistered Authentication Agent for unix-process:559:2422 (system bus name :1.6, object path /org/freedesktop/PolicyKit1/AuthenticationAgent, locale en_US.UTF-8) (disconnected from bus)
+Apr 18 08:11:14 parabola dhcpcd[398]: forked to background, child pid 603
+Apr 18 08:11:14 parabola ifplugd[325]: client: Started network profile 'neteth0-dhcp'
+Apr 18 08:11:14 parabola ifplugd[325]: Program executed successfully.
+Apr 18 08:11:16 parabola systemd-bootchart[148]: systemd-bootchart wrote /run/log/bootchart-20160418-0811.svg
+Apr 18 08:11:16 parabola systemd-bootchart[148]: Bootchart created: /run/log/bootchart-20160418-0811.svg
+Apr 18 08:11:16 parabola mysqld[413]: 2016-04-18  8:11:16 140682628630400 [Note] InnoDB: 128 rollback segment(s) are active.
+Apr 18 08:11:16 parabola mysqld[413]: 2016-04-18  8:11:16 140682628630400 [Note] InnoDB: Waiting for purge to start
+Apr 18 08:11:16 parabola mysqld[413]: 2016-04-18  8:11:16 140682628630400 [Note] InnoDB:  Percona XtraDB (http://www.percona.com) 5.6.28-76.1 started; log sequence number 871904946
+Apr 18 08:11:17 parabola emacs[508]: Warning: due to a long standing Gtk+ bug
+Apr 18 08:11:17 parabola emacs[508]: http://bugzilla.gnome.org/show_bug.cgi?id=85715
+Apr 18 08:11:17 parabola emacs[508]: Emacs might crash when run in daemon mode and the X11 connection is unexpectedly lost.
+Apr 18 08:11:17 parabola emacs[508]: Using an Emacs configured with --with-x-toolkit=lucid does not have this problem.
+#+END_EXAMPLE
+* grub
+** boot from grub to a usb stick
+As soon as you see the grub command line press the "c" key. You'll be dropped into a grub shell.  You'll know you're there, because you'll see
+
+#+BEGIN_EXAMPLE
+grub >
+#+END_EXAMPLE
+
+Now, this is what you type
+
+=set root=(=
+
+Now press TAB and grub will give you some options.  Grub will expand what you wrote into
+
+#+BEGIN_EXAMPLE
+set root=(hd
+#+END_EXAMPLE
+
+Grub will then tell you to either press 1 or 0.  hd0 is your hard drive.  You don't want that.  So type
+
+#+BEGIN_EXAMPLE
+set root=(hd1)
+#+END_EXAMPLE
+
+Now type
+
+#+BEGIN_EXAMPLE
+chainloader +1
+#+END_EXAMPLE
+
+That will essentially tell the grub that is on your harddisk, to chainload to the usb.  This means that the usb stick has grub (or some other similiar software on it).  So grub won't try to find a bootable kernel on the usb stick.  Instead, your harddrive's grub will hand over controll to the usb stick's grub.
+
+#+BEGIN_EXAMPLE
+boot
+#+END_EXAMPLE
+** boot to an installed GNU/Linux distro on your machine
+
+#+BEGIN_EXAMPLE
+set root=(hd0,PartionNumberWhere/BootIs)
+linux /boot/vmlinuz-linux-libre root=/dev/sdaPartionNumberWhereRootIs
+initrd /boot/initramfs-linux-libre.img
+boot
+#+END_EXAMPLE
+
+For me this looks like:
+
+#+BEGIN_EXAMPLE
+set root=(hd0,1)
+linux /boot/vmlinuz-linux-libre root=/dev/sda1
+initrd /boot/initramfs-linux-libre.img
+boot
+#+END_EXAMPLE

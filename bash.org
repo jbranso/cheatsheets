@@ -1,0 +1,834 @@
+#+TITLE:Emacs Cheatsheat
+#+AUTHOR: Joshua Branson
+
+* Bash Cheatsheat
+** Introduction
+** Vocab
+   - POSIX            : a set of standards for UNIX based operating systems
+   - blank            : a space or a tab character
+   - builtin          : a command that is built into the shell itself, rather than relying on an external command
+   - control operator : a *token* that performs a task.  It can be a newline or any of the following
+     - =||=
+     - =&&=
+     - =&=
+     - =;=
+     - =;;=
+     - =|=
+     - =|&=
+     - =(=
+     - =)=
+   - exit status   : is the numerical value a command returns to its caller.  It can be [0-255]
+   - field         : is a unit of text that is the result of shell expansion.  The resulting field can be used as commands
+     or arguments
+   - job           : a collection of processes that makes up a pipeline and any processes that that pipeline spawns
+   - job control   : a method that allows users to start/stop execution of precesses
+   - metacharacter : a char, that when unquoted seperates words. A metachar is a blank or any of the following
+     - =|=
+     - =&=
+     - =;=
+     - =(=
+     - =)=
+     - =<=
+     - =>=
+   - name            : a words beginning with a letter or underscore and consisting of alphanumeric chars and underscores
+   - operator        : a control operator or a *redirection operation*
+   - process group   : a collection of processes that each have the same group ID
+   - process groupID : an ID that binds related processes in a group
+   - reserved word   : words that means things to the shell like for, while, if
+   - return status   : exit status
+   - signal          : a method, by which a process can be notified of something from the kernal
+   - special builtin : a shell builtin that is deemed special by POSIX
+   - token           : sequence of characters considered a single unit by the shell. It is either a word or an operator
+   - word            : a sequence of chars considered a unit by the shell not including unquoted metachars
+** Basic shell Features
+*** Syntax
+    - Anything inside single quotes shall not be expanded.  Also '\'' is NOT permitted in bash
+    - Double quotes preserved the literal value of whatever's in the string, except for
+      - =$=
+      - =`=
+      - =*=
+      - =@=
+*** Basic commands
+    Are words seperated by blanks terminated by one of the shell's control operators
+    So,
+
+    #+BEGIN_SRC sh
+    echo "523"
+    #+END_SRC
+
+    #+RESULTS:
+    : 523
+
+    has the command =echo= seperated by a blank space, followed by the string, which is its arguement.  Newline is the operator
+    that terminates the command.
+*** Pipelines
+    [ time ] [ ! ] command1 [ | or |& command 2 ] ...
+
+    This is what makes shell scripting really powerful.  You can make one command be another command's input.
+    So here's a simple example
+
+    #+BEGIN_SRC sh
+    ls | grep "the"
+    #+END_SRC
+
+    This lists the files in the currect directory and that output becames grep's input.  Cool eh?
+*** lists of commands
+    a list is a sequence of pipelines seperated by one of the following operators
+    - =;=
+    - =&=
+    - =&&=
+    - =||=
+
+    They can be optionally terminated by a &, which makes the whole command run in the background, ;, or a newline
+
+    A couple of examples
+
+    command1 && command2
+
+    command2 is only executed if command1 returns 0 (success)
+
+    command1 || command2
+
+    command2 is only executed if command1 returns non-0 (error)
+** some bash examples
+#+BEGIN_SRC sh :results output
+  var1=1
+  var2=2
+  var3=3
+  var4=4
+
+  if [[ $var1 -lt $var4 ]]; then
+      echo "$var1 is less than $var4";
+  fi
+
+  if [[ $var3 -gt $var1 ]]; then
+      echo "$var3 is greater than $var1";
+  fi
+
+  expr $var4 + $var2
+
+#+END_SRC
+
+#+RESULTS:
+: 1 is less than 4
+: 3 is greater than 1
+: 6
+*** enabling important systemd units
+
+I spent an hour going over all of my systemd unit files
+#+BEGIN_SRC sh :results output
+systemctl list-unit-files
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+UNIT FILE                                  STATE
+proc-sys-fs-binfmt_misc.automount          static
+org.freedesktop.hostname1.busname          static
+org.freedesktop.import1.busname            static
+org.freedesktop.locale1.busname            static
+org.freedesktop.login1.busname             static
+org.freedesktop.machine1.busname           static
+org.freedesktop.network1.busname           static
+org.freedesktop.resolve1.busname           static
+org.freedesktop.systemd1.busname           static
+org.freedesktop.timedate1.busname          static
+dev-hugepages.mount                        static
+dev-mqueue.mount                           static
+proc-fs-nfsd.mount                         static
+proc-sys-fs-binfmt_misc.mount              static
+sys-fs-fuse-connections.mount              static
+sys-kernel-config.mount                    static
+sys-kernel-debug.mount                     static
+tmp.mount                                  static
+var-lib-machines.mount                     static
+var-lib-nfs-rpc_pipefs.mount               static
+systemd-ask-password-console.path          static
+systemd-ask-password-wall.path             static
+adb.service                                disabled
+alsa-restore.service                       static
+alsa-state.service                         static
+auth-rpcgss-module.service                 static
+autovt@.service                            enabled
+avahi-daemon.service                       disabled
+avahi-dnsconfd.service                     disabled
+blk-availability.service                   disabled
+canberra-system-bootup.service             disabled
+canberra-system-shutdown-reboot.service    disabled
+canberra-system-shutdown.service           disabled
+ceph-mds@.service                          disabled
+ceph-mon@.service                          disabled
+ceph-osd@.service                          disabled
+colord.service                             static
+console-getty.service                      disabled
+console-shell.service                      disabled
+container-getty@.service                   static
+cpupower.service                           disabled
+cronie.service                             disabled
+dbus-org.freedesktop.hostname1.service     static
+dbus-org.freedesktop.import1.service       static
+dbus-org.freedesktop.locale1.service       static
+dbus-org.freedesktop.login1.service        static
+dbus-org.freedesktop.machine1.service      static
+dbus-org.freedesktop.network1.service      enabled
+dbus-org.freedesktop.nm-dispatcher.service bad
+dbus-org.freedesktop.resolve1.service      enabled
+dbus-org.freedesktop.timedate1.service     static
+dbus.service                               static
+debug-shell.service                        disabled
+deluge-web.service                         disabled
+deluged.service                            disabled
+dhclient@.service                          disabled
+dhcpcd.service                             disabled
+dhcpcd@.service                            disabled
+dm-event.service                           disabled
+dovecot.service                            disabled
+emergency.service                          static
+fluidsynth.service                         disabled
+fstrim.service                             static
+ftpd.service                               disabled
+geoclue.service                            static
+getty@.service                             enabled
+git-daemon@.service                        static
+github.service                             disabled
+gnunet.service                             disabled
+gpm.service                                disabled
+gssproxy.service                           disabled
+haveged.service                            enabled
+httpd.service                              disabled
+ifplugd@.service                           disabled
+initrd-cleanup.service                     static
+initrd-parse-etc.service                   static
+initrd-switch-root.service                 static
+initrd-udevadm-cleanup-db.service          static
+ip6tables.service                          disabled
+iptables.service                           enabled
+kmod-static-nodes.service                  static
+krb5-kadmind.service                       disabled
+krb5-kdc.service                           disabled
+krb5-kpropd.service                        disabled
+krb5-kpropd@.service                       static
+laptop-mode.service                        disabled
+ldconfig.service                           static
+libvirt-guests.service                     disabled
+libvirtd.service                           disabled
+lircd.service                              disabled
+lircmd.service                             disabled
+lmt-poll.service                           disabled
+logrotate.service                          static
+lvm2-lvmetad.service                       disabled
+lvm2-monitor.service                       disabled
+lvm2-pvscan@.service                       static
+man-db.service                             static
+mbsync@.service                            static
+mkinitcpio-generate-shutdown-ramfs.service static
+mysqld.service                             enabled
+netctl-auto@.service                       disabled
+netctl-ifplugd@.service                    disabled
+netctl-sleep.service                       disabled
+netctl.service                             disabled
+netctl@.service                            static
+nfs-blkmap.service                         disabled
+nfs-config.service                         static
+nfs-idmapd.service                         static
+nfs-mountd.service                         static
+nfs-server.service                         disabled
+nfs-utils.service                          static
+nginx.service                              disabled
+nscd.service                               disabled
+pacman-database-mon.service                disabled
+pacman-keyring.service                     static
+pdnsd.service                              disabled
+php-fpm.service                            disabled
+polkit.service                             static
+postfix.service                            disabled
+prelink-tue.service                        disabled
+quotaon.service                            static
+rescue.service                             static
+rlogin@.service                            static
+rpc-gssd.service                           static
+rpc-statd-notify.service                   static
+rpc-statd.service                          static
+rpc-svcgssd.service                        static
+rpcbind.service                            indirect
+rsh@.service                               static
+rsyncd.service                             disabled
+rsyncd@.service                            static
+rtkit-daemon.service                       disabled
+serial-getty@.service                      disabled
+shadow.service                             static
+sshd.service                               enabled
+sshd@.service                              static
+sshdgenkeys.service                        static
+systemd-ask-password-console.service       static
+systemd-ask-password-wall.service          static
+systemd-backlight@.service                 static
+systemd-binfmt.service                     static
+systemd-bootchart.service                  disabled
+systemd-bus-proxyd.service                 static
+systemd-coredump@.service                  static
+systemd-exit.service                       static
+systemd-firstboot.service                  static
+systemd-fsck-root.service                  static
+systemd-fsck@.service                      static
+systemd-halt.service                       static
+systemd-hibernate-resume@.service          static
+systemd-hibernate.service                  static
+systemd-hostnamed.service                  static
+systemd-hwdb-update.service                static
+systemd-hybrid-sleep.service               static
+systemd-importd.service                    static
+systemd-initctl.service                    static
+systemd-journal-catalog-update.service     static
+systemd-journal-flush.service              static
+systemd-journal-gatewayd.service           indirect
+systemd-journal-remote.service             indirect
+systemd-journal-upload.service             disabled
+systemd-journald.service                   static
+systemd-kexec.service                      static
+systemd-localed.service                    static
+systemd-logind.service                     static
+systemd-machine-id-commit.service          static
+systemd-machined.service                   static
+systemd-modules-load.service               static
+systemd-networkd-wait-online.service       disabled
+systemd-networkd.service                   enabled
+systemd-nspawn@.service                    disabled
+systemd-poweroff.service                   static
+systemd-quotacheck.service                 static
+systemd-random-seed.service                static
+systemd-reboot.service                     static
+systemd-remount-fs.service                 static
+systemd-resolved.service                   enabled
+systemd-rfkill.service                     static
+systemd-suspend.service                    static
+systemd-sysctl.service                     static
+systemd-sysusers.service                   static
+systemd-timedated.service                  static
+systemd-timesyncd.service                  enabled
+systemd-tmpfiles-clean.service             static
+systemd-tmpfiles-setup-dev.service         static
+systemd-tmpfiles-setup.service             static
+systemd-udev-settle.service                static
+systemd-udev-trigger.service               static
+systemd-udevd.service                      static
+systemd-update-done.service                static
+systemd-update-utmp-runlevel.service       static
+systemd-update-utmp.service                static
+systemd-user-sessions.service              static
+systemd-vconsole-setup.service             static
+talk.service                               indirect
+telnet@.service                            static
+udisks2.service                            disabled
+updatedb.service                           static
+upower.service                             disabled
+usbmuxd.service                            static
+user@.service                              static
+uuidd.service                              indirect
+verynice.service                           disabled
+virtlockd.service                          indirect
+virtlogd.service                           indirect
+wpa_supplicant-nl80211@.service            disabled
+wpa_supplicant-wired@.service              disabled
+wpa_supplicant.service                     disabled
+wpa_supplicant@.service                    disabled
+x11vnc.service                             static
+-.slice                                    static
+machine.slice                              static
+system.slice                               static
+user.slice                                 static
+avahi-daemon.socket                        disabled
+dbus.socket                                static
+dm-event.socket                            static
+dovecot.socket                             disabled
+git-daemon.socket                          disabled
+krb5-kpropd.socket                         disabled
+libvirtd.socket                            static
+lircd.socket                               disabled
+lvm2-lvmetad.socket                        static
+lvmetad.socket                             masked
+rlogin.socket                              disabled
+rpcbind.socket                             disabled
+rsh.socket                                 disabled
+rsyncd.socket                              disabled
+sshd.socket                                disabled
+syslog.socket                              static
+systemd-bus-proxyd.socket                  static
+systemd-coredump.socket                    static
+systemd-initctl.socket                     static
+systemd-journal-gatewayd.socket            disabled
+systemd-journal-remote.socket              disabled
+systemd-journald-audit.socket              static
+systemd-journald-dev-log.socket            static
+systemd-journald.socket                    static
+systemd-networkd.socket                    enabled
+systemd-rfkill.socket                      static
+systemd-udevd-control.socket               static
+systemd-udevd-kernel.socket                static
+talk.socket                                disabled
+telnet.socket                              disabled
+uuidd.socket                               disabled
+virtlockd.socket                           disabled
+virtlogd.socket                            disabled
+basic.target                               static
+bluetooth.target                           masked
+busnames.target                            static
+cryptsetup-pre.target                      static
+cryptsetup.target                          static
+ctrl-alt-del.target                        disabled
+default.target                             static
+emergency.target                           static
+exit.target                                disabled
+final.target                               static
+getty.target                               static
+graphical.target                           static
+halt.target                                disabled
+hibernate.target                           static
+hybrid-sleep.target                        static
+initrd-fs.target                           static
+initrd-root-fs.target                      static
+initrd-switch-root.target                  static
+initrd.target                              static
+kexec.target                               disabled
+local-fs-pre.target                        static
+local-fs.target                            static
+machines.target                            disabled
+multi-user.target                          static
+network-online.target                      static
+network-pre.target                         static
+network.target                             static
+nfs-client.target                          disabled
+nss-lookup.target                          static
+nss-user-lookup.target                     static
+pacman-database-mon.target                 static
+paths.target                               static
+poweroff.target                            disabled
+prelink-tue.target                         static
+printer.target                             static
+reboot.target                              disabled
+remote-fs-pre.target                       static
+remote-fs.target                           enabled
+rescue.target                              disabled
+rpcbind.target                             static
+shutdown.target                            static
+sigpwr.target                              static
+sleep.target                               static
+slices.target                              static
+smartcard.target                           static
+sockets.target                             static
+sound.target                               static
+suspend.target                             static
+swap.target                                static
+sysinit.target                             static
+system-update.target                       static
+time-sync.target                           static
+timers.target                              static
+umount.target                              static
+fstrim.timer                               disabled
+laptop-mode.timer                          disabled
+logrotate.timer                            static
+man-db.timer                               static
+mbsync@.timer                              enabled
+pacman-database-mon.timer                  disabled
+pacman-keyring.timer                       disabled
+prelink-tue.timer                          disabled
+shadow.timer                               static
+systemd-tmpfiles-clean.timer               static
+updatedb.timer                             static
+
+312 unit files listed.
+#+end_example
+
+#+BEGIN_SRC sh :dir ~/ :results output
+cat disabled-systemd-files.org
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+android debugger                            - adb.service                                disabled
+let libreoffice/emacs find printers         - avahi-daemon.service                       enabled
+as above                                    - avahi-dnsconfd.service                     enabled
+finding block devices                       - blk-availability.service                   disabled
+play bootup sound                           - canberra-system-bootup.service             disabled
+play reboot sound                           - canberra-system-shutdown-reboot.service    disabled
+play shutdown sound                         - canberra-system-shutdown.service           disabled
+store data on computer clusters             - ceph-mds@.service                          disabled
+store data on computer clusters             - ceph-mon@.service                          disabled
+store data on computer clusters             - ceph-osd@.service                          disabled
+agetty manages TTYs                         - console-getty.service                      enabled
+single user login                           - console-shell.service                      enabled
+apply cpu power info                        - cpupower.service                           disabled
+cron scheduling                             - cronie.service                             disabled
+wanted by networkd                          - dbus-org.freedesktop.network1.service      enable
+wanted by networkd                          - dbus-org.freedesktop.resolve1.service      enable
+debug early boot                            - debug-shell.service                        disabled
+torrenting                                  - deluge-web.service                         disabled
+torrenting                                  - deluged.service                            disabled
+wireless get ip address                     - dhclient@.service                          disabled
+wireless get ip addr                        - dhcpcd.service                             disabled
+wireless get ip addr                        - dhcpcd@.service                            disabled
+lvm helper stuff                            - dm-event.service                           disabled
+local mail server for gnus                  - dovecot.service                            disabled
+dependancy for gst plugins bad              - fluidsynth.service                         disabled
+ftp daemon                                  - ftpd.service                               disabled
+my own script                               - github.service                             disabled
+accessing gnunet                            - gnunet.service                             disabled
+virtual console mouse server                - gpm.service                                disabled
+alternate way of encrypted authentication   - gssproxy.service                           enabled
+apache web server                           - httpd.service                              disabled
+netctl ethernet stuff                       - ifplugd@.service                           disabled
+ip6 stuff                                   - ip6tables.service                          disabled
+ an outdated encryption thing ?             - krb5-kadmind.service                       disabled
+outdated encrypted stuff                    - krb5-kdc.service                           disabled
+outdated encrypted stuff                    - krb5-kpropd.service                        disabled
+let laptop stuff spin down                  - laptop-mode.service                        disabled
+gnome boxes                                 - libvirt-guests.service                     disabled
+gnome boxes                                 - libvirtd.service                           disabled
+translate tv remote key press into commands - lircd.service                              disabled
+translate tv remote key press into commands - lircmd.service                             disabled
+laptop mode tools                           - lmt-poll.service                           disabled
+logical volume management                   - lvm2-lvmetad.service                       disabled
+logical volume management                   - lvm2-monitor.service                       disabled
+wifi stuff                                  - netctl-auto@.service                       disabled
+wifi stuff                                  - netctl-sleep.service                       disabled
+wifi stuff                                  - netctl.service                             disabled
+network file system                         - nfs-blkmap.service                         disabled
+network file system                         - nfs-server.service                         disabled
+nginx web server                            - nginx.service                              disabled
+name service cache daemon                   - nscd.service                               enabled
+pacman stuff                                - pacman_databas-_mon.service                disabled
+firefox sync cache                          - pdnsd.service                              disabled
+make php run fast                           - php-fpm.service                            disabled should be Enabled!
+a faster sendmail alternative               - postfix.service                            disabled should be Enabled!
+???                                         - prelink-tue.service                        disabled
+sync remote files                           - rsyncd.service                             disabled
+realtime policy and watchdog daemon         - rtkit-daemon.service                       disabled
+part of systemd                             - serial-getty@.service                      enabled
+systemd stuff                               - systemd-bootchart.service                  enabled
+systemd stuff                               - systemd-journal-upload.service             enabled
+systemd stuff                               - systemd-networkd-wait-online.service       enabled
+systemd stuff                               - systemd-networkd.service                   enabled
+systemd stuff                               - systemd-nspawn@.service                    enabled
+systemd stuff                               - systemd-resolved.service                   enabled
+man udisks                                  - udisks2.service                            enabled
+gnome stuff that gdm uses                   - upower.service                             disabled
+change the nice level of programs           - verynice.service                           disabled
+doing wifi stuff                            - wpa_supplicant-nl80211@.service            disabled
+doing wifi stuff                            - wpa_supplicant-wired@.service              disabled
+doing wifi stuff                            - wpa_supplicant.service                     disabled
+doing wifi stuff                            - wpa_supplicant@.service                    disabled
+find printers                               - avahi-daemon.socket                        enabled
+local mail server                           - dovecot.socket                             disabled should be Enabled!
+????                                        - git-daemon.socket                          disabled
+outdated encryption                         - krb5-kpropd.socket                         disabled
+used with kodi                              - lircd.socket                               disabled
+remote login                                - rlogin.socket                              disabled
+remote procedure calls                      - rpcbind.socket                             disabled should be Enabled?
+stuff                                       - rsh.socket                                 disabled
+stuff                                       - rsyncd.socket                              disabled
+should be enabled                           - sshd.socket                                enabled
+important                                   - systemd-journal-gatewayd.socket            enabled
+important                                   - systemd-journal-remote.socket              enabled
+important                                   - systemd-networkd.socket                    enabled
+outdated talking utility                    - talk.socket                                disabled
+outdated communication                      - telnet.socket                              disabled
+enabled                                     - uuidd.socket                               enabled
+virtual machine stuff                       - virtlockd.socket                           disabled
+virtual machine stuff                       - virtlogd.socket                            disabled
+force reboot                                - ctrl-alt-del.target                        enabled
+systemd stuff                               - exit.target                                enabled
+systemd stuff                               - halt.target                                enabled
+needed for ctl alt delete                   - kexec.target                               enabled
+systemd stuff                               - machines.target                            enabled
+network filesystem                          - nfs-client.target                          disabled should be Enabled!
+systemd stuff                               - poweroff.target                            enabled
+systemd stuff                               - reboot.target                              enabled
+systemd stuff                               - rescue.target                              enabled
+removed unused blocks on filesytem          - fstrim.timer                               enabled
+laptop mode tools                           - laptop-mode.timer                          disabled
+pacman-database-mon.timer                  disabled
+pacman keyring updater                      - pacman_keyring.timer                       enabled
+prelink-tue.timer                          disabled
+#+end_example
+
+#+BEGIN_SRC sh :dir ~/ :results output
+cat disabled-systemd-files.org | grep "enabled"
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+let libreoffice/emacs find printers         - avahi-daemon.service                       enabled
+as above                                    - avahi-dnsconfd.service                     enabled
+agetty manages TTYs                         - console-getty.service                      enabled
+single user login                           - console-shell.service                      enabled
+alternate way of encrypted authentication   - gssproxy.service                           enabled
+name service cache daemon                   - nscd.service                               enabled
+part of systemd                             - serial-getty@.service                      enabled
+systemd stuff                               - systemd-bootchart.service                  enabled
+systemd stuff                               - systemd-journal-upload.service             enabled
+systemd stuff                               - systemd-networkd-wait-online.service       enabled
+systemd stuff                               - systemd-networkd.service                   enabled
+systemd stuff                               - systemd-nspawn@.service                    enabled
+systemd stuff                               - systemd-resolved.service                   enabled
+man udisks                                  - udisks2.service                            enabled
+find printers                               - avahi-daemon.socket                        enabled
+should be enabled                           - sshd.socket                                enabled
+important                                   - systemd-journal-gatewayd.socket            enabled
+important                                   - systemd-journal-remote.socket              enabled
+important                                   - systemd-networkd.socket                    enabled
+enabled                                     - uuidd.socket                               enabled
+force reboot                                - ctrl-alt-del.target                        enabled
+systemd stuff                               - exit.target                                enabled
+systemd stuff                               - halt.target                                enabled
+needed for ctl alt delete                   - kexec.target                               enabled
+systemd stuff                               - machines.target                            enabled
+systemd stuff                               - poweroff.target                            enabled
+systemd stuff                               - reboot.target                              enabled
+systemd stuff                               - rescue.target                              enabled
+removed unused blocks on filesytem          - fstrim.timer                               enabled
+pacman keyring updater                      - pacman_keyring.timer                       enabled
+#+end_example
+
+The complicated way of doing it
+#+BEGIN_SRC sh :dir ~/ :results output
+cat disabled-systemd-files.org | grep "enabled" | awk '{ print $4 }' -
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+printers
+avahi-dnsconfd.service
+-
+-
+encrypted
+daemon
+-
+systemd-bootchart.service
+systemd-journal-upload.service
+systemd-networkd-wait-online.service
+systemd-networkd.service
+systemd-nspawn@.service
+systemd-resolved.service
+udisks2.service
+avahi-daemon.socket
+-
+enabled
+enabled
+enabled
+enabled
+ctrl-alt-del.target
+exit.target
+halt.target
+alt
+machines.target
+poweroff.target
+reboot.target
+rescue.target
+on
+-
+#+end_example
+
+#+BEGIN_SRC sh :dir ~/ :results output
+awk '/enabled/ { print $4 }'  disabled-systemd-files.org
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+printers
+avahi-dnsconfd.service
+-
+-
+encrypted
+daemon
+-
+systemd-bootchart.service
+systemd-journal-upload.service
+systemd-networkd-wait-online.service
+systemd-networkd.service
+systemd-nspawn@.service
+systemd-resolved.service
+udisks2.service
+avahi-daemon.socket
+-
+enabled
+enabled
+enabled
+enabled
+ctrl-alt-del.target
+exit.target
+halt.target
+alt
+machines.target
+poweroff.target
+reboot.target
+rescue.target
+on
+-
+#+end_example
+
+#+BEGIN_SRC sh :dir ~/ :results output
+awk '/enabled/ { print $2 }'  disabled-systemd-files.org
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+libreoffice/emacs
+above
+manages
+user
+way
+service
+of
+stuff
+stuff
+stuff
+stuff
+stuff
+stuff
+udisks
+printers
+be
+-
+-
+-
+-
+reboot
+stuff
+stuff
+for
+stuff
+stuff
+stuff
+stuff
+unused
+keyring
+#+end_example
+
+
+a hodgepodge that works to show all of the services that need be enabled
+#+BEGIN_SRC sh :dir ~/ :results output
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{print $1}' -
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+avahi-daemon.service
+avahi-dnsconfd.service
+console-getty.service
+console-shell.service
+gssproxy.service
+nscd.service
+serial-getty@.service
+systemd-bootchart.service
+systemd-journal-upload.service
+systemd-networkd-wait-online.service
+systemd-networkd.service
+systemd-nspawn@.service
+systemd-resolved.service
+udisks2.service
+avahi-daemon.socket
+sshd.socket
+systemd-journal-gatewayd.socket
+systemd-journal-remote.socket
+systemd-networkd.socket
+uuidd.socket
+ctrl-alt-del.target
+exit.target
+halt.target
+kexec.target
+machines.target
+poweroff.target
+reboot.target
+rescue.target
+fstrim.timer
+pacman_keyring.timer
+#+end_example
+
+
+Put it looks like systemctl does not accept input that way... bummer
+
+#+BEGIN_SRC sh :dir ~/ :results output
+su
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{print $1}' - | systemctl enable -
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC sh :dir ~/ :results output
+su
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{systemctl enable $1}' -
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{systemctl start $1}' -
+#+END_SRC
+
+#+RESULTS:
+
+
+
+#+BEGIN_SRC sh :dir ~/ :results output
+su
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{print $1}' - | xargs
+#+END_SRC
+
+#+RESULTS:
+: avahi-daemon.service avahi-dnsconfd.service console-getty.service console-shell.service gssproxy.service nscd.service serial-getty@.service systemd-bootchart.service systemd-journal-upload.service systemd-networkd-wait-online.service systemd-networkd.service systemd-nspawn@.service systemd-resolved.service udisks2.service avahi-daemon.socket sshd.socket systemd-journal-gatewayd.socket systemd-journal-remote.socket systemd-networkd.socket uuidd.socket ctrl-alt-del.target exit.target halt.target kexec.target machines.target poweroff.target reboot.target rescue.target fstrim.timer pacman_keyring.timer
+
+
+don't run that command, because it will restart your system
+#+BEGIN_SRC sh :dir ~/
+su
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{print $1}' - | xargs -i systemctl enable {}
+sed -n '/enabled/  s/^.*- // p ' disabled-systemd-files.org | awk '{print $1}' - | xargs - systemctl start {}
+#+END_SRC
+*** What's our ethernet device name?
+
+#+BEGIN_SRC sh :results output
+ip link | egrep "2:.*n.*:" | awk '{print $2}'
+#+END_SRC
+
+#+RESULTS:
+: neteth0:
+
+#+BEGIN_SRC sh :results output
+ip link | grep "2" | awk '{print $2}' | sed -n '1 p'
+#+END_SRC
+
+#+RESULTS:
+: neteth0:
+
+
+*** Checking on the status of the ifplugd interface
+
+So this is odd.  This command outputs stuff in the terminal, but not here.
+#+BEGIN_SRC sh :results output
+su
+systemctl | grep -m 1 ifplugd | awk '{print $1}' | xargs systemctl status {}
+#+END_SRC
+
+#+RESULTS:
+
+** Redirection
+
+   Redirecting input can be of the form  [n]<word
+
+   Redirecting output is of the form [n]>[|]word
+
+   < means standard input
+   > means standard output
+
+   2> means standard error.  So
+
+   #+BEGIN_SRC sh
+     cat bsah 2> error.txt;
+   #+END_SRC
+
+   #+RESULTS:
+
+   Will store the error caused by "cat bsah" into the file error.txt.
+
+   #+BEGIN_SRC sh
+   cat error.txt
+   #+END_SRC
+
+   #+RESULTS:
+   : cat: bsah: No such file or directory

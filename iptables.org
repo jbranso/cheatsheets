@@ -1,0 +1,90 @@
+* Creating a simple firewall
+** Naming the 2 chains
+#+BEGIN_SRC sh
+su
+iptables -N TCP
+iptables -N UDP
+#+END_SRC
+
+#+RESULTS:
+** drop all input
+#+BEGIN_SRC sh
+su
+iptables -P INPUT DROP
+#+END_SRC
+
+#+RESULTS:
+** allow all outgoing traffic
+#+BEGIN_SRC sh
+su
+iptables -P OUTPUT ACCEPT
+#+END_SRC
+
+#+RESULTS:
+** drop all incoming connections by default
+#+BEGIN_SRC sh
+su
+iptables -P INPUT DROP
+#+END_SRC
+
+#+RESULTS:
+** white list some incoming connections
+#+BEGIN_SRC sh
+su
+
+#+END_SRC
+
+#+RESULTS:
+** drop INVALID traffic
+#+BEGIN_SRC sh
+su
+iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+#+END_SRC
+
+#+RESULTS:
+** accept ping requests
+#+BEGIN_SRC sh
+su
+ iptables -A INPUT -p icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+#+END_SRC
+
+#+RESULTS:
+** more random stuff that I don't understand
+#+BEGIN_SRC sh
+su
+
+
+ iptables -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+
+ iptables -A INPUT -p tcp --syn -m conntrack --ctstate NEW -j TCP
+
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh
+su
+iptables -A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+
+iptables -A INPUT -p tcp -j REJECT --reject-with tcp-reset
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh
+su
+iptables -A INPUT -j REJECT --reject-with icmp-proto-unreachable
+
+#+END_SRC
+
+#+RESULTS:
+** Allow certain incoming connections
+*** accept incoming connections on port 80/443 for a web server
+#+BEGIN_SRC sh
+su
+iptables -A TCP -p tcp --dport 80  -j ACCEPT
+iptables -A TCP -p tcp --dport 443 -j ACCEPT
+#+END_SRC
+
+#+RESULTS:
+*** allow

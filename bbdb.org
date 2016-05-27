@@ -1,0 +1,16 @@
+#+TITLE: BBDB CheatSheat
+
+* Using BBDB
+
+  To view your BBDB records enter "M-x bbdb RET RET", this will open up bbdb's contacts.  If some of the following commands fail to work with the error message, try toggling read-only-mode via "M-x read-only-mode".  Otherwise, type in these commands to do stuff with bbdb.
+
+  - ~c~ create a new record
+
+  - ~n,p~ move to the next or previous displayed record, respectively
+
+  - ~a~ add a new mail alias to the current record
+
+  - ~C-k~ If point is on the the name of this person, then C-k will delete the record.  If point is on a field of the record,
+    then point will delete that field from the record.
+
+  - ~i~ insert a new field into this record.  ie: insert a phone number.

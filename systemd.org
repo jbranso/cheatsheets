@@ -1,0 +1,24 @@
+#+TITLE:Systemd Cheatsheat
+#+AUTHOR: Joshua Branson
+
+* Commands
+Systemd will not execute a command as a non-root user, unless, you create a seperate instance of systemd by
+following this guide: https://wiki.archlinux.org/index.php/Systemd/User
+* journalctl
+The systemd journal store logs produced by systemd.  It stores those logs in a binary format, so these logs can only be viewed by journalctl.  Here are some of the commands
+
+- journalctl -b
+  show all the logs from this boot
+
+- journalctl --since "20 min ago"
+  show all the logs since 20 minutes ago
+
+- journalctl --since "2016-02-18 18:17:16"
+
+- journalctl --since "2016-02-18"
+
+- journalctl _PID=1
+  show all logs with a specific process
+
+- journalctl /usr/bin/program
+  show all logs from a specific executable

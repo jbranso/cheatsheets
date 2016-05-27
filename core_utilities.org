@@ -1,0 +1,6 @@
+* nice -n nicenumber program
+* fmt file
+* df tells you how much disk space you have
+  df -h filename (the -h means you want the output to be human readable)
+* du how large a file is
+  du -h filename

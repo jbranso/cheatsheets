@@ -1,0 +1,49 @@
+#+TITLE:Dired Cheatsheat
+#+AUTHOR: Joshua Branson
+#+LANGUAGE: en
+#+HTML_HEAD <link rel="stylesheet" type="text/css" href="stylesheet.css" />
+
+* Basic commands inside a dired buffer
+ - % m mark files via a regexp
+ - % d mark files for deletion via a regexp
+ - n/p for next previous file
+ - f / RET visit that file
+ - v view that file in another window
+ - ^ go up one directory
+ - * * mark all executables
+ - * / mark all directories except for .. and .
+ - * s mark all the files in the current subdirectory
+ - t  toggle all marks
+ - % g mark all files whose contents contain regexp
+ - C copy the current file
+ - d flags a file for deletion
+ - x delete all files flagged for deletion
+ - D delete all marked files
+ - R NEW RET rename the file/files.  If only one files is marked, then that file will be renamed.
+   If many files are marked, then those files will be moved into a new directory that you name
+ - S NEW RET make symbolic links.  If you have just specified one file, then that file will have a symbolic link
+   to/from NEW.  If you mark many files, then NEW is the directory to add the symbolic link to
+ - M change the mode stuff of the file.  arguments can be what chmod would want.
+ - G change the group of the file/files to a new group
+ - O change the owner of file/files
+ - Z compress / uncompress file/files
+ - :d decrypt the file
+ - :e encrypt the file
+ - :s sign the file
+ - :verify the sig of the file
+ - B byte compile the emacs lisp file/files
+ - ! runs a shell command on the file/files
+ - & runs a shell command on the file/files in the background
+ - % R/C/H/S TO RET FROM these 4 commands rename/copy/hard/soft links out of regexp
+   What matches in TO will get replaced in from.  So to rename all files from .*php to .*phtml
+   you could say % m RET php RET % R php RET phtml.  You are also free to use \& and \DIGIT
+   in your FROM regexp.
+ - + create a new directory
+ - i displays the files in the current subdirectory w/o evoking dired on that directory
+   C-u C-SPC moves point back to where you started
+ - >/< move forward and backward to the previous/next subdirectory lines
+ - g redisplays the dired buffer
+ - C-t d toggle displaying an image
+ - image-dired opens up dired to display images
+ - w yanks the marked files.  Apparently this lets you yank those files into other emacs commands
+ - ( toggles showing the file permissions

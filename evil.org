@@ -1,0 +1,194 @@
+#+TITLE:Evil cheatsheet
+# The next lines says that I can make 10 levels of headlines, and org will treat those headlines as how to structure the book into
+
+# chapters, then sections, then subsections, then sub-sub-sections, etc.
+#+OPTIONS: H:10
+
+* Editing with Evil
+
+Evil is an amazing way to edit text in emacs.  It's built on top of vim, which is an amazing text editor in its own right!  When you edit text with evil mode enabled, you have three different states that you use: normal, insert, and emacs.  Emacs state is a normal emacs session with evil commands temporarily disabled.  Insert mode lets you type characters, delete them, and use normal emacs commands.  Normal mode is like emacs' god-mode, which lets you call commands without pressing alt, meta, esc, or ctrl.  For example in normal mode =dd= lets you delete the line, on which point sits.
+
+# I got the following info here: http://blog.carbonfive.com/2011/10/17/vim-text-objects-the-definitive-guide/
+An evil command in normal mode looks like the following:
+
+<number><command><text object or motion>
+
+<edit command><text object>
+
+** Some text objects
+
+- =aw= around word.  So a including the surrounding whitespace.
+- =iw= inner  word.  The word not including whitespace.
+- =as= around sentence
+- =is= inner  sentence
+- =ip= inner  paragraph
+- =ap= around paragraph
+- =i"= inner  string
+- =a"= around string
+- =i)= inner  paren
+- =a)= around paren
+- =i]= inner  block
+- =a]= around block
+- =i}= inner  brace
+- =a}= around brace
+- =it= inner  tag
+  To change all of the contents of an inner tag, you could do =cst(=
+
+  <em>hello</em>
+
+  ( hello )
+- =at= around tag
+- =i>= inner  single tag
+  <div class="boring">  hello </div>
+
+=ci>p=
+
+  <p>  hello </div>
+- =a>= around single tag
+
+  CamelCaseMotion lets you change camel cased text i,w is inner word of the camel cased word, but it's not working
+
+
+- =aa= around function argument
+- =ia= inner  function argument
+  foo (42, bar(5), 'hello')
+
+
+There's a nice delete indent object, that is also not working
+- =ai= around indentation (including the line above)
+- =ii= inner  indentation (excluding the line above)
+  #+BEGIN_SRC python
+    def foo():
+        if 3 > 5:
+            return True
+        return "foo"
+
+  #+END_SRC
+
+** cool commands
+
+  find a replace text only in lines 50-100
+  ~:50,100s/old/new/g~
+
+  visually select words. u changes them into lowercase. U uppercases them.
+
+  3fh moves point to the 3rd occurrence of "h" on the current line
+
+  ~C-o~ in normal mode lets you jump back to the previous location
+
+  ~o~ moves you back to the beginning of the last word
+  ~O~ moves you back to the end of the last word
+  ~e~ moves you forward to the beginning of the next word
+  ~E~ moves you forward to the end of the next word
+
+  ~)~ move to the next sentence
+  ~(~ move to the last sentence
+
+  ~}~ move to the next paragraph
+  ~{~ move to the last paragraph
+
+  =m<char>= mark the current position of point and store it in that mark "char".
+  ~'<char>~ moves to the mark named by "<char>.
+
+
+  http://keyxl.com/aaa8263/290/VIM-keyboard-shortcuts.htm
+  https://www.maketecheasier.com/vim-keyboard-shortcuts-cheatsheet/
+
+** evil-surround
+  Evil surround is a really cool way to surround highlighted regions of text.
+
+*** Commands
+  - =dst  deletes the surrounding html element=
+
+    <h2>text text text point text text text</h2>
+
+    With point at the position "point" typing dst will delete the surrounding html element and change the text into:
+
+  - =cs<char><char>= change the surrounding char to char
+
+    "What whats point up dog?"
+
+    With point at the position "point" typing cs,' will delete the surrounding html element and change the text into:
+
+    'What whats point up dog?'
+
+    With point at 'point' =cs'<q>= will change the above into
+
+    <q>What whats point up dog?</q>
+
+    type =cst*= to change the surrounding pair to =
+
+    =*What whats point up dog?*=
+
+    =Hello world!=
+
+    =ysiw]=
+
+    =[Hello] world!=
+
+    =cs](=
+
+    ={ Hello } world!=
+
+  - =S<text object>= or =gs<text object>= in visual state will surround a text object
+
+  - =ys<text object>= or =yS<text object>= will surround an object in normal state
+
+*** extending
+ A surround pair is a char and the char's surrounding chars.  It can look like this:
+
+ #+BEGIN_SRC emacs-lisp
+ (?* . ("*" . "*"))
+ #+END_SRC
+
+ or this:
+
+ #+BEGIN_SRC emacs-lisp
+ (?< . surround-read-tag)
+ #+END_SRC
+
+ which calls a function that lets you surround a text object with an html element.  It would be nice to have a surround for elisp function for "(" that would let you surround a text object with a lisp function!
+** use bash commands in evil with the ! operator
+
+
+Here is some original text:
+
+4 I went home
+3 I drank the juice
+2 I bought the juice
+1 I went to the store
+
+When select the paragraph, !sort,  you get the text sorted by number
+
+ 1 I went to the store
+ 2 I bought the juice
+ 3 I drank the juice
+ 4 I went home
+
+
+ When you select the paragraph, !sort -r, you get reverse order
+
+  4 I went home
+  3 I drank the juice
+  2 I bought the juice
+  1 I went to the store
+
+
+  When you select a large paragraph, !sort -R, is random order
+
+    2 I bought the juice
+    2 I bought the juice
+    4 I drank the juice
+    5 I went to the store
+    66666 nt home
+    9 I went to the store
+    1 I went to the store
+    3 I drank the juice
+    3 I drank the juice
+    3 I drank the juice
+    422 I bought the juice
+    2391 I went to the store
+    232 I bought the juice
+    4 I went home
+    4 I went home
+    4 I went home

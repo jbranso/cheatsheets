@@ -1,0 +1,10 @@
+#+AUTHOR: Joshua Branson
+#+TITLE: Firefox tips
+
+* keysnail is an awesome firefox add-on!  It lets you emulate emacs inside firefox.  It's not as powerful as konkeror,
+but it keeps firefox super fast!  And it lets you add more emacs like packages to firefox! wow!
+** Change the default firefox modifier key from control to alt
+So in firefox if you press C-t it opens a new tab, C-l highlights the text in your url bar.  Well that's lame behavior.
+I want to have awesome keychords using emacs, and I don't want firefox's C-<char> shortcuts getting in my way.  No worries,  I'll make firefox's modifier key be alt instead of ctrl!
+In about:config, I changed ui.key.accelKey from 17 to 18.  This worked!!!
+https://snarfed.org/emacs_keybindings_in_firefox

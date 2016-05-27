@@ -1,0 +1,27 @@
+#+TITLE: Gnu Gawk Cheatsheet
+* Introducion
+  An AWK program does things to a sequence of data.  It can easily be used to certain columns of data in a text file.  More
+  generally, awk looks through every line of a file, if that line matches a patters, then awk does some action on it. So an awk
+  program looks like:
+
+  PATTERN { action }
+  PATTERN { action }
+  ...
+* awk regexp
+  awk regexps are enclodes in slashes.  So =/this/= is the regexp this.
+* Our first AWK program
+  This program searches each line in a file, and if that line matches the regexp ~/the/~, then the second column in
+
+  #+BEGIN_SRC awk
+    awk '/the/ { print $2 }' mail-list
+  #+END_SRC
+
+  #+RESULTS:
+
+  I can also narrow the regexp matching.  I can make it not match the whole line, but just an expression of that line
+
+  #+BEGIN_SRC awk
+    awk '$2 ~ /the/ { print $2 }' mail-list
+  #+END_SRC
+
+  #+RESULTS:

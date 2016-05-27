@@ -1,0 +1,77 @@
+#+TITLE: GNU Plot Cheatsheet
+* Introduction
+  Gnuplot is Gnu's program to let you plot 2D and 3D graphs.  It is amazing what it can do.
+
+  - A simple Example
+    #+BEGIN_SRC gnuplot
+      Title = "Hello World"
+      set logscale x
+      set arrow 100,5 rto 10,2
+    #+END_SRC
+
+    #+RESULTS:
+
+    #+BEGIN_SRC gnuplot
+      Title = "Absolute Value of X"
+      plot abs(x)
+    #+END_SRC
+
+    #+RESULTS:
+
+    #+BEGIN_SRC gnuplot
+      plot ceil (x)
+    #+END_SRC
+
+    #+RESULTS:
+
+    #+BEGIN_SRC gnuplot
+      # set polar
+      plot cos (x)
+    #+END_SRC
+
+    #+RESULTS:
+
+    #+BEGIN_SRC gnuplot
+      plot cosh (x) lt rgb "violet"
+    #+END_SRC
+
+    #+RESULTS:
+
+* Plotting commands
+  Gnuplot uses 4 different commands to create a plot: *splot* (3D graphs), *plot* (2D) graphs.
+
+  Plot operates in rectangular or polor cordinates.  ie: set polar
+  Plot lets you use each of the 4 borders as axises.  *x* (bottom), *x2* (top), *y* (left), *y2* (right)
+
+  Splot operates in cartesian coordinates, but it can also plot surfaces with isosamples [[info:gnuplot#isosamples][info:gnuplot#isosamples]]
+
+* Basic Syntax
+  Options and accompanying parameters are separated by spaces.  Lines and coordinater are separated by commans.  Ranges are
+  separated by colons and enclosed in brackets.  Text and file names are enclosed in quotation marks.
+
+* Plotting styles
+  Gnuplot comes with many different plotting styles.  Some of the popular ones are:
+  - boxes
+  - boxplot
+  - circles
+  - ellipses
+  - dots
+  - filledcurves
+  - lines
+  - polar
+  - points
+
+    In one plot you can mix different plotting styles ie:
+
+    #+BEGIN_SRC gnuplot
+      set style fill pattern
+      plot sin(x) with boxes, cos(x) with lines
+    #+END_SRC
+
+    #+RESULTS:
+
+    #+BEGIN_SRC gnuplot
+      plot x**3 - 5x**2
+    #+END_SRC
+
+    #+RESULTS:

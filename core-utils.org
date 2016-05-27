@@ -1,0 +1,508 @@
+#+TITLE: Core Utilities Cheat Sheet
+#+AUTHOR: Joshua Branson
+
+
+* Common Options
+** source of randon data
+/dev/random and /dev/urandom can be used as the random number generator
+--random-source=FILE
+
+** Traversing Symbolic links
+chown, chgrp, and chmod all accept -R  or the recursive option, which means do this command for all directories
+underneath what this command specifies
+
+#+BEGIN_SRC sh
+ls ~/Documents/
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC sh
+chown joshua ~/documents/
+#+END_SRC
+
+* find
+  - find and report all php files in the specified dir current directory
+    #+BEGIN_SRC sh :dir ~/programming/waypoint/nutripledge/
+    find . -name '.*php' -print
+    #+END_SRC
+
+    #+RESULTS:
+    | ./calendar1/__MACOSX/supercali-1.0.8/._modules.php                    |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._week.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._year.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._upcoming.php           |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._grid.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._weeklist.php           |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._day_week_functions.php |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._quarter.php            |
+    | ./calendar1/__MACOSX/supercali-1.0.8/modules/._day.php                |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._edit_users.php                 |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._delete_event.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._admin_actions.php              |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._edit_links.php                 |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._bad_password.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._login.php                      |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._notify.php            |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._session_start.php     |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._nav.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._start.php             |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._footer.php            |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._top_nav.php           |
+    | ./calendar1/__MACOSX/supercali-1.0.8/includes/._hidden_fields.php     |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._edit_categories.php            |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._upload_events.php              |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._edit_groups.php                |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._edit_event.php                 |
+    | ./calendar1/__MACOSX/supercali-1.0.8/._user_profile.php               |
+    | ./calendar1/__MACOSX/supercali-1.0.8/lang/._en_us.php                 |
+
+    To find all of the specified files in all of the subdirectories starting with dir
+    #+BEGIN_SRC sh :dir ~/programming/waypoint/henriott-group/
+    find . -name \*.php -print
+    #+END_SRC
+
+    #+RESULTS:
+    | ./.#b3.php                    |
+    | ./history.php                 |
+    | ./staff.php                   |
+    | ./p7.php                      |
+    | ./about.php                   |
+    | ./p5.php                      |
+    | ./talk.php                    |
+    | ./b3.php                      |
+    | ./industries.php              |
+    | ./account.php                 |
+    | ./industry-pictures.php       |
+    | ./2.php                       |
+    | ./css/connect-to-database.php |
+    | ./contact.php                 |
+    | ./b4.php                      |
+    | ./includes/footer.php         |
+    | ./includes/nav.php            |
+    | ./includes/header.php         |
+    | ./products.php                |
+
+    To find all of the selected files (including sub-directories) and then delete them
+
+  #+BEGIN_SRC sh :dir ~/programming/waypoint/nutripledge/
+   find . -name \*.pdf -exec /bin/rm {} \;
+   #+END_SRC
+
+  #+RESULTS:
+
+* grep/egrep/fgrep
+grep searching a list of file/s for a pattern and outputs the matching lines.  Grep only supports a handful of regular expressions.  If you want to use ALL of the regexp expression goodies, you need to use egrep.  fgrep is fast grep.  It interprets the string as a literal string and not a regexp.
+
+There is no way to match newline characters with grep.  [[info:grep#Introduction][info:grep#Introduction]]
+  #+BEGIN_SRC
+  grep OPTIONS PATTERN [INPUT_FILE_NAMES | - ]
+  #+END_SRC
+
+  The "-" for grep means standard input.
+
+  ie:
+
+  #+BEGIN_SRC sh :dir ~/
+  grep -rc th | grep -m 5 Sass -
+  #+END_SRC
+
+  #+RESULTS:
+  | .gem/ruby/2.3.0/doc/sass-3.4.21/ri/Sass/Tree/MediaNode/value-i.ri:1          |
+  | .gem/ruby/2.3.0/doc/sass-3.4.21/ri/Sass/Tree/MediaNode/resolved_value-i.ri:1 |
+  | .gem/ruby/2.3.0/doc/sass-3.4.21/ri/Sass/Tree/MediaNode/new-c.ri:1            |
+  | .gem/ruby/2.3.0/doc/sass-3.4.21/ri/Sass/Tree/MediaNode/name-i.ri:1           |
+  | .gem/ruby/2.3.0/doc/sass-3.4.21/ri/Sass/Tree/MediaNode/query-i.ri:1          |
+
+  If you want to search for a regexp in the current directory and all sub-directories
+
+  #+BEGIN_SRC
+  grep -lr "<PATTERN>"
+  #+END_SRC
+
+  command options
+
+** -e PATTERN
+lets you specify a pattern by regexp, and you can specify multiple patters!
+#+BEGIN_SRC sh :dir ~/  :results output
+  grep -e be -e lint unofficial-packages.txt
+#+END_SRC
+
+#+RESULTS:
+: bemenu-git r223.c3abc43-1
+: csslint 0.10.0-1
+
+So I can see "be"menu and css"lint", but you could do the same thing with
+
+#+BEGIN_SRC sh :dir ~/ :results output
+egrep "be|lint" unofficial-packages.txt
+#+END_SRC
+
+#+RESULTS:
+: bemenu-git r223.c3abc43-1
+: csslint 0.10.0-1
+
+
+
+Note that the e flag should be given last on the flag list.  If it is given first, then the rest of your flags
+will be thought of as the argument.  ie:
+
+#+BEGIN_SRC sh :dir ~/ :results output
+  grep -ei -
+#+END_SRC
+
+** -r search recursively, ignore symlinks
+-R searches recursively following all symlinks
+*** --exclude-dir=GLOB
+exclude any dirs that match the GLOB
+The GLOB can use "?,*[...]" to match.  I don't believe that you can use a regexp expression though
+*** --exclude-file=GLOB
+exclude any files that match the pattern.
+The GLOB can use "?,*[...]" to match.  I don't believe that you can use a regexp expression though
+*** --include=GLOB
+include any files that match the pattern.
+The GLOB can use "?,*[...]" to match.  I don't believe that you can use a regexp expression though
+** -i ignore case
+
+This lets you say that you want to ignore case in your grep search
+
+#+BEGIN_SRC sh :dir ~/documents :results output
+grep -i soups cooking.org
+#+END_SRC
+
+#+RESULTS:
+: * Soups
+: ** Do not push cut garlic into soups. EVER.
+
+You can see that it changed my pattern into [Ss]oups
+
+** -w word regexp
+
+#+BEGIN_SRC sh :dir ~/documents :results output
+grep -i soup cooking.org
+#+END_SRC
+
+#+RESULTS:
+: * Soups
+: ** Do not push cut garlic into soups. EVER.
+:    You will ruin the soup.  It will be way too garlicky!
+
+Suppose that we do not only the word "soup" and not to match "soups." or "Soups".  We could do this:
+
+#+BEGIN_SRC sh :dir ~/documents :results output
+grep -i "\bsoup\b" cooking.org
+#+END_SRC
+
+#+RESULTS:
+:    You will ruin the soup.  It will be way too garlicky!
+
+or to save some time, we could do this:
+
+#+BEGIN_SRC sh :dir ~/documents :results output
+grep -iw soup cooking.org
+#+END_SRC
+
+#+RESULTS:
+:    You will ruin the soup.  It will be way too garlicky!
+
+** -x line regexp
+
+This just says that the regexp should match the whole line.  So it's like saying "^" PATTERN "$"
+** -c count matching lines
+output the total count the matching lines in the file
+
+#+BEGIN_SRC sh :dir ~/manuals/ :results output
+  grep -c the hurd.org
+#+END_SRC
+
+#+RESULTS:
+: 2
+
+#+BEGIN_SRC sh :dir ~/manuals/ :results output
+  grep -c the pacman.org practical-gnus.org
+#+END_SRC
+
+#+RESULTS:
+: pacman.org:4
+: practical-gnus.org:65
+** -l print files that match the pattern
+** -L print files that do not match the pattern
+** -m <MAX Number> stop reading a file after Max matches have been found
+
+#+BEGIN_SRC sh :dir ~/manuals :results output
+grep -nm 6 -e the pacman.org practical-gnus.org
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+pacman.org:15:*** Failed to commit transaction package: /path/to/file exists in the filesystem
+pacman.org:21:  The problem is usually trivial to solve. A safe way is to first check if another package owns the file (pacman -Qo /path/to/file). If the file is owned by another package, file a bug report. If the file is not owned by another package, rename the file which 'exists in filesystem' and re-issue the update command. If all goes well, the file may then be removed.
+pacman.org:25:  Every installed package provides a /var/lib/pacman/local/$package-$version/files file that contains metadata about this package. If this file gets corrupted, is empty or goes missing, it results in file exists in filesystem errors when trying to update the package. Such an error usually concerns only one package. Instead of manually renaming and later removing all the files that belong to the package in question, you may exceptionally run pacman -S --force $package to force pacman to overwrite these files.
+pacman.org:30:[fn:1] The Official name is Arch Linux, but I prefer to call it Arch GNU/Linux, to respect the hard word that GNU put into creating the GNU/Linux operating system.  For more information, you can check out: [[https://www.gnu.org/gnu/why-gnu-linux.html%20][What's in a Name?]]  and [[https://www.gnu.org/gnu/gnu-linux-faq.html][GNU/Linux FAQ]].
+practical-gnus.org:18:Copyright: This work is licensed under the [[http://creativecommons.org/licenses/by-nc-nd/3.0/][Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License]].
+practical-gnus.org:23:People think it is hard because they get lost in its features. It would be much easier if they learned the *essential 5% features* and ignore the remaining 95%.
+practical-gnus.org:32:- Usable when offline. Check the "offline" part in the section "Advanced tips"
+practical-gnus.org:33:- powerful combined with other plugins like [[https://github.com/capitaomorte/yasnippet][yasnippet]]
+practical-gnus.org:37:- "C" means "Ctrl" and "M" means "Alt". For example, "M-x" means pressing "Alt" and "X" together.
+practical-gnus.org:41:- "Group buffer" means the list of folders.
+#+end_example
+** -A <NUM> (after)
+print NUMber of lines after the match
+** -B <NUM> (before)
+print NUM of lines before the match
+** -C <NUM> (context)
+print NUM of lines before and after.
+** -H with filename
+** -h no filename
+** egrep
+egrep is extended regexp
+* permissions
+In Unix everything is a file.  When you write a text document called "text.text", that is a Unix file.  When you create a directory (Windows users call this a folder) called "Music",  you also are creating a Unix file.  Obviously, "text.text" and "Music" behave very differently.  One has your favorite songs, and the other is a text document, BUT the linux kernel assumes that they are both Unix files.  All unix files have read, write, and execute permissions specific to each unix file.  This typiccally means that the ordinary user joshua cannot read, write, or execute anything in the =/root/= folder.
+
+# I found this segment online here: https://stackoverflow.com/questions/6732430/how-do-i-give-write-permission-to-file-in-linux
+#+BEGIN_SRC latex
+read     = 4
+write    = 2
+execute  = 1
+owner    = read | write = 6
+group    = read         = 4
+other    = read         = 4
+The basic syntax of the command to set the mode is
+
+chmod 644 [file name]
+In C, that would be
+
+#include <sys/stat.h>
+
+chmod("[file name]", 0644);
+ #+END_SRC
+
+#+RESULTS:
+#+BEGIN_LaTeX
+read     = 4
+write    = 2
+execute  = 1
+owner    = read | write = 6
+group    = read         = 4
+other    = read         = 4
+The basic syntax of the command to set the mode is
+
+chmod 644 [file name]
+In C, that would be
+
+#include <sys/stat.h>
+
+chmod("[file name]", 0644);
+#+END_LaTeX
+
+** chmod
+
+chmod [-R ] <owner> [file | directory]
+
+Change a file's modifications.  This specifies if what user, group, and if everyone else can read, write, or execute the file.
+
+Permissions can modify the permissions of the user's, the group's and all others.
+
+** chown
+
+chown [-R] <owner> [file | directory]
+
+Change the file's owner.  The file's owner is typically root or an ordinary user.
+
+Examples include
+
+
+** chgrp
+
+chgrp [ -R ] <group> [file | directory]
+
+Change the group that the file or directory belongs to.
+
+* basic usage of the find command in GNU
+  #+BEGIN_SRC sh
+    find . -name "pattern" -print
+
+    find . -name "this-file.*" -print
+
+    find . -name "this-file.*txt" -print
+
+    find . -name "this-file\.txt" -print
+  #+END_SRC
+* touch -amc filename updates the files timestamps
+  Access
+  Modify
+  Change
+* join
+
+join [OPTIONS] [FILE1 | - ] [ FILE2 | - ]
+
+A way of combining two files based on a common column.
+
+Either file1 or file2 can be "-", which is standard input.  So that is pretty cool.
+** available options
+
+
+** -a FILE-NUMBER
+print a line for each unpairable line.
+
+
+** -i ignore case differances
+
+** -1 FIELD_NUMBER
+Join on the nth column.  For example is the following line
+=this is an example line=
+
+"an" is on the 3rd field.
+
+** -2 FIELD_NUMBER
+
+Join on the nth column.  For example is the following line
+=this is an example line=
+
+"example" is on the 4th field.
+
+** JOIN in action
+
+#+BEGIN_SRC sh :dir ~/programming/bash/txt/ :results output
+join -1 1 file1.txt file2.txt
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+1 12 18 this is
+2 11 17 an interesting
+3 10 16 experiment isn't
+4 9 15 it?
+5 e e 2nd field match
+6 7 13
+7 6 12
+8 5 11
+9 f f 2nd field match
+10 3 9
+11 2 8
+12 1 7
+#+end_example
+
+
+#+BEGIN_SRC sh :dir ~/programming/bash/txt/ :results output
+join -1 2 file1.txt file2.txt
+#+END_SRC
+
+#+RESULTS:
+
+
+* xargs
+lets you get stdin and feed it to other programs that otherwise would not like it, allegedly
+
+#+BEGIN_SRC sh :dir ~/documents :results output
+ls *org | xargs -i echo the{}et
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+theaccrisoft.orget
+theapache.orget
+thearch.orget
+theauto-complete.orget
+thebash.orget
+thebbdb.orget
+thecore-utils.orget
+thedired.orget
+thedisk.de.orget
+theelisp.orget
+theemacs.orget
+theevil-dvorak.orget
+theevil.orget
+thefirefox.orget
+thegawk.orget
+thegimp.orget
+thegit.orget
+thegnuplot.orget
+thegnus.orget
+thegpg.orget
+thehurd.orget
+thehurd-rpc.orget
+thehurd-talk.orget
+theinetutils.orget
+theiptables.orget
+thejavascript.orget
+thejson.orget
+theledger.orget
+thelinux-kernel-coding-style.orget
+themach-paging-interface.orget
+themagit.orget
+themaking-money-with-free-software.orget
+theman.orget
+themysql.orget
+thenetworks-networking-internet-ip4-tcp-udp.orget
+theorg-babel-code-block-args.orget
+theorg-babel-intro.orget
+theorg-babel-sql.orget
+theorg.orget
+thepacman.orget
+thephp.orget
+thepixi.orget
+thepractical-gnus.orget
+thesed.orget
+thesql.orget
+thesystemd.orget
+thethundertalks.orget
+thetoward-a-new-strategy-of-os-design.orget
+thetranslator-primer.orget
+thetranslators.orget
+thewhm.orget
+thewordpress.orget
+#+end_example
+
+#+BEGIN_SRC sh :dir ~/documents :results output
+ls *org | xargs -n 3
+#+END_SRC
+
+#+RESULTS:
+: 4yearsOfLife.org 4yearsOfLife.org.org a-certain-matchbox-member.org
+: a-girl-hitting-a-man-is-hypocritical.org approaching-and-meeting-people.org cooking.org
+: cover-letter.org example-latex.org gnu-assign-copyright-hurd-email-assign.org
+: how-to-succeed-in-the-army.org intro-to-gnu-linux.org letter-to-dad.org
+: letterToNicole.org letter-to-vincent.org libre-software-response.org
+: professor-snape-rachel-sweet-bread.org references.org romance-story.org
+: soihub-pages.org university-place.org why-proprietary-software-is-wrong.org
+
+* show available disk space
+* sort
+
+sort [OPTION] [FILE]
+** options
+*** -f ignore case
+*** -g general numeric sort
+*** -h human numeric sort
+This is good for sorting
+
+50M
+-10G
+1.5K
+*** -M month sort
+*** -n numeric sort
+*** -r reverse sort
+*** -R random sort
+*** -t SEPARATOR
+use SEPARATOR as the field separator.  By default that separator is a space.  ([[info:coreutils#sort%20invocation][info:coreutils#sort invocation]])
+* How I got my local apache server working again:
+
+ For some reason, my ~/ folder had permissions =drwxrws---=
+
+ To fix it I did
+
+ #+BEGIN_SRC bash :exports both
+ cd /home/; chmod g-s joshua; ls -lh | grep joshua
+
+ #+END_SRC
+
+ #+RESULTS:
+ : drwxrwx--- 83 joshua http 4.0K Feb  2 08:04 joshua
+
+The s was magically replaced with a x
+* common things that you might want to do
+** get a list of files with specific attributes and have grep search those files lines matching a regexp
+
+  find . -name "*org" | grep -r "[pP]rettyhorses"

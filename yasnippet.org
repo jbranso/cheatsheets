@@ -1,0 +1,15 @@
+#+TITLE:Yasnippet Cheatsheat
+#+AUTHOR:Joshua Branson
+#+OPTIONS: H:10
+
+* Embedding elisp inside yasnippets
+** Make a yasnippet expand around selected text.
+#+BEGIN_EXAMPLE
+  # -*- mode: snippet -*-
+  # name: <example
+  # key: <example
+  # --
+   `(if (region-active-p)
+   (concat "#+BEGIN_EXAMPLE\n" yas-selected-text "#+END_EXAMPLE") )
+   (concat "#+BEGIN_EXAMPLE\n$0\n#+END_EXAMPLE" )`
+#+END_EXAMPLE

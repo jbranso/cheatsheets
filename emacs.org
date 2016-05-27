@@ -1,0 +1,606 @@
+#+TITLE:Emacs Cheatsheat
+#+AUTHOR:Joshua Branson
+#+OPTIONS: H:10 toc:nil
+
+* Built in Emacs Features
+** Advising a named Function
+[[info:elisp#Advising%20Named%20Functions][info:elisp#Advising Named Functions]]
+** Bookmarks
+  Emacs bookmarks are nifty ways of saving your place in a file.
+
+  - =C-x r m=  sets a bookmark for you at point and it prompts you to name it
+  - =C-x r b=  jumps you to a bookmark
+** dired
+Dired is the emacs file manager.  It opens a buffer displaying all your files in the specified directory.  With it you can perform numerous commands on marked files, like deleting, copying, moving, or even creating your own command.
+*** commands
+  - ~n~ next line
+  - ~p~ previous line
+  - ~m~ mark the current file under point
+  - ~u~ unmark the current file under point
+  - ~* /~ mark all directories
+  - ~* *~ mark all executables
+  - ~* s~ mark all files in the current sub-directory
+  - ~% m REGEXP <RET>  mark files based on a regular expression
+  - ~Q~ dired-do-query-replace-regexp lets you search and replace all marked files
+    -  Press y, to replace the current match
+    -  press ~n~ to skip the current match
+    -  press ~!~ to replace all the matches in the current buffer
+    -  Press ~Y~ to replace all the remaining matches in all buffers
+  - how to recursively search and replace
+
+    M-x find-name-dired: you will be prompted for a root directory and a filename pattern, but this file name pattern uses find’s version of grep.  So it does not understand “.*“.  Instead “*” is equivalent to “.*”
+
+    Press t to "toggle mark" for all files found.
+
+    Press Q for "Query-Replace in Files...": you will be prompted for query/substitution regexps.
+
+    Proceed as with query-replace-regexp: SPACE to replace and move to next match, n to skip a match, etc.
+
+      -  Press y, to replace the current match
+      -  press ~n~ to not skip the current match
+      -  press ~!~ to replace all the matches in the current buffer
+      -  Press ~Y~ to replace all the remaining matches without question
+
+  - M-x wdired-change-to-wdired-mode
+    Makes the contents of the dired buffer editable.  Once you are done making changes type =C-c C-c=.  This saves your changes.  It is a nifty way to easily change file permissions, file names, etc.
+*** image dired
+lets you view images inside dired.
+
+Mark the images you wish to view, then press C-t d (image-dired-display-thumbs)
+
+You could also just do a M-x image-dired
+** Macros
+A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat similar text, or delete, edit similar text.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys.  I could write the numbers 1 through 1,000 by typing 31 keys!
+
+  - ~C-x (~ begin recording a keyboard macro
+  - ~C-x )~ end recording a keyboard macro
+  - ~C-x e~  performs the last created keyboard macro
+  - ~C-x Q~  prompt the user for input during a macro.
+
+    # FIXME specify where I found this defun
+    This is not a standard emacs command; I found it on the emacs wiki.  Essentially this command tells the macro to prompt the user for input every time you call the macro.  This is useful if you have a macro that wants to write out a convoluted sequence of numbers.  The code for this is here:
+
+    # FIXME:  WHERE DID I find this defun?? emacs wiki?
+    #+BEGIN_SRC emacs-lisp
+      ;; When you define a macro, you can type C-x Q to prompt the user for input.
+      ;; Very helpful and cool!
+      (defun my-macro-query (arg)
+        "Prompt for input using minibuffer during kbd macro execution.
+          With prefix argument, allows you to select what prompt string to use.
+          If the input is non-empty, it is inserted at point."
+        (interactive "P")
+        (let* ((query (lambda () (kbd-macro-query t)))
+               (prompt (if arg (read-from-minibuffer "PROMPT: ") "Input: "))
+               (input (unwind-protect
+                          (progn
+                            (add-hook 'minibuffer-setup-hook query)
+                            (read-from-minibuffer prompt))
+                        (remove-hook 'minibuffer-setup-hook query))))
+          (unless (string= "" input) (insert input))))
+
+      (global-set-key "\C-xQ" #'my-macro-query)
+    #+END_SRC
+  - =C-x q= prompt, when you use this macro if you want to continue.  You can enter C-r to briefly step out of the macro
+    and do some edits yourself, then C-M-c will allow you to continue execution of the macro.
+
+** narrowing
+  are entered via this syntax
+  ~C-x n <letter>~
+
+  ~d~ narrow to defun
+  ~r~ widen to region
+  ~s~ narrow to a org subtree
+  ~w~ widden to the whole buffer
+
+  A much better way to use the narrowing commands is just to make emacs guess what you want whenever you press "C-x n", and that's what the following snippet does.  I recommend that you put it in your .emacs:
+
+  I found this code snippet [[http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html][here.]]
+
+  #+BEGIN_SRC emacs-lisp
+    ;; Also set up narrow dwin
+    (defun narrow-or-widen-dwim (p)
+      "Widen if buffer is narrowed, narrow-dwim otherwise.
+    Dwim means: region, org-src-block, org-subtree, or defun,
+    whichever applies first. Narrowing to org-src-block actually
+    calls `org-edit-src-code'.
+
+    With prefix P, don't widen, just narrow even if buffer is
+    already narrowed."
+      (interactive "P")
+      (declare (interactive-only))
+      (cond ((and (buffer-narrowed-p) (not p)) (widen))
+            ((region-active-p)
+             (narrow-to-region (region-beginning) (region-end)))
+            ((derived-mode-p 'org-mode)
+             ;; `org-edit-src-code' is not a real narrowing
+             ;; command. Remove this first conditional if you
+             ;; don't want it.
+             (cond ((ignore-errors (org-edit-src-code))
+                    (delete-other-windows))
+                   ((ignore-errors (org-narrow-to-block) t))
+                   (t (org-narrow-to-subtree))))
+            ((derived-mode-p 'latex-mode)
+             (LaTeX-narrow-to-environment))
+            (t (narrow-to-defun))))
+
+    ;; This line actually replaces Emacs' entire narrowing
+    ;; keymap, that's how much I like this command. Only copy it
+    ;; if that's what you want.
+    (define-key ctl-x-map "n" #'narrow-or-widen-dwim)
+  #+END_SRC
+** Rectangles
+  You can easily create a rectangle with evil mode with C-v.  Once you have a rectangle you can do these commands:
+
+  =C-x r o= insert blank spaces to the left of the rectangle region
+  =C-x r N= insert numbers all along the left of the rectangle region
+** Registers
+  Number Registers
+  -`C-u number C-x r n r`
+  Store number into register r (number-to-register).
+
+  `C-u number C-x r + r`
+  If r contains a number, increment the number in that register by number. Note that command C-x r + (increment-register) behaves differently if r contains text. See Text Registers.
+
+  `C-x r i r`
+  Insert the number from register r into the buffer.
+
+  `C-x r i` is the same command used to insert any other sort of register contents into the buffer. `C-x r +` with no numeric argument increments the register value by 1; `C-x r n` with no numeric argument stores zero in the register.
+
+  =C-x r s R=  save text to register R
+  =M-x append-to-register R= appends text to Register R
+** Selective Display
+  Emacs can display portions of the buffer based on level of indentention.  This lets you get a nice overview of the file, which is quite cool.
+  - =C-u n C-x $= hides rows that are indented n times
+  - =C-x $=  shows all rows
+** windows commands
+In emacs the entire emacs program takes up a *frame*.  But emacs allows you to view two different files in the same frame, by splitting the frame in half, or in two *windows*.
+
+  - =C-x o= Delete the selected window
+  - =C-x 1= Delete all the windows except the one that currently has point
+  - =C-x ^= make the selected window taller
+  - =C-x {= make the selected window narrower
+  - =C-x }= make the selected window wider
+  - =C-x -= shrink this window if it doesn't need that many lines.
+  - =C-x += make all the windows the same height
+** org-mode
+*** org-babel
+Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  For example here is some javascript:
+
+#+BEGIN_SRC js :exports code
+  // initialize the variable
+  var i = 5;
+  if (i < 6) {
+    i++;
+  }
+  console.log (i);
+#+END_SRC
+
+The comment "initialize the variable" comes after the comment syntax "//".  In literate programming the code portion of the file is "commented" and the comments do not hide behind a comment syntax.  Let me give you an example of the literate kind:
+
+#+BEGIN_SRC org
+  Let's write a trivial js function the literate way
+  ,#+BEGIN_SRC js :exports code
+    var i = 5;
+    if (i < 6) {
+      i++;
+    }
+    console.log (i);
+  ,#+END_SRC
+#+END_SRC
+
+#+BEGIN_SRC calc
+5 + 5
+#+END_SRC
+
+#+RESULTS:
+: 10
+
+How cool is that?
+**** Specific header arguments
+http://orgmode.org/manual/Specific-header-arguments.html
+[[info:org#Specific%20header%20arguments][info:org#Specific header arguments]]
+
+- :results
+  syntax:
+  :results [raw | silent | value | output ]
+  value is function mode.  It means that org-mode will use the last executed command as the value of the output.
+  ie:
+
+#+BEGIN_SRC python :results value
+import time
+print("Hello, today's date is %s" % time.ctime())
+print('Two plus two is')
+return 2 + 2
+#+END_SRC
+
+  #+RESULTS:
+  : 4
+
+#+BEGIN_SRC sh :results output
+  echo "hello world"
+  echo "big cat"
+  ls -lh | grep emacs.org
+  #+END_SRC
+
+#+RESULTS:
+: hello world
+: big cat
+: -rw-r----- 1 joshua 1000  28K Mar  9 14:51 emacs.org
+
+- :exports [code | results | node | both]
+- :dir
+  Specify a default directory that the code is to be run in
+  :dir <dir>
+* Helpful Emacs modes
+** bug-hunter
+   This will help you find bugs in your init file. SOOO helpful.
+  https://github.com/Malabarba/elisp-bug-hunter
+  M-x bug-hunter-init-file
+** helm mode
+  HOLY BLIMEY COW!!! THIS MODE IS AWESOME enable it!
+
+  C-c C-f helm-find-files
+
+  In this mode typing "~/ manage js$"
+  will display a list of files in my home directory that contain the work 'manage' and end is js
+
+  Typing C-l will display the files is the parent directory
+  Typing C-z when point is on a directory, will show the files in that directory
+
+  Helm has nth commands. Instead of typing tab to get to the action menu
+  just press C-e for the 2nd action
+  and C-j for the 3rd action.
+  You can also bind a key to an action menu
+  (define-key helm-map (kbd "<C-tab>") 'helm-select-4th-action)
+
+  C-c C-u lets you view an image
+
+  Apparently helm lets you open files externally in helm-find-files with C-c C-x (not working though)
+
+  I can make personal actions on to run on files via eshell WOW!!!!
+
+  C-SPC will mark files that you can perform actions on
+
+  You can then hit copy files in the action menu, which will let you select a new destionation to copy the files. so cool!
+  You can do the same thing from the action menu with rename, symlink, hardlink
+
+  helm has support for etags
+  C-h e  will search the tags file
+  the above should create the TAGS file with tags, but it's not working
+  find . -iregex .*\.el$ | xargs etags
+
+  check out pcomplete extension
+  https://github.com/thierryvolpiatto/pcomplete-extension
+
+*** commands
+  I can also write my own helm commands cool!
+  [[http://wikemacs.org/wiki/How_to_write_helm_extensions][write your own helm extentions
+  ]]
+  =C-c h m=  open helm-man-woman
+  =C-c h h g= open helm info gnus
+  =C-c h h r= open the helm-emacs-info
+  =C-c h b= is helm-resume which opens up the last instance that you were on
+  =M-<space>= mark candidate
+  =C-h m= inside a helm window will show you all of helm's keybindings
+
+*** helm-descbinds
+** evil mode
+  " <letter> yy   stores the whole line into register <letter>
+  " <letter> p    puts the whole line back
+  =vip= select the paragraph that point is in.
+
+  check out filters. It lets you take a line, and throw that line as a command.
+  It lets you create macros that you can take a line as a command to line in bash.
+  interesting
+*** filters VERY cool. put the contents of the buffer through a shell command!
+
+   You can take a line like
+
+   hello how are you   :.!wc -w   -->   4
+   hello how are you   :.!wc -c   -->   21
+
+   5 / 6  :.!bc -l   -->  .83333333333333333333
+
+ 5    :105,109!sort --> 1
+ 4                    2
+ 3                    3
+ 2                    4
+ 1                    5
+
+ Sort has lots of options.  I can do sort -r by reverse order, sort -k4  the 4th column, sort -n sort numerically
+
+
+ hello how are you
+ hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you
+ hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you
+ hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you
+ hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+
+ hello how are you
+ hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+ hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
+** El-doc
+  El-doc shows you what a function in the mini-bar as you write it.  By default it works for emacs lisp extremely well.  You'll notice that my emacs-lisp-mode-hook sharp quotes eldoc-mode, which means it's using the syntax =#'eldoc-mode=.  Sharping quoting is only necessary if you are quoting named emacs lisp functions.
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
+#+END_SRC
+
+** Semantic
+
+   Most emacs modes use a bunch of regular expressions to highlight source code. BUT semantic tries to make this better by
+   parsing the code and creating grammar with it.
+*** User commands
+    - =C-c , j= prompt for a tag in the currect file and move point to it.
+    - =C-c , J= prompt for a tag in any file that emacs has parsed and move point to it.
+** ttd-mode let's you specify a compile command. Everytime you save a file, it will run your compile command.
+  If it finds an error, it will alert you at the bottom!
+** yasnippet
+http://ergoemacs.org/emacs/yasnippet_templates_howto.html
+*** Important Characters
+- =$&= indents the line according to the major mode
+- =`(some-lisp-code)`= embods lisp code
+- =$0= where point will be when the snippet ends
+- =$n= where n is a number ie: =$1=, =$2=, etc.  If you have multiple $3, then typing some text in one $3 will also be put in
+  the other $3.
+- =${n:<placeholder text>}
+** Undo tree
+learn more about undo tree
+** Paredit mode
+http://danmidwood.com/content/2014/11/21/animated-paredit.html
+Paredit mode is a superior way to interact with lisps.
+
+*** slurping
+
+slurping elongates the current sexp by pulling in the closest sexp (either forward or backward)
+
+ #+BEGIN_SRC emacs-lisp
+   ;; here I've called "C-c 0" paredit-forward-slurp-sexp
+   ;; point was always on the "h" in hello
+   ((hello) this is a nice little sentence)
+   ((hello this) is a nice little sentence)
+   ((hello this is) a nice little sentence)
+   ((hello this is a) nice little sentence)
+   ((hello this is a nice) little sentence)
+   ((hello this is a nice little) sentence)
+   ((hello this is a nice little sentence))
+
+   ;; here I've called C-c 0 paredit-backward-slurp-sexp
+   ;; which pulls in another sexp or atom into my current sexp
+   ;; point was always on "e" in sentence
+   (hello this is a nice little (sentence))
+   (hello this is a nice (little sentence))
+   (hello this is a (nice little sentence))
+   (hello this is (a nice little sentence))
+   (hello this (is a nice little sentence))
+   (hello (this is a nice little sentence))
+   ((hello this is a nice little sentence))
+     #+END_SRC
+
+*** barfing
+
+barfing shortens the currect sexp by pushing out the closest sexp (either forward or backward)
+ #+BEGIN_SRC emacs-lisp
+   ;; here I've called "C-c ]" paredit-forward-barf-sexp
+   ;; point was always at the "h" in hello
+   ((hello this is a nice little sentence))
+   ((hello this is a nice little) sentence)
+   ((hello this is a nice) little sentence)
+   ((hello this is a) nice little sentence)
+   ((hello) this is a nice little sentence)
+
+
+   ;; here I've called paredit-backward-barf-sexp
+   ;; point was always at the "e" in sentence
+   ((hello this is a nice little sentence))
+   (hello (this is a nice little sentence))
+   (hello this (is a nice little sentence))
+   (hello this is (a nice little sentence))
+   (hello this is a (nice little sentence))
+   (hello this is a nice (little sentence))
+   (hello this is a nice little (sentence))
+   (hello this is a nice little sentence())
+
+       #+END_SRC
+
+
+   Paredit
+   #+BEGIN_SRC emacs-lisp
+
+   #+END_SRC
+
+*** paredit-splice-sexp
+This removes the parentheses around the current sexpression
+#+BEGIN_SRC emacs-lisp
+(cool (cool (cool (cool (cool)))))
+(cool (cool (cool (cool (cool)))))
+(cool (cool (cool (cool (cool)))))
+(cool (cool (cool (cool (cool)))))
+(cool (cool (cool (cool (cool)))))
+
+#+END_SRC
+** Restclient mode
+  install restclient. It lets you query the server via get and post.  I can view the results via emacs!
+** sunrise-commander is a dired derived mode that acts like filezilla inside emacs.
+   =C= copy the current file into the other directory
+   =C-u C= copy the current file/files into the other directory in a background process
+** ediff
+   Ediff is emacs's cool way of camparing two files.  It's very cool.
+*** Commands
+   - =a= copies buffer a diff to buffer b
+   - =b= copies buffer b diff to buffer a
+   - =A= toggles readonly mode of buffer a
+   - =B= toggles readonly mode of buffer b
+   - =wa= save buffer a
+   - =wb= save buffer b
+   - =!= update the differance regions.  If you press =a= and =b= multiple times, you should probably do a =!=
+   - =*= highlights the words in the diff region that differ
+   - =ra= restore the diff region in buffer a
+   - =rb= restore the diff region in buffer b
+   - =z= suspend the ediff session
+   - =s= make the merge buffer as small as possible
+
+   When you specify files, you can edit the files as root using tramp's syntax like this.
+
+   /su::/path/to/file
+** tramp is an emacs extension that lets you edit remote files
+  it's syntax is done by pressing C-x C-f (find-file) then typing one of the following:
+
+     /HOST:FILENAME
+     /USER@HOST:FILENAME
+     /USER@HOST#PORT:FILENAME
+     /METHOD:USER@HOST:FILENAME
+     /METHOD:USER@HOST#PORT:FILENAME
+* Regexp
+  Regular expressions are nifty ways of searching/replacing regions of text.
+
+  Consider this example
+
+  #+BEGIN_SRC php
+    if (isadmin() || ismanager ()) {
+        //some code here
+    }
+  #+END_SRC
+
+  Suppose that you want to add a space between both "is" in the functions.
+
+  M-x dired-do-query-replace-regexp is\(admin\|manager\) RET is \1 RET
+
+
+  But let's get a basic understanding of regexps.
+
+* some nice emacs add on modes/APIs that make elisp programming nice
+- ctable https://github.com/kiwanami/emacs-ctable
+- s https://github.com/magnars/s.el
+- f https://github.com/rejeep/f.el
+* Elisp macro add-function
+  This is the old way of doing it. The newer was is to say add-function
+* there is a php package that turns all php functions into yasnippets.  It lets you easily type out a php function
+  tab, and it will complete it for you. I'll need to check it out. What's it called?
+* entering in special characters utf8 chars
+http://www.johndcook.com/blog/emacs_unicode/
+"C-x ` e"  --> è
+
+ or you can do this, which is quite cool too:
+ http://irreal.org/blog/?p=4254
+
+ "C-\"  lets you put in utf-8 chars via TeX commands.  Ϡ â Ζ β
+
+ ie "\beta" –> β
+* debugging weird errors
+** wrong type argument errors
+
+If you get a weird error like "wrong type argument : arrayp , nil", or "wrong type argument : stringp", it might be an issue with package.el.  The following might fix the error:
+
+# This may copywrited!
+# http://emacs.stackexchange.com/questions/17823/wrong-type-argument-arrayp-nil
+- Change the address for the melpa archive to: "http://melpa.org/packages"
+- Delete the ~/.emacs.d/elpa/archives/melpa/archive-contents file
+
+ #+BEGIN_SRC sh
+ rm ~/.emacs.d/elpa/archives/melpa/archive-contents
+ #+END_SRC
+- Run package-initialize and package-refresh-contents.
+
+  #+BEGIN_SRC emacs-lisp
+  (package-initialize)
+  (package-refresh-contents)
+  #+END_SRC
+
+  #+RESULTS:
+** debugging your init file
+   https://github.com/Malabarba/elisp-bug-hunter.  This is SOOO helpful!
+   M-x bug-hunter-init-file RET e
+** Variable binding depth exceeds max-specpdl-size
+   Check out this stackoverflow question:
+   http://stackoverflow.com/questions/1322591/tracking-down-max-specpdl-size-errors-in-emacs
+
+   #+BEGIN_SRC emacs-lisp
+     ;;   To track the problem down, you can try this:
+
+     (setq max-specpdl-size 5)  ; default is 1000, reduce the backtrace level
+     (setq debug-on-error t)    ; now you should get a backtrace
+     ;; C-h a ; in speedbar
+   #+END_SRC
+
+   #+RESULTS:
+   : t
+
+   to go back to the state that you wanted again, you can do this:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq max-specpdl-size 2580)  ; default is 1000, reduce the backtrace level
+     (setq debug-on-error nil)    ; now you should get a backtrace
+   #+END_SRC
+
+   #+RESULTS:
+* C-[ is another way of pressing Alt
+* C-] is a more powerful C-g
+* java development
+
+You will probably want to use eclim  https://github.com/ervandew/eclim
+
+It turns eclipse into a server.  Emacs sends info to that server, the server responds back, and Emacs shows you code errors, code completion, etc.  It's probably the best way to do java development in Emacs.

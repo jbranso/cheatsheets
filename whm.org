@@ -1,0 +1,20 @@
+#+AUTHOR: Joshua Branson
+#+Title: WHM Cheatsheet
+
+* To change a FTP password on a domain
+ - log into WHM [[file:~/programming/org/gtd/projects/working-for-waypoint.org::*password%20related%20notes][WHM info]]
+ - in the search bar, search for Password Mod
+ - In the appearing domain listing, click your domain
+ - click on the password generator
+ - click that I saved the password
+ - click any of the checkboxs
+ - update the info
+
+Usually the resulting ftp info is
+
+|-------------------------+----------+------------|
+| host                    | username | password   |
+|-------------------------+----------+------------|
+| www.setyourwaypoint.com | <domain> | <password> |
+| www.setyourwaypoint.com | tdsdrive | secret...  |
+|-------------------------+----------+------------|

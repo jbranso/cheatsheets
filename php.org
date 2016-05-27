@@ -1,0 +1,14 @@
+#+TITLE:PHP cheatsheat
+#+AUTHOR:Joshua Branson
+#+OPTIONS: H:10 toc:nil
+
+* check if a string is numeric
+
+#+BEGIN_SRC
+$number = "550;"
+$number2 = "-550";
+$number3 = "+420.342";
+if (is_numeric ($number) && is_numeric ($number2) && is_numeric ($number3)) {
+echo "they are all numeric strings!";
+}
+#+END_SRC

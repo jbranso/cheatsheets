@@ -1,0 +1,351 @@
+#+TITLE:Gnus Cheatsheat
+#+OPTIONS: H:10
+#+STARTUP: overview
+* Gnus Cheatsheat
+** Introduction
+  The GNUS news reader lets you read email and mail.  Follow the quick start guide [[http://www.emacswiki.org/emacs/GnusGmail#toc1][here]] to get started using gnus for gmail. GNUS
+  has a few buffers that you need to know how to use:
+
+  + the group buffer, which might display your inbox, sent, drafts, and junk folders
+  + the summary buffer, which is a more detailed view of one folder.  One summary buffer will be your inbox, which will be a long
+    listing of the emails that you can examine in your inbox.
+  + the article buffer, which will display one email.
+
+  Each of these buffers has various assorted commands with them.  When you first set up gnus, you need to call gnus by executing
+
+  ~M-x gnus~
+
+  As gnus starts, you should see the emacs icon.  Gnus will show you the icon until you press
+
+  ~t~
+
+  Then you should see the default group buffer.
+
+  An article is one piece of information.  it'll have a to and a from. it could be an email or an rss iteam
+
+  a backend is one way for guns to get articles
+    rss backend
+    backend for getting stuff from the uniq spool
+** Find the News
+*** gnu-select-method tells guns where to look for news.
+   it is a list where the first element says how and the 2nd says where like
+   #+BEGIN_SRC emacs-lisp
+     (setq gnus-select-method '(nntp "news.somewhere.edu"))
+   #+END_SRC
+
+   gnus-select-method is your native group. Any other news that you get is a secondary group or a foreign group.
+
+   Also note that a group is just the mail connections you have to 1 server. ie: my "news.gwene.org" is a group,
+   BUT I have several different feeds from it.  I have xkcd, etc.
+
+   Also, if you need to change servers, think before you change gnus-select-methods.  When you change gnus-select-methods,
+   your .newsr file becomes worthless, and gnus no longer knows what articles you have read.
+
+   Just read [[info:gnus#Changing%20Servers][info:gnus#Changing Servers]] before you change gnus-select-method
+
+*** Getting mail from multiple servers
+
+   Of course.  You can specify more sources for articles in the variable
+   gnus-secondary-select-methods.  These are secondary groups. NOT foreign groups.
+   Add something like this in ‘~/.gnus.el’:
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'gnus-secondary-select-methods
+                  '(nntp "news.yourSecondProvider.net"))
+     (add-to-list 'gnus-secondary-select-methods
+                  '(nntp "news.yourThirdProvider.net"))
+   #+END_SRC
+
+*** the backends
+**** the nntp backend commonly gathers news articles via NNTP
+**** the nnimap backend grabs mail via IMAP
+**** the nnspool backend grabs mail via the spool directory.  This is local mail.
+**** the nnml backend grabs mail via a file format
+**** native
+   gnus will always use one method (and back end) as the "native" or default way of gathering news.
+   groups from the native select method have names like gnu.emacs.gnus.
+   You get this group from the gnus-select-method.
+**** secondary
+   a secondary backend acts like a native backend but has names like
+   nnpt+news.gmane.org:gname.emacs.gnus.devel.  You get this from (setq gnus-secondary-methods)
+**** foreign groups
+     These groups are gotten NOT from the select elips methods.
+     - =G m= make a new group, and gnus will prompt you for a address and such.
+** Gnus Buffers
+*** The Server Buffer
+    You can enter the server buffer by pressing ^ inside the group buffer
+**** Various Commands
+     - Su | u  toggles subscription of a usenet group
+*** The Group Buffer
+**** Various commands
+   - ~m~
+     send a new email
+   - ~n~
+     go to the next group that has unread mail
+   - ~p~
+     go to the previous group that has unread mail
+   - ~o~ over an attachment will save the file
+   - ~Enter~ over an attachment when open the attachment
+     On Linux you need to customize ~/.mailcap
+
+     #+BEGIN_SRC org
+       # url
+       text/html; w3m -I %{charset} -T text/html; copiousoutput;
+
+       # image viewer
+       image/*; feh -F -d -S filename '%s';
+
+       # pdf
+       application/pdf; zathura '%s';
+       image/pdf; zathura '%s'
+
+       # video
+       video/* ; mplayer '%s'
+       audio/* ; mplayer '%s'
+
+       # Office files.
+       application/msword; soffice '%s'
+       application/rtf; soffice '%s'
+       text/richtext; soffice '%s'
+       application/vnd.ms-excel; soffice '%s'
+       application/vnd.ms-powerpoint; soffice '%s'
+
+     #+END_SRC
+
+   - ~G p~ will let you customize the parameters of the group. [[info:gnus#Group%20Parameters][info:gnus#Group Parameters]]
+   - =SPC= open this group and read the first unread article
+   - =C-u 10 SPC= opens the first 10 unread articles and starts reading the first one
+   - =C-u RET= opens all email
+   - =A u= lists all groups whether they have unread articles or not.
+   - =G S u= sort by number of unread articles
+   - =S l= list the level of the current group. You are reccommeded to keep all of your groups on level 1 or 2 (low).
+   - =G S v= sort by group score
+   - =C= marked all articles in the buffer (even the ticked ones) as read
+   - =c= mark all unticked articles as read
+
+***** Searching
+     - ~#~ mark groups
+     - ~G G~ with point on a folder, will search the server side for email matching the search term that is in that folder
+     or for marked groups
+     - ~//~ limit the mails by subject at the summary buffer (this is done locally)
+     - ~/a~ limit by author at the summary buffer (this is done locally)
+     - ~/A~ limit by address From/To/Cc match a given address
+     - ~/w~ to cancel the current filter
+     - more info: https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Limiting
+
+
+**** levels
+***** - =S l= will set the level of subscribedness for the group.
+      The lower the number the group, the more important it is.  All groups should be on level 1 or 2
+**** browse foreign server
+     - =B= lets you browse a foreign server and look for groups
+       You will be asked for a select method and a server name.
+
+
+     Once you are in the new server. you can do
+     - =u= to toggle subscription to the group or not.
+**** group topics
+     You can apparently arrange your groups by topic. ie;
+     [[info:gnus#Topic%20Commands][info:gnus#Topic Commands]]
+
+     Gnus
+       Emacs -- I wuw it!
+          3: comp.emacs
+          2: alt.religion.emacs
+         Naughty Emacs
+          452: alt.sex.emacs
+            0: comp.talk.emacs.recovery
+       Misc
+          8: comp.binaries.fractals
+         13: comp.sources.unix
+
+     Just press "t" to try it out.  To make it permanent, do a
+
+     #+BEGIN_SRC emacs-lisp
+       (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+     #+END_SRC
+
+     Once you have enabled this minor mode you can sort out your groups into topics.
+
+     - =T n= create a new topic
+     - =T TAB= indent the current topic so it becomes a subtopic on the previous topic.
+     - =M TAB= unindent the current topic
+     - =C-k= and =C-y= work to seamlessly to reorganize the groups by topic.
+     - =RET= or =SPC= either fold a group or select a group
+     - =T m= move the group to a topic
+     - =T j= jump to a topic
+
+*** The Summary Buffer
+**** Various commands
+   - ~//~ limit local mail by subject.  Limiting means to search mail locally.
+   - ~/a~
+   - ~C-c C-f~
+    forward the current email under point
+
+   - =SPC= scrolls the article forward by one page
+   - =RET= scrolls the article backward by one page
+   - =>= go to end of article
+   - =<= go to beginning of article
+   - =u= or =!= ticks the message.  The next time you open that folder, this message will be there EVEN if it is already read
+     =d= removes the tick.
+   - =W w= wraps long lines.  Which might make the message prettier.
+   - =W r= Decodes  ROT13, which fixes the quotes from the microsoft products.
+   - =E= makes an email as expirable.  That means that gnus will automatically delete my email for me in a week after
+     I mark it expirable.
+
+   - =T n= go to the next article in thread
+   - =T p= go to the previous article in thread
+   - =*= mark the email as persistent.  The email won't be deleted.
+   - =o= save the attached MIME part of the email
+   - =K o= save the attached MIME part of the email
+   - =^= show the parent of the current article
+
+   - =S z= kill zombie groups
+   - =c= mark all unticked articles in this group as read
+   - =c= mark all articles in this group as read
+   - =G p/c= show the group parameters. p shows you the lisp, c shows you the customize interface.
+   - =l= list all groups that have unread articles
+   - =A != list groups with ticked articles
+   - =C-c C-s= sorts the groups
+   - =G S a= sort via alphbetically
+   - =G S u= by number of unread emails
+   - =b= delete bogus groups
+   - =F= find new groups and process 'em
+   - =C-c C-M-x= run expire on all groups. DELETE expired articles
+   - =B= browse foriegn server looking for groups
+     kind of cool.
+     [[info:gnus#Browse%20Foreign%20Server][info:gnus#Browse Foreign Server]]
+   - =T T= toggle showing threads
+   - =T k= kill all articles in the current thread
+**** Pick and Read.  You pick which articles you wish to read before you read them.  Very cool.
+     [[info:gnus#Pick%20and%20Read][info:gnus#Pick and Read]]
+
+*** The Article Buffer
+
+**** various commands
+
+   + ~C-c C-a~ to attach a file
+   + ~C-c C-m f~
+     attach a file
+   + ~C-c C-m C-s~
+     sign the message
+   + ~C-c C-m C-e~
+     encrypt and sign the message
+   + ~C-c C-m C-c~
+     encrypt the message.  You do NOT have to enter in your password.
+
+**** Hiding Headers
+     I could customize Gnus to only show me the author of the email and the subject and hide all other headers
+
+          (setq gnus-visible-headers "^From:\\|^Subject:")
+     [[info:gnus#Hiding%20Headers][info:gnus#Hiding Headers]]
+
+** Signing and Encrypting Email
+    [[info:gnus#Signing%20and%20encrypting][info:gnus#Signing and encrypting]]
+** Terminology
+*** Specific Email terminology
+  + *mail* is anything delivered to me personally.  This is private.  It can be email or an RSS feed.
+  + *reply* is to reply to mail.  My reply is just between me and the person I'm sending it to.
+  + a *mail message* is a message that has been mailed
+  + *splitting* sorts your emails according to certain rules.  This is something incorrectly called mail filtering.
+*** Specific usenet terminology
+  + *news* is public to everyone.  If I post to news, the whole world can see it.  News is usenet.
+  + *follow up* is a response to a public article.  My follow up is public.  It is usually responding the public article that
+    I've read.
+  + an *article* is a message that has been posted as news
+  + *message* is a mail message or a news article
+  + *threading* to arrange mail, such that all mail related to the original article is organized by date.  This apparently does not work for mail.
+  + *root* the first article in the thread.  And may not apply to mail.
+*** Everything else
+  + *backend* is the underlying service that Gnus accesses the messages (messages mean either mail or articles).  Since the front-end side of GNUS doesn't care where the articles come from, Gnus can can support several backends and treat them all the same.  This means that Gnus can access RSS articles, usenet articles, and email, treat them all the same and forwarded them all as email.  So I can easily read a phoronix article in Gnus and then forward that article in an email.
+
+    Gnus supports several backends.  The most commonly used is the nnimap backend, which uses IMAP to access email.  This is how Gnus can read your hotmail or your gmail accounts.
+
+    The list of backends are:
+      + *nnimap* is the backend that access remote IMAP servers like gmail.
+      + *nntp* accesses mail.  This is probably usenet.
+      + *nnspool* accesses local spool news.
+      + *nnml*  accesses local mail.
+
+    Unfortunately, Gnus does not support Maildir, which is the cooler local mail format at this time.  If you wish Gnus to access local mail quickly, the best way to do it is via creating an Maildir via isync, running a local dovecot server to turn it into an local IMAP server, and then configuring Gnus to point to that.
+
+    The types of backends are
+      + *native* backends are the default backend Gnus uses to connect to servers.  Groups like this have names like:
+        "gnu.emacs.gnus".  An example to connect to gmail is this:
+           #+BEGIN_SRC emacs-lisp :export code
+
+              (setq gnus-select-method
+                    '(nnimap "gmail"
+                             (nnimap-inbox "Google")
+                             (nnimap-address "imap.gmail.com")  ; it could also be imap.googlemail.com if that's your server.
+                             (nnimap-server-port "993")
+                             (nnimap-stream ssl)
+                             (nnimap-split-methods default)))
+           #+END_SRC
+
+      + *secondary* backends are halfway between native and foreign backends.  They also have names like:
+        nntp+news.gmane.org:gmane.emacs.gnus.devel
+      + *foreign* these are groups that are accessed by non-native and non-secondary select methods.  They have names like
+        nntp+news.gmane.org:gmane.emacs.gnus.devel
+
+    Honestly I do not understand the difference between the types of backends or why one should choose one over the other.
+  + *server* is a machine that Gnus connects to, from which to get news and mail.
+  + *select method* is the structure that specifies the Gnus backend, the server to connect to, and the virtual server settings.
+  + *virual server* is the bit of code that specifies the backend and the server, which to connect.  A virtual server specifies the backend to use and the virtual server's name.  A virtual server in emails lisp that connects to gmail using the native method looks using the nnimp backend looks like:
+    #+BEGIN_SRC emacs-lisp :export code
+
+      (setq gnus-select-method
+            '(nnimap "gmail"
+                     (nnimap-inbox "Google")
+                     (nnimap-address "imap.gmail.com")  ; it could also be imap.googlemail.com if that's your server.
+                     (nnimap-server-port "993")
+                     (nnimap-stream ssl)
+                     (nnimap-split-methods default)))
+    #+END_SRC
+    The =nnimap "gmail"= is all that is required to define a virtual server, BUT the other segments like =(nnimap-inbox "Google")= are special options specific to the imap backend.
+  + *solid groups* all groups listed in the group buffer are solid groups
+  + head the top part of a message where info is put
+  + body is part of the message
+  + NOV is news overview.  They are provied by the nntp backend. Everytime gnus enters a group it asks the backend
+    for the headers of all unread articles.  Most servers do this by using the NOV format, which is faster
+  + *level* each group has a level
+     1-5 are subscribed
+     6-7 are unsubscribed
+     8 are zombie
+     9 are killed
+     no info is stored or updated on killed groups
+  + zombie groups are like killed groups
+  + active file is where the server stores info on the articles they carry. This file can be large
+  + a bogus group exists in the .newsrc file BUT is not known to the server aka it likely doesn't exist
+  + activating is asking the server for info on a group and computing the number of unread article that group has
+  + spool news servers store their files locally. Having 1 file per article is a traditonal spool
+  + a server connects to and gets the mail
+  + select method  specifying the backend
+  + washing taking a buffer and running it through a filter, which makes it more visually pleasing
+  + ephemeral most groups store data on what articles one has read.  but store nada and disapear when you exit the group
+  + root the first artcile in a thread
+  + parent an article that has responses
+  + a child an article that responds to the parents
+  + digest is a collect of mesages in a file
+  + splitting is sorting your emails according to certain rules
+** Check section "Subscribe groups" for details.
+  After subscribing the group INBOX, the INBOX could still be invisible if INBOX does not contain unread emails. That makes no
+  sense for an email client (It does make sense for a stone age news reader)! Anyway, the solution is simple, `C-u 5
+  gnus-group-list-all-groups` will get desired result. I assigned hotkey "o" to it. Here is my elisp code you could paste into
+  your .emacs. See the Gnus Manual on Listing Groups for more details.  Or just press j
+
+  #+BEGIN_SRC emacs-lisp
+    (defun my-gnus-group-list-subscribed-groups ()
+          "List all subscribed groups with or without un-read messages"
+          (interactive)
+          (gnus-group-list-all-groups 5)
+          )
+         (add-hook 'gnus-group-mode-hook
+                   ;; list all the subscribed groups even they contain zero un-read messages
+                   (lambda () (local-set-key "o" 'my-gnus-group-list-subscribed-groups ))
+                   )
+  #+END_SRC
+
+** pressing RET on a folder will show you "smart messages" that gnus thinks are important.
+  These messages are usually the unread messages.
+  pressing C-u RET will show you all messages

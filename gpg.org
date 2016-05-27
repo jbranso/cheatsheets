@@ -1,0 +1,10 @@
+#+TITLE:GPG Cheatsheet
+#+AUTHOR:Joshua Branson
+
+* receive gpg keys:
+
+#+BEGIN_SRC bash
+gpg --recv-keys 0x7BD63126
+#+END_SRC
+
+#+RESULTS:

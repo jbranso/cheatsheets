@@ -1,0 +1,5 @@
+* What is pixi.js?
+  pixi.js is a javascript library that uses WebGL, or canvas on devices that don’t support WebGL, to render things to the browser.
+* A Display Object
+  is a pixi class that should not be used by itself. Instead it is extended into other classes like Graphics.
+*
