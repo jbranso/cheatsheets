@@ -1077,7 +1077,11 @@ VLC can be controlled by a web browser.
 vlc --extraintf=http --http-host 0.0.0.0:8080 --http-password 'YourPasswordHere'
 #+END_SRC
 
+<<<<<<< variant A
 Now navigate to [[http://127.0.0.1:8080][http://127.0.0.1:8080]], and you can manage VLC with your web browser!
+>>>>>>> variant B
+Killall kills all processes with the name PROGRAMNAME.  You might have to run it twice to kill the program successfully.
+======= end
 
 Just enter in the password and leave the username blank.
 * Problems I'm trying to solve
@@ -1301,8 +1305,12 @@ The problem was laptop mode tools. This thread suggested that I should uninstall
 https://bbs.archlinux.org/viewtopic.php?id=209100
 
 And I uninstalled hdparm.
+<<<<<<< variant A
 ** DONE How do I kill a program if killall PROGRAMNAME and kill PID fails?
 CLOSED: [2016-04-16 Sat 09:58]
+>>>>>>> variant B
+** TODO How do I kill a program if killall PROGRAMNAME and kill PID fails?
+======= end
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2016-04-16 Sat 09:58]
 - State "TODO"       from              [2016-04-01 Fri 08:31]

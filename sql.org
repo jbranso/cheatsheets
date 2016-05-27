@@ -1,0 +1,891 @@
+#+TITLE:SQL Cheatsheat
+# DO NOT add this file to git!  It has private underage names in it.  I need to use my own fake database to demonstrate
+# these queries
+
+# The next lines says that I can make 10 levels of headlines, and org will treat those headlines as how to structure the book into
+
+# chapters, then sections, then subsections, then sub-sub-sections, etc.
+#+OPTIONS: H:10
+
+# This next line says that the table of contents should mention the chapters and the chapter sections.
+#+OPTIONS: toc:2
+* SQL Cheatsheat
+     :PROPERTIES:
+     :engine:   mysql
+     :dbhost:   localhost
+     :dbuser:   root
+     :dbpassword: GraceLikeRain
+     :database: usbc
+     :END:
+** Glossary
+*** Primary Key
+allegedly this is required, but that's not true.
+*** Foreign Key
+A foreign key is a column in one table that references another column.  So two tables might have the same ID column,
+but one of those columns contains a foreign key.
+*** Relationship
+A relationship of 2 tables is where two columns (typically have the same name), from different tables, have the same values.  Both of these columns contain primary keys, and one of those primary keys contains a foreign key to the other table.
+*** Database design
+**** 1st normal form
+**** 2nd normal form
+**** 3rd normal form
+** connecting to a database via the terminal
+   ~$ mysql -h host -u <user> -p~
+
+   ~Enter password: ********~
+
+   ~MariaDB> USE <table_name>~
+
+   ~MariaDB table_name>~
+
+
+   Now you can make calls to the database like this
+
+
+   ~MariaDB table_name>SELECT * FROM people~
+** Select Syntax
+   Note this is not the complete SELECT syntax; instead, it is a simplication. See the SQL documentation here for the complete
+   syntax: http://dev.mysql.com/doc/refman/5.6/en/select.html
+   SELECT [ DISTINCT ]
+
+   select_expr [, select_expr ...]
+
+   [FROM table_references
+
+   [WHERE where_condition]
+
+   [GROUP BY {col_name | expr | position}
+
+      [ASC | DESC]]
+
+   [ORDER BY {col_name | expr | position}
+
+      [ASC | DESC]]
+
+   [HAVING having_condition ]
+
+   [LIMIT {[offset,] row_count | row_count OFFSET offset}]]
+
+   * select_expr indicates a column you wish to retrieve.
+
+   * table_references indicates the table of tables from which to retrieve rows
+** LIMIT is particularly useful for SELECTs which use ORDER BY, DISTINCT and GROUP BY,
+because their calculations don't have to involve all the rows. This can speed the query up!
+** 4.22.9 IN and NOT IN
+
+#+BEGIN_SRC sql
+  SELECT ID, first, last from users WHERE ID IN (250, 251, 252, 254, 255)
+#+END_SRC
+
+#+RESULTS:
+|  ID | first  | last     |
+|-----+--------+----------|
+| 250 | John   | Niegos   |
+| 251 | Frank  | Poole    |
+| 252 | Jim    | Goodlink |
+| 254 | Randy  | Johnson  |
+| 255 | Darren | Haehnel  |
+
+
+#+BEGIN_SRC sql
+  SELECT ID, first, last from users WHERE ID NOT IN (250, 251, 252, 254, 255) limit 5
+#+END_SRC
+
+#+RESULTS:
+| ID | first  | last       |
+|----+--------+------------|
+|  1 | Steve  | Kunkel     |
+|  2 | Jim    | Carrey     |
+| 62 | Rhonda | Smith      |
+| 63 | Greg   | Keller     |
+| 64 | Ski    | Baranowski |
+
+** ORDER BY and WHERE
+ORDER BY and the WHERE clauses work together.  WHERE excludes certain rows from the result and ORDER BY orders the data by the way specified.
+
+The following sql statement only selects the males and puts them in alphabetical order.  You cannot use the aggregate functions like SUM (), AVG (), or MAX () in the where clause.
+#+BEGIN_SRC sql
+SELECT male, first, last from bowlers WHERE male = '1' ORDER BY bowlers.last limit 5
+#+END_SRC
+
+#+RESULTS:
+| male | first   | last     |
+|------+---------+----------|
+|    1 | Ethan   | Achten   |
+|    1 | Jordan  | Adkins   |
+|    1 | Manuel  | Agreda   |
+|    1 | Spencer | Anderson |
+|    1 | John    | Andrews  |
+
+** GROUP BY and HAVING
+ Lets you order the query is special ways.  The GROUP BY clause splits up the data into specific groups, and then the having clause lets you perform aggregate functions on each group.  This can let you perform some basic statistics on each group.
+
+ Having filters rows after they have been grouped.
+
+ #+BEGIN_SRC sql
+ SELECT male, first, last from bowlers WHERE male = '1' GROUP BY last limit 5
+ #+END_SRC
+
+ #+RESULTS:
+ | male | first   | last     |
+ |------+---------+----------|
+ |    1 | Ethan   | Achten   |
+ |    1 | Jordan  | Adkins   |
+ |    1 | Manuel  | Agreda   |
+ |    1 | Spencer | Anderson |
+ |    1 | John    | Andrews  |
+
+ #+BEGIN_SRC sql
+ SELECT first, last from bowlers group BY first limit 5
+ #+END_SRC
+
+ #+RESULTS:
+ | first   | last      |
+ |---------+-----------|
+ | Aaron   | Skibinski |
+ | Abbey   | Pitcock   |
+ | Abby    | Ludlow    |
+ | Abigail | Velchek   |
+ | Adam    | Armstrong |
+** 4.22.10 EXISTS and ALL
+
+(Compatible: Mysql 4+)
+SELECT ownerfirstname, ownerlastname
+FROM owner
+WHERE EXISTS (SELECT * FROM antiques WHERE item = 'chair')
+SELECT buyerid, item
+FROM antiques
+WHERE price = ALL (SELECT price FROM antiques)
+
+** UNION == UNION DISTINCT
+   UNION ALL shows you duplicate values
+   UNION DISTINCT shows you only the distinct values
+
+** JOINS
+JOINS lets you return data from multiple tables.  When you use joins you should try to specify columns by their
+full name.  This prevents ambiguity, improves performance, and ensures no ambiguity is introduced if someone creates a new column name. ie:
+
+#+BEGIN_SRC sql
+SELECT bowlers.first, bowlers.last, bowlers.ID, LEFT(activationEmail.activationString, 5) as sig
+from bowlers
+LEFT JOIN activationEmail on bowlers.ID = activationEmail.ID
+limit 5
+#+END_SRC
+
+#+RESULTS:
+| first   | last      |  ID |   sig |
+|---------+-----------+-----+-------|
+| Ryan    | Freese    | 113 | 11356 |
+| Thomas  | Sosinski  | 120 | 12056 |
+| Scott   | Lohman    | 121 | 12156 |
+| Michael | Koliboski | 127 | 12756 |
+| Joshua  | Spotnock  | 134 |  NULL |
+
+Listing out columns by their full name makes sure that you do not confuse say bowlers.ID with activationEmail.ID.  For example the following query won't work, because the ID clause could is ambiguous.
+
+#+BEGIN_SRC sql
+SELECT bowlers.first, bowlers.last, bowlers.ID, LEFT(activationEmail.activationString, 5) as sig
+from bowlers
+LEFT JOIN activationEmail on ID = ID
+limit 5
+#+END_SRC
+
+#+RESULTS:
+
+*** creating table aliases
+#+BEGIN_SRC sql
+SELECT u.first, u.last, schoolID, c.region from users as u
+LEFT JOIN conference as c on u.schoolID = c.groupID
+WHERE region is NOT NULL
+limit 15
+#+END_SRC
+
+#+RESULTS:
+| first    | last       | schoolID | region              |
+|----------+------------+----------+---------------------|
+| Jim      | Carrey     |        1 | Testing Conference  |
+| Rhonda   | Smith      |       46 | Blue Chip North     |
+| Greg     | Keller     |       47 | Blue Chip South     |
+| Ski      | Baranowski |       50 | Greater Lake County |
+| KC       | Spillers   |       49 | Ft. Wayne           |
+| Nancy    | Batlilner  |       50 | Greater Lake County |
+| Ed       | Tackett    |       51 | Hoosier             |
+| Tom      | Staten     |       53 | Indianapolis South  |
+| Karen    | Elrod      |       54 | Indianapolis West   |
+| Larry    | Zaideman   |       55 | Lakeshore           |
+| Christel | Hughey     |       56 | Michiana Central    |
+| Chris    | Harrison   |       57 | Michiana West       |
+| DeWayne  | Allen      |       58 | Mid-Central Indiana |
+| Jane     | Shafer     |       59 | Mid-Indiana         |
+| Chris    | Toyias     |       60 | Northeast           |
+
+*** cartesian joins you join every row of one table to every row of another table
+*** left Joins
+    Left joins allow one to combine the results from two different tables in one query.  It will only display show matching records.  In the following case, it will display the bowler, their coach, and their school.
+
+    How would I expand this query to get the team's assistant, the manager of that school, etc. w/o using sub-queries.
+
+
+#+BEGIN_SRC sql
+SELECT bowlers.first, bowlers.last, bowlers.ID, bowlers.schoolID as schoolID, schools.name as school,
+users.first as coachFirst, users.last as coachLast
+from bowlers
+LEFT JOIN schools on bowlers.schoolID = schools.schoolID
+LEFT JOIN users on bowlers.schoolID = users.schoolID
+WHERE users.level = 3
+ORDER by bowlers.last
+limit 5
+#+END_SRC
+
+#+RESULTS:
+| first   | last   |  ID | schoolID | school     | coachFirst | coachLast |
+|---------+--------+-----+----------+------------+------------+-----------|
+| Ethan   | Achten | 662 |      164 | Chesterton | Alexis     | Carter    |
+| Ethan   | Achten | 662 |      164 | Chesterton | Derek      | Carter    |
+| Ethan   | Achten | 662 |      164 | Chesterton | Henry      | Huyser    |
+| Hallee  | Acree  | 985 |      799 | McCutcheon | Jessica    | Hamilton  |
+| Jeanica | Adams  | 703 |      129 | Jimtown    | Kevin      | Reed      |
+
+
+**** why are there NULLs in activationEmail.activationString.  Because left JOIN shows NULL when there is no result
+:LOGBOOK:
+- State "TODO"       from              [2016-03-15 Tue 08:38]
+:END:
+
+#+BEGIN_SRC sql
+SELECT bowlers.first, bowlers.last, bowlers.ID, LEFT(activationEmail.activationString, 5) as sig
+from bowlers
+LEFT JOIN activationEmail on bowlers.ID = activationEmail.ID
+WHERE activationString IS NULL
+limit 50
+#+END_SRC
+
+#+RESULTS:
+| first    | last       |  ID | sig  |
+|----------+------------+-----+------|
+| Joshua   | Spotnock   | 134 | NULL |
+| Jordan   | Shepherd   | 161 | NULL |
+| Steven   | Haehnel    | 164 | NULL |
+| Jeffery  | Mann       | 165 | NULL |
+| Scott    | Lohman     | 181 | NULL |
+| Brandon  | Haffner    | 223 | NULL |
+| jarret   | whitehead  | 226 | NULL |
+| Javier   | Onate      | 317 | NULL |
+| Jada     | webster    | 323 | NULL |
+| Daniel   | Collins    | 326 | NULL |
+| Colton   | Schwartz   | 374 | NULL |
+| James    | Branson    | 375 | NULL |
+| Dillon   | Hasenour   | 376 | NULL |
+| Matthew  | Nonte      | 378 | NULL |
+| jacob    | brown      | 379 | NULL |
+| James    | Kelley     | 380 | NULL |
+| Matt     | Musgrave   | 381 | NULL |
+| Brett    | Cobban     | 393 | NULL |
+| Lindsey  | Lawson     | 398 | NULL |
+| Jeffrey  | Severson   | 399 | NULL |
+| Nicholas | Graveel    | 400 | NULL |
+| Alysha   | Ridgeway   | 401 | NULL |
+| Meagan   | Sumption   | 402 | NULL |
+| Charles  | Colip      | 409 | NULL |
+| Rebecca  | Lohse      | 411 | NULL |
+| Heather  | Waters     | 412 | NULL |
+| Lauren   | Smith      | 416 | NULL |
+| Nicholas | Lacy       | 419 | NULL |
+| Alisa    | Lopez      | 422 | NULL |
+| Tanner   | Charles    | 445 | NULL |
+| Benjamin | Mathewson  | 446 | NULL |
+| Ashlee   | Goelz      | 448 | NULL |
+| Kaelie   | Loftus     | 450 | NULL |
+| Brianna  | Minnich    | 451 | NULL |
+| Sarah    | Glant      | 452 | NULL |
+| Bryttney | Philpot    | 453 | NULL |
+| Alexis   | Shuler     | 454 | NULL |
+| Leah     | Kilbride   | 455 | NULL |
+| Kyara    | Palmer     | 456 | NULL |
+| Ashlee   | Goelz      | 457 | NULL |
+| Tyler    | Rodgers    | 462 | NULL |
+| Skyler   | Rodgers    | 463 | NULL |
+| Alex     | Johnson    | 469 | NULL |
+| Jessica  | Davis      | 473 | NULL |
+| jimmie   | hubart     | 476 | NULL |
+| Montez   | Thompson   | 478 | NULL |
+| Kharese  | Battle     | 481 | NULL |
+| Austin   | Cartwright | 484 | NULL |
+| Garrett  | Cartwright | 486 | NULL |
+| James    | Harrison   | 494 | NULL |
+
+*** Types of Joins
+Joins are ways of combining portions (or all) of two tables based on some commonality.  For example, the following query gets a user with the last name 'Baggins', and the school that that coach belongs to.
+
+#+BEGIN_SRC sql
+SELECT first, last, schools.name
+from users
+LEFT JOIN schools on users.schoolID = schools.schoolID
+WHERE last = 'Baggins'
+#+END_SRC
+
+#+RESULTS:
+| first | last    | name                                                        |
+|-------+---------+-------------------------------------------------------------|
+| Frodo | Baggins | This school is for testing purposes please do not delete it |
+
+If you are comparing to based base on rows that are equal, then instead of spelling out the comparison on the JOIN line with ~users.schoolID = schools.schoolID~, you could instead using the USING syntax. Here is the same query using the USING syntax:
+
+#+BEGIN_SRC sql
+SELECT first, last, schools.name
+from users
+LEFT JOIN schools USING (schoolID)
+WHERE last = 'Baggins'
+#+END_SRC
+
+#+RESULTS:
+| first | last    | name                                                        |
+|-------+---------+-------------------------------------------------------------|
+| Frodo | Baggins | This school is for testing purposes please do not delete it |
+
+
+Here is the same join using the WHERE syntax.  The WHERE syntax is a little easier to read, but the JOIN syntax is usually better to use on queries that join multiple tables, because then you can specify use natural joins, cross joins, and self joins in the same query!
+
+#+BEGIN_SRC sql
+SELECT first, last, schools.name
+from users, schools
+WHERE last = 'Baggins' and schools.schoolID = users.schoolID
+#+END_SRC
+
+#+RESULTS:
+| first | last    | name                                                        |
+|-------+---------+-------------------------------------------------------------|
+| Frodo | Baggins | This school is for testing purposes please do not delete it |
+
+A classic join uses two tables.  The first (or left) and second (or right) table respectively.  In the above example the first table was 'users' and the second was 'schools'.
+**** Cross Join
+this displays the rows from the left table where every row from the right is added to the left table.  There is no condition that must be met to add columns from the right to the left table.  All rows from both tables are added together.  This is a time consuming query, and it is rarely done.
+
+#+BEGIN_SRC sql
+SELECT users.first, users.last, bowlers.first, bowlers.last
+FROM users
+CROSS JOIN bowlers
+limit 5
+#+END_SRC
+
+#+RESULTS:
+| first  | last       | first  | last     |
+|--------+------------+--------+----------|
+| Steve  | Kunkel     | Joshua | Spotnock |
+| Jim    | Carrey     | Joshua | Spotnock |
+| Rhonda | Smith      | Joshua | Spotnock |
+| Greg   | Keller     | Joshua | Spotnock |
+| Ski    | Baranowski | Joshua | Spotnock |
+
+**** NATURAL JOIN
+Joins two tables where the columns that have the same name in both tables also have the same value.  In this case there is only one column with the same name "ID" in both tables. ie:
+
+#+BEGIN_SRC sql
+SELECT first, last, LEFT (a.activationString, 2) as string
+FROM bowlers
+NATURAL JOIN activationEmail as a limit 5
+#+END_SRC
+
+#+RESULTS:
+| first   | last      | string |
+|---------+-----------+--------|
+| Jacob   | Deweese   |     10 |
+| Ryan    | Freese    |     11 |
+| Thomas  | Sosinski  |     12 |
+| Scott   | Lohman    |     12 |
+| Michael | Koliboski |     12 |
+
+**** INNER JOIN
+These are the most common type of joins.  If common columns have the same value, it returns both results.
+
+#+BEGIN_SRC sql
+SELECT first, last, LEFT (a.activationString, 2) as string
+FROM users
+INNER JOIN activationEmail as a ON users.ID = a.ID
+limit 5
+#+END_SRC
+
+#+RESULTS:
+| first   | last      | string |
+|---------+-----------+--------|
+| Russell | Klosinski |     10 |
+| Randy   | Lohman    |     11 |
+| Thomas  | Sosinski  |     11 |
+| Jerry   | Keppen    |     12 |
+| Corky   | Koch      |     12 |
+
+**** LEFT OUTER JOIN
+This shows /all/ rows from the left table, even if the right table does not have matching values.  When this happens the right table's results are null in all columns.
+**** RIGHT OUTER JOIN
+This shows /all/ rows from the right table, even if the left table's values do not match.  When the left table values do not match the right, then the left columns will be null.
+**** FULL OUTER JOIN
+Returns /all/ rows from the left and right table, regardless if they match.  If both tables do not match, then the resulting rows will be null.
+**** SELF JOIN
+A join of a table to itself.  This is useful is you have a table that contains coaches and managers.  To find a coach's manager you could do:
+
+#+BEGIN_SRC sql
+  SELECT c.first as cFirst, c.last as cLast, c.schoolID as cSchoolID,
+  @groupID := s.groupID, LEFT (s.name, 4) as name,
+  m.first as mFirst, m.last as mLast, m.schoolID as mSchoolID
+  FROM users as c
+  LEFT JOIN schools as s on c.schoolID = s.schoolID
+  INNER JOIN users as m
+  WHERE c.last = 'Baggins'
+  AND c.schoolID = m.schoolID
+  # AND m.schoolID = @groupID
+  limit 5
+#+END_SRC
+
+#+RESULTS:
+| cFirst | cLast   | cSchoolID | @groupID := s.groupID | name | mFirst | mLast   | mSchoolID |
+|--------+---------+-----------+-----------------------+------+--------+---------+-----------|
+| Frodo  | Baggins |       714 |                     1 | This | Joshua | Branson |       714 |
+| Frodo  | Baggins |       714 |                     1 | This | Frodo  | Baggins |       714 |
+| Frodo  | Baggins |       714 |                     1 | This | Harry  | Potter  |       714 |
+| Frodo  | Baggins |       714 |                     1 | This | Sam    | Gamgee  |       714 |
+
+** subqueries
+   https://dev.mysql.com/doc/refman/5.0/en/subqueries.html
+   Subqueries appear in the where or having clause, as a result in the select statement, in the FROM clause
+   a subquery can only product a single column of data as a result. Order by is not allowed, doesn't make sense
+
+   to find girls with the same last name as the boys
+   SELECT * from girls WHERE last = (SELEct last from boys)
+
+   how find a coach a little better
+   #+BEGIN_SRC sql
+   select ID, first, last from bowlers WHERE level IN ('3', '6') limit 5
+   #+END_SRC
+
+   #+RESULTS:
+   |  ID | first   | last     |
+   |-----+---------+----------|
+   | 121 | Scott   | Lohman   |
+   | 413 | Heather | Waters   |
+   | 414 | Heather | Waters   |
+   | 555 | Jessica | Zaideman |
+   | 563 | Michael | Ramos    |
+
+   verses
+   SELEct ID from bowlers WHERE level = '3' and level = '6'
+
+   How to find all non coaches
+   #+BEGIN_SRC sql
+   SELEct ID, first, last from bowlers WHERE level NOT IN ('3', '6') limit 5
+   #+END_SRC
+
+   #+RESULTS:
+   |  ID | first   | last      |
+   |-----+---------+-----------|
+   | 113 | Ryan    | Freese    |
+   | 120 | Thomas  | Sosinski  |
+   | 127 | Michael | Koliboski |
+   | 134 | Joshua  | Spotnock  |
+   | 161 | Jordan  | Shepherd  |
+
+   Counting all of the assistants, and coaches and embedding a subquery
+     #+BEGIN_SRC sql
+       SELECT COUNT(IF(level='3',1,NULL)) 'coaches', COUNT(IF(level='4',1,NULL)) 'assistants',
+       (SELECT name from schools WHERE schoolID = 714) as schoolName
+       from users
+     #+END_SRC
+
+     #+RESULTS:
+     | coaches | assistants | schoolName                                                  |
+     |---------+------------+-------------------------------------------------------------|
+     |     145 |         81 | This school is for testing purposes please do not delete it |
+
+**
+** BETWEEN
+#+BEGIN_SRC sql
+SELECT ID from users WHERE ID BETWEEN '5' and '200' limit 5
+#+END_SRC
+
+#+RESULTS:
+| ID |
+|----|
+| 62 |
+| 63 |
+| 64 |
+| 65 |
+| 66 |
+
+** Aggregate Functions
+- MIN (expr)
+- MAX (expr)
+- SUM (expr)
+- AVG (expr)
+- COUNT (expr) counts non-null values
+- COUNT (*)    counts all values including null
+
+  expr can be anything like "ID * 5 / groupID".
+
+*** what you can and cannot do w/ aggregate functions (AF)
+**** An aggregate function cannot appear in the where clause
+#+BEGIN_SRC sql
+SELECT ID from users WHERE schoolID = MAX(schoolID)
+#+END_SRC
+
+#+RESULTS:
+**** You allegedly can't mix aggregate and nonaggregate statements in a select statement
+
+BUT I just did with mariadb
+
+#+BEGIN_SRC sql
+SELECT ID, MAX(schoolID), first, last from users
+#+END_SRC
+
+#+RESULTS:
+| ID | MAX(schoolID) | first | last   |
+|----+---------------+-------+--------|
+|  1 |          1170 | Steve | Kunkel |
+**** However you can mix aggregate functions w/ nonaggregate if you use group
+
+This sql statement is nonsensical, but it demonstrates what you can do.
+
+#+BEGIN_SRC sql
+SELECT SUM(ID + schoolID), last from users group BY last limit 5
+#+END_SRC
+
+#+RESULTS:
+| SUM(ID + schoolID) | last      |
+|--------------------+-----------|
+|                941 | Achten    |
+|               1121 | Adams     |
+|               1540 | ALEXANDER |
+|                132 | Allen     |
+|                853 | alley     |
+**** You can't use an aggregate function inside another aggregate function
+
+#+BEGIN_SRC sql
+SELECT SUM(MAX(ID) + MIN(schoolID)) from users limit 5
+#+END_SRC
+
+#+RESULTS:
+**** You alledibly can't use use aggregate functions in subqueries, but I did
+
+via mariadb
+
+#+BEGIN_SRC sql
+SELECT first, last, LEFT (parentImages.svgData, 5) as svg from bowlers
+LEFT JOIN parentImages on bowlers.ID = parentImages.ID
+WHERE parentImages.svgData = (SELECT MAX(svgData) from parentImages)
+limit 5
+#+END_SRC
+
+#+RESULTS:
+| first | last   | svg   |
+|-------+--------+-------|
+| Bria  | Schley | &lt;? |
+
+** Control flow functions
+*** IF (val1, val2, val3)
+   if val1 is true (val1 != 0 and val1 IS NOT NULL), then it returns val2. Otherwise it returns val3.
+*** CASE statement.  Display a table value based on another table value
+The case statement is a control flow statement.  It allows you to do change the value of a column in each record
+based on some value.  Here's a decent example of a nice case statement, that displays a creates a column "user" that
+returns a string value of what the user is, 'admin' or 'manager', or anything else.
+
+# Why is the distinct keyword not working?
+#+BEGIN_SRC sql
+  SELECT DISTINCT level,
+  ID, email, first, last, schoolID,
+  CASE level
+  WHEN 1 THEN 'admin'
+  WHEN 2 THEN 'manager'
+  WHEN 3 THEN 'coach'
+  WHEN 4 THEN 'assistant'
+  WHEN 5 THEN 'inactive manager'
+  WHEN 6 THEN 'inactive coach a roster coach should never be here'
+  WHEN 7 THEN 'inactive assistant an assistant should never be here.'
+  WHEN 8 THEN 'manager that has not clicked on the email'
+  WHEN 9 THEN 'coach that has not clicked on the email'
+  WHEN 10 THEN 'assistant that has not clicked on the email'
+  WHEN 11 THEN 'an archived admin'
+  WHEN 12 THEN 'an archived manager'
+  WHEN 13 THEN 'an archived coach'
+  WHEN 14 THEN 'an archived assistant'
+  END as user
+  FROM users
+  limit 10
+
+#+END_SRC
+
+#+RESULTS:
+| level | ID | email                         | first  | last       | schoolID | user    |
+|-------+----+-------------------------------+--------+------------+----------+---------|
+|     1 |  1 | highschoolbowling@hotmail.com | Steve  | Kunkel     |        0 | admin   |
+|     2 |  2 | bransoj@hotmail.com           | Jim    | Carrey     |        1 | manager |
+|     2 | 62 | bradam2000@aol.com            | Rhonda | Smith      |       46 | manager |
+|     2 | 63 | gjkeller@netsurfusa.net       | Greg   | Keller     |       47 | manager |
+|     2 | 64 | rebecb3@bluemarble.net        | Ski    | Baranowski |       50 | manager |
+|     2 | 65 | kcspillers@yahoo.com          | KC     | Spillers   |       49 | manager |
+|     2 | 66 | nancybatlinerdcc@gmail.com    | Nancy  | Batlilner  |       50 | manager |
+|     2 | 67 | edtackett360@gmail.com        | Ed     | Tackett    |       51 | manager |
+|     2 | 69 | tomlinstat@aol.com            | Tom    | Staten     |       53 | manager |
+|     2 | 70 | karen.elrod@sbcglobal.net     | Karen  | Elrod      |       54 | manager |
+
+#+BEGIN_SRC sql
+select distinct level from users order by level limit 10
+#+END_SRC
+
+#+RESULTS:
+| level |
+|-------|
+|     1 |
+|     2 |
+|     3 |
+|     4 |
+|     6 |
+|     9 |
+|    10 |
+|    13 |
+|    14 |
+
+** concat strings
+
+
+#+BEGIN_SRC sql
+SELECT CONCAT(first, ' ', last) as name from users limit 5
+#+END_SRC
+
+#+RESULTS:
+| name           |
+|----------------|
+| Steve Kunkel   |
+| Jim Carrey     |
+| Rhonda Smith   |
+| Greg Keller    |
+| Ski Baranowski |
+
+** LIKE
+   like has 2 special charters
+   "%" represents any sequence of chars
+   "_" means any 1 char
+
+   #+BEGIN_SRC sql
+   SELEcT last from bowlers WHERE last LIKE 'SM_TH' limit 5
+   #+END_SRC
+
+   #+RESULTS:
+   | last  |
+   |-------|
+   | Smith |
+   | SMITH |
+   | Smith |
+   | Smith |
+   | Smith |
+
+   LIKE also works with numbers
+   #+BEGIN_SRC sql
+   SELEct ID from bowlers WHERE ID LIKE '_2%' limit 5
+   #+END_SRC
+
+   #+RESULTS:
+   |  ID |
+   |-----|
+   | 120 |
+   | 121 |
+   | 127 |
+   | 223 |
+   | 226 |
+
+   it will select 123434 or 223434 or 4222323
+
+** SOUNDS LIKE can check if two words sound similiar! wow!
+   SELEcT first from girls WHERE first SOUNDS LIKE 'karlie'
+** regexp
+   SELECT 'string' REGEXP pattern
+** GREATEST (value1, value2, value3)
+** LEAST (value1, value2, value3)
+   returns the smallest value
+** LOAD DATA INFILE '/path/to/file' INTO TABLE usbcData
+** user defined variables! And Subqueries!
+   You can write one query and save the results in a sql variable!  Then you can refer to that variable in the union clause!
+
+   SELECT ID, first, last, schools.schoolID, level, @groupID := schools.groupID as groupID
+   FROM users LEFT JOIN schools on users.schoolID=schools.schoolID
+   WHERE (level = '3' OR level = '6' OR level = '9') AND (ID = '3')
+   UNION ALL SELECT ID, first, last, schoolID, level, schoolID as groupID from users
+   WHERE level = '2' AND schoolID = @groupID
+
+   You can get even crazier by defining sql variables that can be used as subqueries
+
+    #+BEGIN_SRC sql
+    SELECT users.first, users.last, users.ID, @schoolID := users.schoolID as schoolID, images.ID
+    as sig, schools.schoolID,  @groupID := (SELECT groupID FROM schools WHERE schoolID = @schoolID) as groupID,
+    (SELECT region FROM conference WHERE groupID = @groupID) as region
+    FROM users
+    LEFT JOIN schools    ON users.schoolID=schools.schoolID
+    LEFT JOIN images     ON users.ID=images.ID
+    WHERE (level = '6' OR level = '3') limit 10
+    #+END_SRC
+
+    #+RESULTS:
+    | first     | last      |  ID | schoolID | sig | schoolID | groupID | region              |
+    |-----------+-----------+-----+----------+-----+----------+---------+---------------------|
+    | Stephanie | Cooley    |  92 |      714 |  92 |      714 |       1 | Testing Conference  |
+    | Janee     | Babbitt   |  93 |       84 |  93 |       84 |      50 | Greater Lake County |
+    | Linda     | Olszewski |  95 |       79 |  95 |       79 |      50 | Greater Lake County |
+    | Edward    | Olszewski |  96 |       79 |  96 |       79 |      50 | Greater Lake County |
+    | Christine | Munsie    |  97 |       89 |  97 |       89 |      50 | Greater Lake County |
+    | Patrick   | Cobban    |  98 |       89 |  98 |       89 |      50 | Greater Lake County |
+    | Derrick   | Bohn      |  99 |      109 |  99 |      109 |      50 | Greater Lake County |
+    | Russell   | Klosinski | 107 |      184 | 107 |      184 |      55 | Michiana Central    |
+    | Tami      | Nedza     | 112 |      119 | 112 |      119 |      55 | Michiana Central    |
+    | Richard   | Hughey    | 114 |      114 | 114 |      114 |      56 | Michiana West       |
+
+
+
+
+the query up!
+** CURDATE()
+
+#+BEGIN_SRC sql
+SELECT Year(CURDATE())
+#+END_SRC
+
+#+RESULTS:
+| Year(CURDATE()) |
+|-----------------|
+|            2016 |
+
+#+BEGIN_SRC sql
+SELECT CURDATE()
+#+END_SRC
+
+#+RESULTS:
+|  CURDATE() |
+|------------|
+| 2016-03-10 |
+
+** COUNT
+:PROPERTIES:
+     :engine:   mysql
+     :dbhost:   localhost
+     :dbuser:   root
+     :dbpassword: GraceLikeRain
+     :database: usbc
+     :END:
+*** Select how many users there are in this database:
+
+#+BEGIN_SRC sql
+SELECT COUNT(*) from users
+#+END_SRC
+
+#+RESULTS:
+| COUNT(*) |
+|----------|
+|      342 |
+
+*** Select how many coaches and assistants there are.  A coach has level 3 and an assistant has level 4.  VERY COOL!
+
+#+BEGIN_SRC sql
+SELECT COUNT(IF(level='3',1,NULL)) 'coach', COUNT(IF(level='4',1,NULL)) 'assistant' from users
+#+END_SRC
+
+#+RESULTS:
+| coach | assistant |
+|-------+-----------|
+|   128 |        64 |
+
+*** Throw in a subquery as a column named "schoolName".  How cool is that?
+#+BEGIN_SRC sql
+  SELECT COUNT(IF(level='3',1,NULL)) 'coaches', COUNT(IF(level='4',1,NULL)) 'assistants',
+  (SELECT name from schools WHERE schoolID = 714) as schoolName
+  from users
+#+END_SRC
+
+#+RESULTS:
+| coaches | assistants | schoolName                                                  |
+|---------+------------+-------------------------------------------------------------|
+|     145 |         81 | This school is for testing purposes please do not delete it |
+
+*** See how many unique first and last names there are
+
+#+BEGIN_SRC sql
+  SELECT COUNT(DISTINCT first) as uniqueFirst, COUNT(DISTINCT last) as uniqueLast
+  from bowlers
+#+END_SRC
+
+#+RESULTS:
+| uniqueFirst | uniqueLast |
+|-------------+------------|
+|         275 |        352 |
+
+** LEFT only show the first n chars of a value
+
+LEFT (<column name>, <number>)
+
+#+BEGIN_SRC sql
+  SELECT LEFT (activationString,10), ID, initials, date FROM activationEmail limit 3
+#+END_SRC
+
+#+RESULTS:
+| LEFT (activationString,10) |   ID | initials | date       |
+|----------------------------+------+----------+------------|
+| 1000568d9f                 | 1000 |          | 05/16/2000 |
+| 1001568f2e                 | 1001 |          | 09/19/1999 |
+| 10085696df                 | 1008 |          | 01/08/2016 |
+** UPDATE
+
+UPDATE <table> SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
+[WHERE condition]
+[ORDER BY ...]
+[LIMIT number]
+
+ The UPDATE command alters data in an existing sql database.
+
+ Notice that bowler ID 375 is James Branson.  Let's change that to "Josh Branson".
+ #+BEGIN_SRC sql
+ SELECT first, last, ID from bowlers WHERE ID = '375'
+ #+END_SRC
+
+ #+RESULTS:
+ | first | last    |  ID |
+ |-------+---------+-----|
+ | James | Branson | 375 |
+
+ When you do an update clause, *always* include a where clause.  If a where clause is missing then every column will be updated from your set clause.  In this case, if I did NOT include the WHERE clause, every bowler would have the first name 'Josh'!  It's also good practice to add a limit clause at the end of an update clause.  If you only expect the update command to affect one row, then add the =limit 1=, just to be guarantee that the query will /only/ affect one row.
+ #+BEGIN_SRC sql
+ UPDATE bowlers SET first='Josh' WHERE ID = '375' limit 1
+ #+END_SRC
+
+ #+RESULTS:
+
+ #+BEGIN_SRC sql
+ SELECT first, last, ID from bowlers WHERE ID = '375'
+ #+END_SRC
+
+ #+RESULTS:
+ | first | last    |  ID |
+ |-------+---------+-----|
+ | Josh  | Branson | 375 |
+
+* fixing pcn
+     :PROPERTIES:
+     :engine:   mysql
+     :dbhost:   localhost
+     :dbuser:   root
+     :dbpassword: GraceLikeRain
+     :database: usbc
+     :END:
+
+#+BEGIN_SRC sql
+SELECT first from bowlers  WHERE first = 'Joshua' limit 5
+#+END_SRC
+
+#+RESULTS:
+| first  |
+|--------|
+| Joshua |
+| Joshua |
+| Joshua |
+| Joshua |
+| Joshua |
+
+     #+BEGIN_SRC sql
+     UPDATE bowlers SET first = 'Joshua' WHERE first = 'Joshua' limit 5
+     #+END_SRC
+
+     #+RESULTS:

@@ -50,6 +50,7 @@ Mark the images you wish to view, then press C-t d (image-dired-display-thumbs)
 
 You could also just do a M-x image-dired
 ** Macros
+<<<<<<< variant A
 A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat similar text, or delete, edit similar text.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys.  I could write the numbers 1 through 1,000 by typing 31 keys!
 
   - ~C-x (~ begin recording a keyboard macro
@@ -57,6 +58,10 @@ A Macro is a remembered sequence of Emacs keychords that can be repeated.  This 
   - ~C-x e~  performs the last created keyboard macro
   - ~C-x Q~  prompt the user for input during a macro.
 
+>>>>>>> variant B
+  -  C-x e  performs the last created keyboard macro
+  - `C-x Q`  prompt the user for input during a macro.
+======= end
     # FIXME specify where I found this defun
     This is not a standard emacs command; I found it on the emacs wiki.  Essentially this command tells the macro to prompt the user for input every time you call the macro.  This is useful if you have a macro that wants to write out a convoluted sequence of numbers.  The code for this is here:
 
@@ -80,9 +85,20 @@ A Macro is a remembered sequence of Emacs keychords that can be repeated.  This 
 
       (global-set-key "\C-xQ" #'my-macro-query)
     #+END_SRC
+<<<<<<< variant A
+>>>>>>> variant B
+
+======= end
   - =C-x q= prompt, when you use this macro if you want to continue.  You can enter C-r to briefly step out of the macro
     and do some edits yourself, then C-M-c will allow you to continue execution of the macro.
 
+<<<<<<< variant A
+>>>>>>> variant B
+*** My personal keybindings                                                   :noexport:
+  - `C-c r <letter>` begin recording keyboard macro
+  - `C-c r <letter>` end recording keyboard macro
+  - `@ <letter>` perform keyboard macro
+======= end
 ** narrowing
   are entered via this syntax
   ~C-x n <letter>~

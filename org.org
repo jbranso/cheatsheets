@@ -549,6 +549,10 @@ When you have a list like the one above, to add to it just type C-RET, but when 
      #+INDEX: Application!CV
 
 * Agenda
+<<<<<<< HEAD
+=======
+
+>>>>>>> f1151bf9728e23e2eb55a7d45b3d78f1b2048a79
 ** Agenda commands
    - =A= redraw the agenda view and prompt for how you want it
    - =d= show the day's view
@@ -639,9 +643,12 @@ You can install additional templates by customizing the variable org-structure-t
     ,** One time this farmer
   #+END_SRC
 * Schedulting
+<<<<<<< HEAD
 
 Scheduling involves creating timestamps.  An active timestamp is enclosed by "<" and ">", and it will cause the heading it's in, to show up in the agenda buffer.  An inactive timestamp is enclosed by "[" "]" and it will not show up in the agenda buffer.
 
+=======
+>>>>>>> f1151bf9728e23e2eb55a7d45b3d78f1b2048a79
   You can schedule to begin working on a TODO item by typing C-c C-s.  You can schedule a deadline for a TODO item by typing C-c C-d.
 
   The result is this
@@ -687,6 +694,7 @@ Scheduling involves creating timestamps.  An active timestamp is enclosed by "<"
   # I got this text from: [[info:org#Repeated%20tasks][info:org#Repeated tasks]]
   To mark a task with a repeater as `DONE', use `C-- 1 C-c C-t' (i.e.,
 `org-todo' with a numeric prefix argument of -1.)
+<<<<<<< HEAD
 ** Advanced Scheduling
 
 Org scheduling will only get you so far.  Org timestamps cannot plan things like "The 2nd Thursday of the Month", but the Emacs Diary Sexp Entries can!
@@ -699,3 +707,5 @@ For example,  suppose your local bowling team goes bowling on the 3rd Tuesday of
 #+END_SRC
 
 If you would like to know more, the documentation for the function "diary-float", is quite sufficient.
+=======
+>>>>>>> f1151bf9728e23e2eb55a7d45b3d78f1b2048a79
