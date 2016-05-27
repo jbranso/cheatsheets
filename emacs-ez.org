@@ -47,7 +47,7 @@ In emacs the blinking cursor is called "point".  As you type the blinking cursor
 #+END_EXAMPLE
 
 ** Bookmarks
-  Emacs bookmarks are nifty ways of saving your place in a file.  If you wish to return to some obscure local or remote file, you can easily save point's current position, and return to it later.
+Emacs bookmarks are nifty ways of saving your place in a file.  If you wish to return to some obscure local or remote file, you can easily save point's current position, and return to it later.
 
   - =C-x r m=  sets a bookmark for you at point and it prompts you to name it
   - =C-x r b=  jumps you to a bookmark
@@ -247,8 +247,7 @@ return 2 + 2
   https://github.com/Malabarba/elisp-bug-hunter
   M-x bug-hunter-init-file
 ** Helm Mode
-  HOLY BLIMEY COW!!! THIS MODE IS AWESOME enable it!
-
+Helm mode is an interactive completetion framework that is much better than ido mode.
   C-c C-f helm-find-files
 
   In this mode typing "~/ manage js$"
@@ -262,25 +261,6 @@ return 2 + 2
   and C-j for the 3rd action.
   You can also bind a key to an action menu
   (define-key helm-map (kbd "<C-tab>") 'helm-select-4th-action)
-
-  C-c C-u lets you view an image
-
-  Apparently helm lets you open files externally in helm-find-files with C-c C-x (not working though)
-
-  I can make personal actions on to run on files via eshell WOW!!!!
-
-  C-SPC will mark files that you can perform actions on
-
-  You can then hit copy files in the action menu, which will let you select a new destionation to copy the files. so cool!
-  You can do the same thing from the action menu with rename, symlink, hardlink
-
-  helm has support for etags
-  C-h e  will search the tags file
-  the above should create the TAGS file with tags, but it's not working
-  find . -iregex .*\.el$ | xargs etags
-
-  check out pcomplete extension
-  https://github.com/thierryvolpiatto/pcomplete-extension
 
 *** commands
   I can also write my own helm commands cool!
