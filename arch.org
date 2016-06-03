@@ -1070,6 +1070,17 @@ kill -SIGKILL NAME
 
 This sends the kill signal.  The program exists as fast as it can, without saving any data.
 
+* Thunar
+Thunar will automount media, which is quite cool!
+
+You need to have thunar-volman installed to get it working properly.
+
+You need to have  ~thunar --daemon~ auto-started when you login.
+
+thunar-volman-settings lets you configure what command to run to auto mount media.
+
+To automount and run a DVD you only need to specify ~vlc /dev/sr0~
+
 * VLC web interface
 VLC can be controlled by a web browser.
 

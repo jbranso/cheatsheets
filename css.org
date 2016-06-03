@@ -1,5 +1,7 @@
 #+TITLE:CSS Cheatsheat
 #+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
 
 * Flexbox
 
@@ -52,3 +54,18 @@ The flex container can either be vertically or horizontally based.  You can even
 #+END_EXAMPLE
 
 | 3 | 2 | 1 |
+
+* positioning
+** absolute positioning
+
+When you position an element absolutely, it is fixed.  If you put an absolute positioned element inside a div, then the div cannot calculate the height of the child.
+
+#+BEGIN_EXAMPLE
+<div class="I'm a regular div" style="background-color:blue">
+<img style="position:absolute"></img>
+</div>
+#+END_EXAMPLE
+
+ It'll look like this:
+
+ [[./images/abs-pos-height.png]]

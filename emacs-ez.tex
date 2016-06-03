@@ -1,4 +1,4 @@
-% Created 2016-05-27 Fri 13:49
+% Created 2016-06-03 Fri 14:04
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -46,91 +46,127 @@ This is the right to distribute your modified version of Emacs.  You could also 
 So Emacs grants you, the user, many freedoms that other programs lack.  Please notice that this is computing freedom.  Free software is liberty software, not necessarily gratis software.  However,  Emacs is Free software, and it can usually be obtained as gratis software.
 \end{itemize}
 
-There are also some practical reasons to use Emacs. Plenty of programmers these days use drastically simple programming editors like notepad, notepad++, nano.  These editors are "What you see is what you get" type editors, and they are frustratingly lacking in good features, and one cannot easily configure these editors to do anything that you would like.  Emacs gives you the ability to install hundreds, if not thousands of add-ons, and configure \textbf{everything} that your text editor does!
+There are also some practical reasons to use Emacs. Plenty of programmers these days use drastically simple programming editors like notepad, notepad++, nano.  These editors are "What you see is what you get" type editors, and they are frustratingly lacking in good features, and one cannot easily configure these editors.  Emacs gives you the ability to install hundreds, if not thousands of add-ons, and configure \textbf{everything} that your text editor does.
 
 So what can Emacs do?  You can use emacs to use commands to manipulate and transpose regions of text, write in nearly every programming language imaginable, read your email, browse the internet, play games, browse local files, look at a photo gallery, stream internet music, watch online movies (coming soon), create text expandable abbreviations, clock your working hours, invoice clients, schedule your weekly agenda, syntax checking, browse documentation, commit your development changes to version control, emulate vim, all of which can be configured and tweaked emacs in numerous ways.  If that doesn't satisfy you, then you can programmatically change emacs' behavior to better suit your development workflow.
 
+\section{Emacs Introduction}
+\label{sec:orgheadline3}
+Emacs is a incredibly old software.  It's been around since the late 80s and early 90s, and its amazing flexibility is probably what has kept it alive this long.  Learning Emacs can be a huge challenge of its own, but if you take the time to learn Emacs, the rewards are astonishing.
+
+\\
+\\
+
+\includegraphics[width=.9\linewidth]{/home/joshua/pictures/emacs_learning_curves.png}
+
+(Original source appears to be Steve Rowe's blog. “A friend of mine put this together” \href{https://blogs.msdn.microsoft.com/steverowe/2004/11/17/code-editor-learning-curves/}{Source}).
+
+
+Since Emacs is so old, it created some terminology that modern text editors do not use.  For example Emacs has "Frames" and "Windows", "yanking" and "killing" and no other text editor uses those terms, but the best way to learn Emacs, is to dive into the terminology.  So put on your big programming pants, and follow me down the Emacs golden brick road of confusion!
+
+So go ahead and launch Emacs. When you do, you should see a blinking rectangle.  When you start to type this rectangle moves and letters appear.  That blinking rectangle is called \emph{point}.  When \emph{point} moves around the text, we say that point moves in the \emph{buffer}.  The \emph{buffer} then is a region in Emacs that contains text.  Since you've just started Emacs, the whole Emacs graphical display is one \emph{frame}.  You can also launch Emacs from the terminal and that is still just one frame of Emacs.  If you open a second instance of Emacs, you now have two frames.  Emacs also has windows.  An Emacs \emph{window} is the portion of Emacs that contains the buffer, or the text.  It's also possible to for a frame to have multiple windows.  You can read more about creating and deleting windows and frames in \hyperref[sec:orgheadline2]{Frame and Window Commands}.
+
 \section{Built in Emacs Features}
-\label{sec:orgheadline17}
+\label{sec:orgheadline19}
 \subsection{Movement}
-\label{sec:orgheadline2}
-In emacs the blinking cursor is called "point".  As you type the blinking cursor moves, so we say that point moves as you type.  One can always use the arrow keys to move point, but Emacs provides some nifty ways of moving point as well.  Pressing and holding the control key whilst hitting "f" will move point forward one character.  In Emacs lingo we call that a keychord, and it is denoted like this "C-f".  Similarly, holding and pressing the control key, then hitting "b" will move point backward one character.  That keychord is denoted as "C-b".  "C-p" will move point back to the up previous line, and "C-n" will move point down to the next line.  So the basic movement keys look like this:
+\label{sec:orgheadline4}
+One can always use the arrow keys to move point, but Emacs provides some nifty ways of moving point as well.  Pressing and holding the control key whilst hitting "f" will move point forward one character.  In Emacs lingo we call that a keychord, and it is denoted like this "C-f".  Similarly, holding and pressing the control key, then hitting "b" will move point backward one character.  That keychord is denoted as "C-b".  "C-p" will move point back to the up previous line, and "C-n" will move point down to the next line.  So the basic movement keys look like this:
 
 \begin{verbatim}
-                   "C-p"
-                     /\
-                     ||
-                     ||
-                     ||
-                     ||
-                     ||
-"C-b" <--------------||---------------> "C-f"
-                     ||
-                     ||
-                     ||
-                     ||
-                     ||
-                     ||
-                     ||
-                     \/
-                   "C-n"
+                  "C-p"
+                    /\
+                    ||
+                    ||
+                    ||
+                    ||
+"C-b" <-------------||--------------> "C-f"
+                    ||
+                    ||
+                    ||
+                    ||
+                    ||
+                    ||
+                    \/
+                  "C-n"
 \end{verbatim}
 
+\subsection{Yanking and Killing}
+\label{sec:orgheadline5}
+Most text editors use the words "cutting", "pasting", and "coping" for the commands \texttt{C-x}, \texttt{C-v}, and \texttt{C-c}.  Emacs used different words and different commands.  What is normally called cutting is \emph{killing} in Emacs.  In this way, one kills to the kill region, a section where emacs stores killed text.  Pasting is called \emph{yanking}.  One yanks from the kill region to past into the buffer.  Copying in Emacs is also called copying.
+
+To kill or copy a region of text, you must first \emph{mark} that region or highlight it.  To begin marking a region of text one presses \texttt{C-<space>} or \texttt{C-SPC}.  \texttt{<space>} and \texttt{SPC} means hitting the spacebar key.    Then you can move around point until you have marked the entire region.  To kill the region type \texttt{C-w}.  To copy the region type \texttt{M-w}.  M stands for the meta key, which on today's keyboard usually means the alt key.  So \texttt{M-w} means to press and hold the alt key, then hit the w key.  Alternatively hitting the ESC key is the same as pressing and holding the alt key.  So \texttt{M-w} is the same thing as \texttt{ESC-w}.
+
+To yank the killed or copied text back into the buffer press the \texttt{C-y} keychord.
+
+\subsection{Frame and Window Commands}
+\label{sec:orgheadline2}
+Emacs has windows and frames, and they are probably not what you think they are.  A Frame is probably what you would think a window is.  So when you follow a link in your browser in a new window, that is a window in browser terminology.  In Emacs you can do the same thing, but it is called opening a new frame.  Go ahead and open a new frame now by typing \texttt{C-x 5 2}.  To get back to one Emacs frame, you can either close the additional frame normally, or you can press \texttt{C-x 5 0}.
+
+An Emacs window then is the buffer portion of the frame that displays text.  One frame can have multiple windows.  If you type \texttt{C-x 1}, then Emacs is only displaying one window.  Then, if you type \texttt{C-x 2} or \texttt{C-x 3}, then Emacs is displaying 2 windows.  So a window then is a section of the Emacs Frame that contains text from a buffer.
+
+In emacs the entire emacs program takes up a \textbf{frame}.  But emacs allows you to view two different files in the same frame, by splitting the frame in half, or in two \textbf{windows}.
+\begin{itemize}
+\item \texttt{C-x o} Delete the selected window
+\item \texttt{C-x 1} Delete all the windows except the one that currently has point
+\item \texttt{C-x \textasciicircum{}} make the selected window taller
+\item \texttt{C-x \{} make the selected window narrower
+\item \texttt{C-x \}} make the selected window wider
+\end{itemize}
 \subsection{Bookmarks}
-\label{sec:orgheadline3}
+\label{sec:orgheadline6}
 Emacs bookmarks are nifty ways of saving your place in a file.  If you wish to return to some obscure local or remote file, you can easily save point's current position, and return to it later.
 
 \begin{itemize}
 \item \texttt{C-x r m}  sets a bookmark for you at point and it prompts you to name it
 \item \texttt{C-x r b}  jumps you to a bookmark
 \end{itemize}
+\subsection{Learning About Emacs}
+\label{sec:orgheadline7}
+Emacs comes with some amazing documentation.  \texttt{M-x info} will show you a list of the available documentation that comes with Emacs.  This documentation is contained in info files, which can be easily navigated via Emacs.
+
+Emacs also has a pretty powerful help command:  \texttt{C-h}.  \texttt{C-h v} will let you learn some documentation about a particular Emacs variable, while \texttt{C-h f} will show you documentation for an Emacs elisp function.  Every time that you hit a keychord, an equivalent Emacs function is called.  In fact \texttt{C-h k KEYCHORD}, will tell you the documentation for the a function based on its keychord.  For example, \texttt{C-h k C-n} will display documentation for the function "next-line".
+
+\subsection{Configuring Emacs with Lisp}
+\label{sec:orgheadline8}
+Emacs' flexibility stems from the ability to program-matically change it via Emacs lisp.  If you dislike a particular aspect of Emacs, then you can easily change it by putting in some Emacs lisp code into your init file.  This is the file that Emacs loads every time on startup.  Any Emacs lisp functionality that you code in your init file, will be available every time you start emacs. You can find your init file by checking out the variable \texttt{user-init-file}.  To do this press the keychord \texttt{C-h v RET user-init-file RET}.
 \subsection{Dired}
-\label{sec:orgheadline6}
+\label{sec:orgheadline11}
 Dired is the emacs file manager.  It opens a buffer displaying all your files in the specified directory.  With it you can perform numerous commands on marked files, like deleting, copying, moving, or even creating your own command.
 \subsubsection{Commands}
-\label{sec:orgheadline4}
+\label{sec:orgheadline9}
 \begin{itemize}
 \item \texttt{n} next line
 \item \texttt{p} previous line
 \item \texttt{m} mark the current file under point
 \item \textasciitilde{}\% m REGEXP <RET>  mark files based on a regular expression
-\item \texttt{Q} dired-do-query-replace-regexp lets you search and replace for text inside all marked files
-\begin{itemize}
-\item Press y, to replace the current match
-\item press \texttt{n} to skip the current match
-\item press \texttt{!} to replace all the matches in the current buffer
-\item Press \texttt{Y} to replace all the remaining matches in all buffers
-\end{itemize}
-\item how to recursively search and replace
-\item M-x wdired-change-to-wdired-mode
-Makes the contents of the dired buffer editable.  Once you are done making changes type \texttt{C-c C-c}.  This saves your changes.  It is a nifty way to easily change multiple file permissions, file names, etc.
 \end{itemize}
 \subsubsection{Image Dired}
-\label{sec:orgheadline5}
+\label{sec:orgheadline10}
 You can also view images inside dired!  Mark the images you wish to view, then press C-t d (image-dired-display-thumbs). Alternatively, you could also just run the command M-x image-dired.
 \subsection{Macros}
-\label{sec:orgheadline7}
-A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat similar text, or delete, edit similar text.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys.  I could write the numbers 1 through 1,000 by typing 31 keys!
+\label{sec:orgheadline12}
+A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat complicated commands.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys.  I could write the numbers 1 through 1,000 by typing 31 keys!
 
 \begin{itemize}
 \item \texttt{C-x (} begin recording a keyboard macro
 \item \texttt{C-x )} end recording a keyboard macro
 \item \texttt{C-x e}  performs the last created keyboard macro
-\item \texttt{C-x q} prompt, when you use this macro if you want to continue.  You can enter C-r to briefly step out of the macro
-and do some edits yourself, then C-M-c will allow you to continue execution of the macro.
 \end{itemize}
 \subsection{Narrowing}
-\label{sec:orgheadline8}
-Narrowing commands make Emacs only display portions of the buffer, whilst hidding all other regions.  While Emacs is narrowed, all entered commands only affected the displayed regions.  This means any hidden area cannot be modified while Emacs is narrowed.  This is useful if you only want a macro to execute within a specific function.
-  \texttt{C-x n <letter>}
-    \texttt{d} narrow to defun
-    \texttt{r} widen to region
-    \texttt{s} narrow to a org subtree
-    \texttt{w} widden to the whole buffer
+\label{sec:orgheadline13}
+Narrowing commands make Emacs only display portions of the buffer, whilst hidding all other regions.  While Emacs is narrowed, all entered commands only affected the displayed regions.  This means any hidden area cannot be modified while Emacs is narrowed.  This is useful if you only want a macro to execute within a specific function.  Here are the relevant narrowing commands:
 
-A much better way to use the narrowing commands is just to make emacs guess what you want whenever you press "C-x n", and that's what the following snippet does.  I recommend that you put it in your .emacs:
+\texttt{C-x n <letter>}
+\begin{itemize}
+\item \texttt{d} narrow to defun
+\item \texttt{r} widen to region
+\item \texttt{s} narrow to a org subtree
+\item \texttt{w} widden to the whole buffer
+\end{itemize}
 
-I found this code snippet \href{http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html}{here.}
+A much better way to use the narrowing commands is just to make emacs guess what you want whenever you press "C-x n", and that's what the following snippet does.   I recommend that you put it in your .emacs file.  The code works by figuring out which narrowing command you want to use.  If point is currently in a definition, then the buffer will be narrowed to that definition.  If point is in an org-subtree, then the buffer will be narrowed to that subtree.
+
+You can see the blog post where I found this code snippet \href{http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html}{here.}
 
 \begin{verbatim}
 ;; Also set up narrow dwin
@@ -164,45 +200,11 @@ already narrowed."
 ;; if that's what you want.
 (define-key ctl-x-map "n" #'narrow-or-widen-dwim)
 \end{verbatim}
-\subsection{Rectangles}
-\label{sec:orgheadline9}
-You can easily create a rectangle with evil mode with C-v.  Once you have a rectangle you can do these commands:
-
-\begin{itemize}
-\item \texttt{C-x r o} insert blank spaces to the left of the rectangle region
-\item \texttt{C-x r N} insert numbers all along the left of the rectangle region
-\end{itemize}
-\subsection{Registers}
-\label{sec:orgheadline10}
-Number Registers
--`C-u number C-x r n r`
-Store number into register r (number-to-register).
-
-`C-u number C-x r + r`
-If r contains a number, increment the number in that register by number. Note that command C-x r + (increment-register) behaves differently if r contains text. See Text Registers.
-
-`C-x r i r`
-Insert the number from register r into the buffer.
-
-`C-x r i` is the same command used to insert any other sort of register contents into the buffer. `C-x r +` with no numeric argument increments the register value by 1; `C-x r n` with no numeric argument stores zero in the register.
-
-\texttt{C-x r s R}  save text to register R
-\texttt{M-x append-to-register R} appends text to Register R
-\subsection{Windows Commands}
-\label{sec:orgheadline11}
-In emacs the entire emacs program takes up a \textbf{frame}.  But emacs allows you to view two different files in the same frame, by splitting the frame in half, or in two \textbf{windows}.
-\begin{itemize}
-\item \texttt{C-x o} Delete the selected window
-\item \texttt{C-x 1} Delete all the windows except the one that currently has point
-\item \texttt{C-x \textasciicircum{}} make the selected window taller
-\item \texttt{C-x \{} make the selected window narrower
-\item \texttt{C-x \}} make the selected window wider
-\end{itemize}
 \subsection{org-mode}
-\label{sec:orgheadline16}
-Emacs org-mode really deserves its own cheatsheat, so I won't go into much detail here, but I'll start you off with the basics.  Org-mode is Emacs' organizational mode, and it's pure gold!  With Org-mode I organize my daily agenda, todo lists. Parts of my emacs init files is written in it.  I use it to keep track of my working hours, with which I then invoice clients.  I use its markup to write MIME emails.  I wrote all of my documentation in it, and I keep track of my finances with it!  It truly is a remarkable emacs mode!
+\label{sec:orgheadline18}
+Emacs org-mode really deserves its own cheatsheat, so I won't go into much detail here, but I'll start you off with the basics.  Org-mode is Emacs' organizational mode, and it's pure gold!  With Org-mode I organize my daily agenda, todo lists. Parts of my emacs init files are written in it.  I use it to keep track of my working hours, with which I then invoice clients.  I use its markup to write MIME emails.  I wrote all of my documentation in it, and I keep track of my finances with it!  It truly is a remarkable emacs mode!
 \subsubsection{Org-mode's hierarchical structure}
-\label{sec:orgheadline13}
+\label{sec:orgheadline15}
 Org-mode lets you easily insert headings and sub headings with "C-RET".  If you press it many times, you'll have something like this:
 
 \begin{verbatim}
@@ -218,32 +220,35 @@ A line with just one "*" is a top level heading.  If it has a two "**" below it,
 ** I am a sub-heading.
 \end{verbatim}
 
+You can use the tab key to show/hide any sub level headings.
+
+
+Org-mode is also great for todo lists.  Pressing C-c C-t lets you mark an item as TODO or DONE.
 \paragraph{Todo lists}
-\label{sec:orgheadline12}
-One can easily create simple todo lists with org-mode.  In any org file press "C-RET".  A "*" will have inserted itself into your buffer.  Pressing "C-c C-t" will add the words "TODO",  pressing "C-c C-t" again, will change the status to DONE.  You will end up with something looking like:
+\label{sec:orgheadline14}
+One can easily create simple todo lists with org-mode.  In any org file press "C-RET".  A "*" will have inserted itself into your buffer.  Pressing "C-c C-t" will add the words "TODO".  It'll look like:
+
+\begin{verbatim}
+* TODO
+\end{verbatim}
+
+Pressing "C-c C-t" again, will change the status to DONE.  You will end up with something looking like:
 
 \begin{verbatim}
 * DONE
 \end{verbatim}
 
-
 \subsubsection{org-babel}
-\label{sec:orgheadline15}
-Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  For example here is some javascript:
+\label{sec:orgheadline17}
+Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  It could probably be moved into its own cheatsheet, but I will describe the basics for you here.  For example here is some javascript:
 
 \begin{verbatim}
-// initialize the variable
-var i = 5;
-if (i < 6) {
-  i++;
-}
-console.log (i);
+console.log("hello world")
 \end{verbatim}
 
-The comment "initialize the variable" comes after the comment syntax "//".  In literate programming the code portion of the file is "commented" and the comments do not hide behind a comment syntax.  Let me give you an example of the literate kind:
+Let's write a trivial js function the literate way
 
 \begin{verbatim}
-Let's write a trivial js function the literate way
 #+BEGIN_SRC js :exports code
   var i = 5;
   if (i < 6) {
@@ -253,13 +258,9 @@ Let's write a trivial js function the literate way
 #+END_SRC
 \end{verbatim}
 
-\begin{verbatim}
-5 + 5
-\end{verbatim}
-
-How cool is that?
+Literate programming might not be the best method of coding large projects, but it incredibly useful for writing your Emacs config files.  You can see an example of my org more custom-izations \href{https://github.com/jbranso/.emacs.d/blob/master/lisp/init-org.org}{here}.
 \paragraph{Specific header arguments}
-\label{sec:orgheadline14}
+\label{sec:orgheadline16}
 \url{http://orgmode.org/manual/Specific-header-arguments.html}
 \href{org#Specific\%20header\%20arguments}{\url{org#Specific} header arguments}
 
@@ -269,7 +270,6 @@ syntax:
 :results [raw | silent | value | output ]
 value is function mode.  It means that org-mode will use the last executed command as the value of the output.
 ie:
-\end{itemize}
 
 \begin{verbatim}
 import time
@@ -283,31 +283,40 @@ echo "hello world"
 echo "big cat"
 ls -lh | grep emacs.org
 \end{verbatim}
-
-\begin{itemize}
 \item :exports [code | results | node | both]
 \item :dir
 Specify a default directory that the code is to be run in
 :dir <dir>
-\end{itemize}
-\section{Helpful Emacs modes}
-\label{sec:orgheadline37}
-\subsection{Bug Hunter}
-\label{sec:orgheadline18}
- This will help you find bugs in your init file. SOOO helpful.
-\url{https://github.com/Malabarba/elisp-bug-hunter}
-M-x bug-hunter-init-file
-\subsection{Helm Mode}
-\label{sec:orgheadline21}
-HOLY BLIMEY COW!!! THIS MODE IS AWESOME enable it!
 
-C-c C-f helm-find-files
+\begin{verbatim}
+ls
+\end{verbatim}
+\end{itemize}
+
+:dir can also specify remote directories to run code!
+\begin{verbatim}
+ls
+\end{verbatim}
+
+\section{Helpful Emacs modes}
+\label{sec:orgheadline30}
+\subsection{Bug Hunter}
+\label{sec:orgheadline20}
+If you fairly regularly change your init file, then you will at some point open your init file with a broken emacs.  Bug hunter helps you quickly narrow down the cause of the error.  You want to make sure that bug-hunter is loaded early in your init, but then anytime that you find another issue, just run.
+  \texttt{M-x bug-hunter-init-file e RET}
+
+\url{https://github.com/Malabarba/elisp-bug-hunter}
+\subsection{Helm Mode}
+\label{sec:orgheadline22}
+Helm mode is an interactive completetion framework that is much better than ido mode.
+  C-c C-f helm-find-files
 
 In this mode typing "\textasciitilde{}/ manage js\$"
-will display a list of files in my home directory that contain the work 'manage' and end is js
+will display a list of files in my home directory that contain the word "manage" and end with "js"
 
-Typing C-l will display the files is the parent directory
-Typing C-z when point is on a directory, will show the files in that directory
+Typing C-l will display the files is the parent directory.
+
+Typing C-z when point is on a directory, will show the files in that directory.
 
 Helm has nth commands. Instead of typing tab to get to the action menu
 just press C-e for the 2nd action
@@ -315,89 +324,29 @@ and C-j for the 3rd action.
 You can also bind a key to an action menu
 (define-key helm-map (kbd "<C-tab>") 'helm-select-4th-action)
 
-C-c C-u lets you view an image
-
-Apparently helm lets you open files externally in helm-find-files with C-c C-x (not working though)
-
-I can make personal actions on to run on files via eshell WOW!!!!
-
-C-SPC will mark files that you can perform actions on
-
-You can then hit copy files in the action menu, which will let you select a new destionation to copy the files. so cool!
-You can do the same thing from the action menu with rename, symlink, hardlink
-
-helm has support for etags
-C-h e  will search the tags file
-the above should create the TAGS file with tags, but it's not working
-find . -iregex .*$\backslash$.el\$ | xargs etags
-
-check out pcomplete extension
-\url{https://github.com/thierryvolpiatto/pcomplete-extension}
-
 \subsubsection{commands}
-\label{sec:orgheadline19}
-I can also write my own helm commands cool!
-\href{http://wikemacs.org/wiki/How_to_write_helm_extensions}{write your own helm extentions
-}
-\texttt{C-c h m}  open helm-man-woman
-\texttt{C-c h h g} open helm info gnus
-\texttt{C-c h h r} open the helm-emacs-info
-\texttt{C-c h b} is helm-resume which opens up the last instance that you were on
-\texttt{M-<space>} mark candidate
-\texttt{C-h m} inside a helm window will show you all of helm's keybindings
-
-\subsubsection{helm-descbinds}
-\label{sec:orgheadline20}
-\subsection{Evil Mode}
-\label{sec:orgheadline23}
-\begin{itemize}
-\item \textasciitilde{}" <letter> yy\textasciitilde{}   stores the whole line into register <letter>
-\item \textasciitilde{}" <letter> p\textasciitilde{}    puts the whole line back
-\item \texttt{vip} select the paragraph that point is in.
-\end{itemize}
-
-\subsubsection{Filters}
-\label{sec:orgheadline22}
-Filters are VERY cool. You can put the contents of the buffer through a shell command!
-
-You can take a line like
-
-hello how are you   !wc -w   -->   4
-hello how are you   !wc -c   -->   21
-
-5 / 6  :.!bc -l   -->  .83333333333333333333
-
-5    :105,109!sort --> 1
-4                    2
-3                    3
-2                    4
-1                    5
-
-Sort has lots of options.  I can do sort -r by reverse order, sort -k4  the 4th column, sort -n sort numerically
-
+\label{sec:orgheadline21}
+You can learn how to write your own helm commands here: \href{http://wikemacs.org/wiki/How_to_write_helm_extensions}{write your own helm extentions}
+  \texttt{C-c h m}  open helm-man-woman
+  \texttt{C-c h h g} open helm info gnus
+  \texttt{C-c h h r} open the helm-emacs-info
+  \texttt{C-c h b} is helm-resume which opens up the last helm instance.
+  \texttt{M-<space>} mark candidate
+  \texttt{C-h m} inside a helm window will show you all of helm's keybindings
 \subsection{El-doc}
-\label{sec:orgheadline24}
-El-doc shows you what a function in the mini-bar as you write it.  By default it works for emacs lisp extremely well.  You'll notice that my emacs-lisp-mode-hook sharp quotes eldoc-mode, which means it's using the syntax \texttt{\#'eldoc-mode}.  Sharping quoting is only necessary if you are quoting named emacs lisp functions.
+\label{sec:orgheadline23}
+El-doc shows you a function's documentation in the mini-bar as you write it.  By default it works for emacs lisp extremely well.  functions.  You can add this to your init file if you'd like to try it for emacs lisp.
 \begin{verbatim}
-(add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
+(add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 \end{verbatim}
 
-\subsection{Semantic}
-\label{sec:orgheadline26}
-
-Most emacs modes use a bunch of regular expressions to highlight source code. BUT semantic tries to make this better by
-parsing the code and creating grammar with it.
-\subsubsection{User commands}
-\label{sec:orgheadline25}
-\begin{itemize}
-\item \texttt{C-c , j} prompt for a tag in the currect file and move point to it.
-\item \texttt{C-c , J} prompt for a tag in any file that emacs has parsed and move point to it.
-\end{itemize}
 \subsection{Yasnippet}
-\label{sec:orgheadline28}
+\label{sec:orgheadline25}
+Yasnippet is Emacs non-official but pretty much most commonly used snippet system.  You can define an abbreviation, then when expanded does what the snippet file says to do.
 \url{http://ergoemacs.org/emacs/yasnippet_templates_howto.html}
+
 \subsubsection{Important Characters}
-\label{sec:orgheadline27}
+\label{sec:orgheadline24}
 \begin{itemize}
 \item \texttt{\$\&} indents the line according to the major mode
 \item \texttt{`(some-lisp-code)`} embods lisp code
@@ -407,84 +356,13 @@ the other \$3.
 \item =\$\{n:<placeholder text>\}
 \end{itemize}
 \subsection{Undo Tree}
-\label{sec:orgheadline29}
+\label{sec:orgheadline26}
 Undo tree is a mode that lets you visually step through the changes that you have done to the buffer.  You can step backwards and forwards through time.  In normal creation of a documentent, a user typically creates several changes that the emacs undo command is not sufficient to solve.  A document's historical content is not always linear.  Instead, during normal editing, a user can write content that the normal emacs undo command forgets about.  This is where undo tree is helpful.  Invoking \texttt{M-x undo-tree} shows the user a visual representation of the buffer in time.  Using the arrow keys (or conventional emacs replacements), one can step through a documentent's progression.
-\subsection{Paredit Mode}
-\label{sec:orgheadline33}
-Paredit mode is a superior way to interact with lisps.  Since Emacs is configured in emacs lisp, using paredit can be superbly helpful.  Paredit attempts to always keep your parentheses balanced.  Since lisp is based on parenthesis, this is super helpful.  You can find a great introduction to paredit \href{http://danmidwood.com/content/2014/11/21/animated-paredit.html}{here}.
-
-\subsubsection{slurping}
-\label{sec:orgheadline30}
-
-slurping elongates the current sexp by pulling in the closest sexp (either forward or backward)
-
-\begin{verbatim}
-;; here I've called "C-c 0" paredit-forward-slurp-sexp
-;; point was always on the "h" in hello
-((hello) this is a nice little sentence)
-((hello this) is a nice little sentence)
-((hello this is) a nice little sentence)
-((hello this is a) nice little sentence)
-((hello this is a nice) little sentence)
-((hello this is a nice little) sentence)
-((hello this is a nice little sentence))
-
-;; here I've called C-c 0 paredit-backward-slurp-sexp
-;; which pulls in another sexp or atom into my current sexp
-;; point was always on "e" in sentence
-(hello this is a nice little (sentence))
-(hello this is a nice (little sentence))
-(hello this is a (nice little sentence))
-(hello this is (a nice little sentence))
-(hello this (is a nice little sentence))
-(hello (this is a nice little sentence))
-((hello this is a nice little sentence))
-\end{verbatim}
-
-\subsubsection{barfing}
-\label{sec:orgheadline31}
-
-barfing shortens the currect sexp by pushing out the closest sexp (either forward or backward)
-\begin{verbatim}
-;; here I've called "C-c ]" paredit-forward-barf-sexp
-;; point was always at the "h" in hello
-((hello this is a nice little sentence))
-((hello this is a nice little) sentence)
-((hello this is a nice) little sentence)
-((hello this is a) nice little sentence)
-((hello) this is a nice little sentence)
-
-
-;; here I've called paredit-backward-barf-sexp
-;; point was always at the "e" in sentence
-((hello this is a nice little sentence))
-(hello (this is a nice little sentence))
-(hello this (is a nice little sentence))
-(hello this is (a nice little sentence))
-(hello this is a (nice little sentence))
-(hello this is a nice (little sentence))
-(hello this is a nice little (sentence))
-(hello this is a nice little sentence())
-\end{verbatim}
-
-
-Paredit
-
-\subsubsection{paredit-splice-sexp}
-\label{sec:orgheadline32}
-This removes the parentheses around the current sexpression
-\begin{verbatim}
-(cool (cool (cool (cool (cool)))))
-(cool (cool (cool (cool (cool)))))
-(cool (cool (cool (cool (cool)))))
-(cool (cool (cool (cool (cool)))))
-(cool (cool (cool (cool (cool)))))
-\end{verbatim}
 \subsection{Ediff}
-\label{sec:orgheadline35}
+\label{sec:orgheadline28}
 Ediff is emacs's cool way of comparing two files and merging them into one.  \texttt{M-x ediff} starts the process.  Emacs will prompt you to ediff two files, and then you can begin merging the files together.
 \subsubsection{Commands}
-\label{sec:orgheadline34}
+\label{sec:orgheadline27}
 \begin{itemize}
 \item \texttt{a} copies buffer a diff to buffer b
 \item \texttt{b} copies buffer b diff to buffer a
@@ -504,7 +382,7 @@ When you specify files, you can edit the files as root using tramp's syntax like
 
 /su::/path/to/file
 \subsection{Tramp}
-\label{sec:orgheadline36}
+\label{sec:orgheadline29}
 Tramp is an emacs extension that lets you edit remote files. To use tramp, just begin by opening a file via \texttt{C-x C-f} (find-file) then typing one of the following special syntaxes:
 
 /HOST:FILENAME
@@ -513,7 +391,7 @@ Tramp is an emacs extension that lets you edit remote files. To use tramp, just 
 /METHOD:USER@HOST:FILENAME
 /METHOD:USER@HOST\#PORT:FILENAME
 \section{Regexp}
-\label{sec:orgheadline38}
+\label{sec:orgheadline31}
 Regular expressions are nifty ways of searching/replacing regions of text.
 
 Consider this example
@@ -531,7 +409,7 @@ Suppose that you want to add a space between both "is" in the functions.  The fo
 But let's get a basic understanding of regexps.
 
 \section{Useful Elisp Libraries}
-\label{sec:orgheadline39}
+\label{sec:orgheadline32}
 \begin{itemize}
 \item ctable \url{https://github.com/kiwanami/emacs-ctable}
 \item s \url{https://github.com/magnars/s.el}
