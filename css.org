@@ -55,6 +55,17 @@ The flex container can either be vertically or horizontally based.  You can even
 
 | 3 | 2 | 1 |
 
+** Preserving image aspect ratio in flexbox
+Flexbox does a pretty bad job at preserving images aspect ratios by default, but this can be fairly easily fixed.  It could be that browsers just haven't implemented it properly yet, but until they do, here's an easy fix:
+
+#+BEGIN_HTML
+<div style="display:flex;">
+  <div>
+     <img style="width:100%;" src="img.png">
+  </div>
+  <p>Hello world</p>
+</div>
+#+END_HTML
 * positioning
 ** absolute positioning
 
