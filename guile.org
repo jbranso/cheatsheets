@@ -1,0 +1,74 @@
+#+TITLE: Emacs Lisp Cheat Sheet
+#+AUTHOR: Joshua Branson
+# make sure that we can see the text
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+
+* Introduction
+
+Guile is a scheme based lisp that is intended to be the universal GNU extension language.  It is designed to inter-operate with C code very easily (though I wish it could do the same with Rust code), and it supports programming in other languages (javascript, emacs-lisp, and hopefully someday many others).  Guile has a module based system, threads, full access to POSIX calls, dynamic linking, networking support, string processing, a foreign function call interface (let's Guile run a function from a different language), etc.
+
+When emacs-lisp became so popular in extending Emacs, some of the leaders of the GNU project, wanted to make an official lisp language that all others GNU packages could use as an extension language.  Currently only a few Emacs packages use Guile as an extension language, but hopefully someday many more will.  In fact, perhaps in a few years, the default Emacs package will probably run on the Guile vm (running emacs lisp code), which will make the default Emacs experience that much faster!
+
+* Learning Some Scheme
+Scheme is latent-ly typed.  This is like dynamic typing, which is like python.  A variable does not have to have an associated type with it.  The following python code demonstrates this.  The variable ~a~ can change between a string or a number depending on what is assigned to it.
+
+#+BEGIN_SRC python :results output :export both
+a = 5
+print (a)
+a = "hello"
+print (a)
+#+END_SRC
+
+#+RESULTS:
+: 5
+: hello
+
+Scheme, like most lisps, has a very limited syntax.  This is actually a valuable language feature, because it makes the language easy to learn.  The two main things to learn are the following:
+
+- ~(operator operand1 operand2 operand3 ...)~
+
+  The first word in a parenthesis in guile, is a command.  The following words are arguments to the command.  For example,
+  ~(+ 5 3)~ evaluates to 8.  This calculation commands can even be nested in complicated ways like
+
+  #+BEGIN_SRC scheme
+    (+ 5 (* 3 (- 8 3 (- 10 9)) (/ 10 2)) (+ 8 9 10))
+  #+END_SRC
+
+    which can be rearranged to be so that humans can understand how to compute this odd arbitrary expression.
+
+  #+BEGIN_SRC scheme
+    (+ 5
+       (* 3
+          (- 8 3
+             (- 10 9))
+          (/ 10 2))
+       (+ 8 9 10))
+  #+END_SRC
+
+ Defining variables in scheme is easy too.
+
+  #+BEGIN_SRC scheme
+   (define color blue)
+  #+END_SRC
+
+   To change a variable's value, one does
+
+  #+BEGIN_SRC scheme
+  (set! x blue)
+  #+END_SRC
+
+  In scheme ~#t~ and ~#f~ are the booleans true and false.
+
+* Working with the Repel
+In a terminal type "guile".  This opens a guile repel, where you can run arbitrary guile code.  Try this
+
+,optimize (+ 2 (+ 3 2 ) 1)
+
+You should see the resulting code become 8.  This means that the guile optimizer would simple turn =(+ 2 (+ 3 2) 1) into 8, when it compiles the program.  This is one example of how guile makes code run faster.
+
+~,x functionName~ will show you the bytecode of your code.
+* Learn about Scheme online
+http://ds26gte.github.io/tyscheme/index.html
+http://www.schemers.org/
+https://mitpress.mit.edu/sicp/sicp.html

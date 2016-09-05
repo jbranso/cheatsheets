@@ -1,0 +1,41 @@
+#+Author:tri-ceps.blogspot.com
+#+title: Advanced Lightweight Virtualization
+# http://tri-ceps.blogspot.com/2007/10/advanced-lightweight-virtualization.html
+
+Everyone is talking about virtualization now. Well, maybe not your mum; but almost everybody. OK, probably not your aunt either... Well, you get the point :-)
+
+Now I tend to be just this tiny little bit sceptical about things everyone talks about, and thus generally quite late in the game when it comes to crying "me too!". But I think the time has come when I can join in without risking my great reputation as an antediluvian freak.
+
+So, coolness factor etc. aside: Why is everyone talking about virtualization? I think the reason is that it offers a very simple, straighforward solution to a bunch of problems related to various kinds of isolation.
+
+One very prominent kind is related to security: Mainstream operating systems (both UNIX derivates and Windows) by default allow any process in the system to communicate with almost anything else in the system. The concepts of users and file access permissions provide some limits, but these are unsuitable to enforce any serious security policy: They only work under the assumption that software is bug-free, and that users only run software they absolutely trust.
+
+Bolted-on solutions like SELinux allow to restrict the communications channels in theory; but these are extremely complex to manage, making them error prone, and unfeasible to use anything else than simple default policies provided by the OS vendor.
+
+Hardware virtualization on the other hand provides security in a trivial manner: Basically, it just cuts any communication channels -- (almost) total security through total isolation. They err on the other side: Usually you do want to have some communication, and with VMs you have to jump through hoops to set it up, e.g. using virtual network interfaces.
+
+A somewhat related use case is isolation in administrative matters: With a VM, the guest system is completely independent from the host system. It can be configured differently; it can be upgraded without affecting the host system, as well as the other way round. You can have different user accounts. And so on.
+
+Again, the cost of total isolation is... Well, total isolation :-) It means that you have to manage each VM individually -- sometimes a desirable property, sometimes a burden. (And most of the time, a bit of both...)
+
+Last but not least, VMs allow total isolation of interfaces: The guest system only talks to the (virtual) hardware, and is thus totally independent of the functionality and interfaces of the host OS -- you can run a totally different system inside the VM.
+
+Here, the downside of independence is a lot of overhead, and very poor resource utilization. Paravirtualization cuts this down a bit, but doesn't fundamentally change the situation.
+
+(This is a blessing for hardware vendors of course -- especially as standard application vendors lately have been slacking a bit with bloating their software to make up for recent increases in processing power and memory sizes...)
+
+All in all, while hardware virtualization provides total isolation in all regards, it is often total overkill too -- more isolation than necessary or desired.
+
+Various kinds of container mechanisms (vserver and OpenVZ in Linux for example) are an interesting alternative in many situations. Here, you have a single instance of the system, but several isolated user environments -- so you get isolation of communication channels, and usually also some administrative independence (at varying degrees), but without the overhead of hardware virtualization. (The term "lightweight virtualization" is sometimes used for that; however, it doesn't seem to be widely adopted: Google gets some relevant hits, but not really that many...)
+
+What these container solutions can't do (apart from being less robust against security exploits, due to the common system instance), is running a different system in the subenvironment.
+
+There are also some specific middleground-solutions like User Mode Linux or lguest, which allow running another instance of the system, but with less overhead than true hardware virtualization.
+
+Now let's take a look at the Hurd. It's main feature, compared to traditional (monolithic) UNIX-like systems, is the fact that almost all system funtionality is provided by optional layers (servers and libraries), which can easily be replaced: Any user or program can run it's own services instead of using the system-provided ones -- thus creating a different environment, with little or no overhead, and without affecting the rest of the system. (This is a tribute to the GNU philosophy, that a user should always have full control over the software he runs.)
+
+By default, all processes run in a single standard environment; but upon demand, any process can be put into some different, more or less independent subenvironment. There are endless variations: You could run select processes with distinct instances of some default servers, to increase robustness and scalability; you could set up containers isolated from the rest of the system; you could use a different variant of some server, e.g. a different network stack optimized for some specific use case; you could run another instance of the whole system (this is called subhurd or neighbour-Hurd); you could run a special enivronment, with well defined versions of certain components, to be sure that a certain feature is present independent of the host system, or to avoid possible incompatibilities through changes in the host system; you could even run a totally different system, having little in common with the main one. All of this can be done on any running Hurd installation, without any modification to the host system.
+
+We haven't been expressing these Hurd features in terms of virtualization up till now. But I think it makes perfect sense to do so: It seems common practice to describe various facilities of this kind by the term "virtualization"; and saying that the Hurd is designed from ground up to support fine-grained virtualization, is certainly more perspicuous to most people than talking about user extensibility.
+
+So, let's be more buzzword compliant :-) Let's call it advanced lightweight virtualization.

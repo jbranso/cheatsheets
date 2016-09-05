@@ -20,11 +20,12 @@ Window > Dockable Dialogues > Pointer
 
 As you move your mouse over a color, the pointer window will show you the color in a variety of formats.
 ** To enter single window mode Windows > Single-Window-Mode
-** To show the tools menu > C-b
+** To show the tools menu
 ** to delete a selection (ie: make that selection have no colors, and you'll see the grey and black of the layer)
 select the area, via recangle, elipse, or magic wand, then press edit > clear
 ** to copy part of an image
   select the part that you want to copy, right click on it, edit > copy
+
   In the top of the menu bar edit > paste as new image or now layer
 ** You can merge layers by right clicking on any layer and clicking merge visible layers
  Entered on [2015-08-16 Sun 18:29]

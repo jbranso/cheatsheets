@@ -1,42 +1,46 @@
 #+TITLE: Emacs Lisp Cheat Sheet
 #+AUTHOR: Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
 
 * The 3 fundamental Lisp Syntax things
-  1) =(<command> <arg1> <arg2> <arg3>)= means to run command with arguments 1-3.
-  2) ='(<command> <arg1> <arg2> <arg3>)=  is like a quoted string.  The computer does NOT run any command.
-  3) =;= is a comment.  Anything after the =;= on that line will not be interpreted as code by the elisp interpreter.
+1) =(<command> <arg1> <arg2> <arg3>)= means to run command with arguments 1-3.
+2) ='(<command> <arg1> <arg2> <arg3>)=  is like a quoted string.  The computer does NOT run any command.
+3) =;= is a comment.  Anything after the =;= on that line will not be interpreted as code by the elisp interpreter.
 * Flow Control/Conditionals
-  - *cond* is the most powerful of the conditionals, which is essentially a switch statement.  It looks like this:
-    #+BEGIN_SRC emacs-lisp
-      (cond
-       ((condition 1) body-forms)
-       ((condition 2) body-forms)
-       ((condition 3) body forms)
-       (t default-body-forms))
-    #+END_SRC
-
-  - *when* is a simple if statement with no attached else.
-    When =COND= is true evaluate the body forms and return the value of the last one, but if COND is not true, return nil.
-    #+BEGIN_SRC emacs-lisp
-    (when COND BODY...)
+- *cond* is the most powerful of the conditionals, which is essentially a switch statement.  It looks like this:
+  #+BEGIN_SRC emacs-lisp
+    (cond
+     ((condition 1) body-forms)
+     ((condition 2) body-forms)
+     ((condition 3) body forms)
+     (t default-body-forms))
   #+END_SRC
+
+- *when* is a simple if statement with no attached else.
+  When =COND= is true evaluate the body forms and return the value of the last one, but if COND is not true, return nil.
+  #+BEGIN_SRC emacs-lisp
+  (when COND BODY...)
+                     #+END_SRC
 * Buffers
-  - (buffer-name) is the name of the current buffer
-  - (buffer-file-name) is the full path of the current buffer
-  - (current-buffer) returns the full text in the current buffer.
-  - (other-buffer) returns the full text from the last visited buffer.
-  - You can switch to another buffer in emacs with
-    #+BEGIN_SRC emacs-lisp
-     (switch-to-buffer (other-buffer))
-    #+END_SRC
+A buffer is a region of memory that contains the contents of a file.  The current buffer is what is displayed in an Emacs window.  However, it is possible to manipulate buffers without displaying them to the screen.
 
-    OR
+- (buffer-name) is the name of the current buffer
+- (buffer-file-name) is the full path of the current buffer
+- (current-buffer) returns the full text in the current buffer.
+- (other-buffer) returns the full text from the last visited buffer.
+- You can switch to another buffer in emacs with
+  #+BEGIN_SRC emacs-lisp
+   (switch-to-buffer (other-buffer))
+  #+END_SRC
 
-    #+BEGIN_SRC emacs-lisp
-     (switch-to-buffer (<buffer name>))
-    #+END_SRC
-  - (buffer-size) tells you the size of the current buffer
-  - (point) tells you how many chars are between the beginning of the buffer and point
+  OR
+
+  #+BEGIN_SRC emacs-lisp
+   (switch-to-buffer (<buffer name>))
+  #+END_SRC
+- (buffer-size) tells you the size of the current buffer
+- (point) tells you how many chars are between the beginning of the buffer and point
 * defuns
   a function definition,
 
@@ -249,10 +253,10 @@ The syntax #<buffer buffer-name> lets you know that that buffer is a hash table.
 - byte-code function
 ** Editing Types
 * let
-  is a special lisp form that lets you define local variables.  Since all variables in lisp are global,
-  you need to be able to say HEY, these variables are local to this defun
+Let is a special lisp form that lets you define local variables.  Since all variables in lisp are global,
+you need to be able to say HEY, these variables are local to this defun
 
-  Let looks like
+Let looks like
 
   #+BEGIN_SRC emacs-lisp
     (let VAR-LIST BODY)
@@ -277,3 +281,239 @@ The syntax #<buffer buffer-name> lets you know that that buffer is a hash table.
     ((lambda (a b) (+ a b)) 1 3)
 
   #+END_SRC
+* Functional Programming
+
+Lisp is a functional programming language.  It's not a truly functional language like Haskell, but it is close.  Functional programming, in the simplest terms does not use loops: no for loops, no while loops, no do until loops, etc.  Instead any sort of looping construct is done via recursion.  Recursion occurs when a function calls itself to evaluate some result.  Recursive functions tend to be extremely short and remarkably easy to understand. [fn:1]  However, any recursive function can be written non-recursively.
+
+Emacs Lisp does have loops.  This is why it is not a purely functional programming language.  BUT here is a functional method to add all the numbers less than a number n.
+
+#+BEGIN_SRC emacs-lisp
+  (defun sum-numbers-less-than-n (n)
+    "sum all the numbers less than n"
+    ;; if the number is 1, then return 1
+    (cond ((eq n 1) 1)
+    ;; if the number is greater than 1, then return the sum of n plus sum-numbers-less-than-n (- n 1)
+          ((+ n (sum-numbers-less-than-n (- n 1))))))
+#+END_SRC
+
+#+RESULTS:
+: sum-numbers-less-than-n
+
+Suppose we wish to sum all the integers less than 3.  The function call would look like this
+
+#+BEGIN_EXAMPLE
+   (sum-numbers-less-than-n 3)
+       |
+       |
+      \ /
+
+   (+ 3 (sum-numbers-less-than-n 2))
+       |
+       |
+      \ /
+
+   (+ 3 (+ 2 (sum-numbers-less-than 1)))
+       |
+       |
+      \ /
+
+   (+ 3 (+ 2 1))
+       |
+       |
+      \ /
+
+  (+ 3 3)
+       |
+       |
+      \ /
+       6
+#+END_EXAMPLE
+
+
+Here is another recursive example that will create the nth fibonacci number.
+
+#+BEGIN_SRC emacs-lisp
+  (setq fibonacciCalls 0)
+  (defun fibonacci (n)
+    "generate the nth fibonacci number"
+    (setq fibonacciCalls (+ 1 fibonacciCalls))
+    (cond
+     ((eq n 0) nil)
+     ((eq n 1) 0)
+     ((eq n 2) 1)
+     ((+ (fibonacci (- n 1)) (fibonacci (- n 2)) ))))
+#+END_SRC
+
+#+RESULTS:
+: fibonacci
+
+(fibonacci 30)
+
+#+BEGIN_EXAMPLE
+(fibonacci 5)
+  |
+  |
+  |
+ \ /
+(+ (fibonacci 4) (fibonacci 3))
+  |
+  |
+  |
+ \ /
+(+ (+ (fibonacci 3) (fibonacci 2)) (+ (fibonacci 2) (fibonacci 1)))
+  |
+  |
+  |
+ \ /
+(+ (+ (+ (fibonacci 2) (fibonacci 1)) (fibonacci 2)) (+ (fibonacci 2) (fibonacci 1)))
+#+END_EXAMPLE
+
+
+To calculate the 11th fibonacci number, it has to call fibonacci 177 times.  To calculate the 30th fibonacci number, there are
+1,664,079 recursive function calls!
+
+But maybe we can rewrite the elisp fibonacci generator, so that it doesn't have to calculate numerous fibonacci numbers multiple times.  So every time that it calculates a fibonacci number, it'll add it to a hash table.  Then when calculating another fibonacci (n) it'll check to see if that number is already in the hash table.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar fibonacciCalls 0 "How many times fibonacci has been called.")
+  (defvar fibonacciHashTable (make-hash-table :weakness t))
+  (defun fibonacci (n)
+    "generate the nth fibonacci number"
+    (setq fibonacciCalls (+ 1 fibonacciCalls))
+    (cond
+     ((eq n 0) nil)
+     ((eq n 1.0) 0)
+     ((eq n 2.0) 1)
+     ((if (gethash n fibonacciHashTable)
+          (gethash n fibonacciHashTable)
+        (puthash n (+ (fibonacci (- n 1)) (fibonacci (- n 2)) ) fibonacciHashTable)))))
+#+END_SRC
+
+#+RESULTS:
+: fibonacci
+
+(fibonacci 110)
+* Strings
+** Some functions
+
+This function returns true, if the object is a string
+#+BEGIN_SRC emacs-lisp
+(stringp "hello")
+#+END_SRC
+
+#+RESULTS:
+: t
+
+This function will return true if the object is a string or a char.
+#+BEGIN_SRC emacs-lisp
+(char-or-string-p "t")
+#+END_SRC
+
+#+RESULTS:
+: t
+
+
+If a function returns a type looking like ~#("point" 0 5 (fontified t))~, then that is a string with some text properties.
+
+* Lists
+A list is a sequence of 0 or more elements.  You can insert or delete any of the elements in a list.
+
+A list is made of up cons cells, which are a pair of elements.  The first is the CAR and the second is the CDR.  So
+
+#+BEGIN_SRC emacs-lisp
+'("CAR" . nil)
+#+END_SRC
+
+#+RESULTS:
+| CAR |
+
+That cons cell is a list, whose only element is the string "CAR".
+
+In a true list, the CDR refers to the next element in the list and the last CDR in the last cons cell is the symbol 'nil'.  For example
+
+#+BEGIN_SRC emacs-lisp
+  '("This" . ("is" . ("a" . ("true" .  ("list" . nil)))))
+#+END_SRC
+
+#+RESULTS:
+| This | is | a | true | list |
+
+If the list's last CDR is not the symbol 'nil', then it is a dotted list.  Like this:
+
+#+BEGIN_SRC emacs-lisp
+'("this" . ("is" . ("a" . ("dotted" . "list"))))
+#+END_SRC
+
+#+RESULTS:
+: (this is a dotted . list)
+
+A list can also be circular, which means the last CDR refers to another item in the list.
+** Functions on lists
+
+
+- consp object
+  returns t if the object is a cons cell
+  #+BEGIN_SRC emacs-lisp
+  (consp '("hello" . nil))
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
+  #+BEGIN_SRC emacs-lisp
+    (consp '(nil))
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
+  #+BEGIN_SRC emacs-lisp
+  (consp '("list" . ("item" . nil)))
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
+- atom object
+  return true if the object is an atom.  The symbol 'nil' is an atom and a list.
+  #+BEGIN_SRC emacs-lisp
+  (consp '(5))
+  #+END_SRC
+
+  #+RESULTS:
+  : t
+
+- listp
+  returns true if the object is a cons cell
+#+BEGIN_SRC emacs-lisp
+(listp '("cons" . ("cell" . nil)))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+- add to list
+   Here is an example of how to add an element to a list.  Add to list, only adds one element at a time.
+   #+BEGIN_SRC emacs-lisp
+    (add-to-list 'auto-insert-alist '(org-mode . ["default-org-file.txt"]))
+    (add-to-list 'auto-insert-alist '(web-mode . ["default-web-file.txt"]))
+   #+END_SRC
+
+- push
+  push is very like add-to-list.  It may even be a better version.
+* Nice Elisp libraries for programming
+
+String manipulation library
+(use-package f)
+
+String manipulation library
+(use-package dash)
+
+String manipulation library
+(use-package s)
+* edebug
+
+When you begin an edebug session, you can press "?" to see a list of available commands.
+* Footnotes
+
+[fn:1] It is important to understand that in languages not optimized for recursion, recursion uses for memory than non-recursive methods.  Recursion is usually slightly slower too.

@@ -1,0 +1,168 @@
+* dual booting
+
+Here are some relevant links:
+https://www.gnu.org/software/guix/manual/html_node/GRUB-Configuration.html
+http://debbugs.gnu.org/cgi/bugreport.cgi?bug=20067
+https://lists.gnu.org/archive/html/guix-devel/2016-02/msg00543.html
+
+* I am also dual mounting the guix
+It is at /guix
+
+* grub
+** boot from grub to a usb stick
+As soon as you see the grub command line press the "c" key. You'll be dropped into a grub shell.  You'll know you're there, because you'll see
+
+#+BEGIN_EXAMPLE
+grub >
+#+END_EXAMPLE
+
+Now, this is what you type
+
+=set root=(=
+
+Now press TAB and grub will give you some options.  Grub will expand what you wrote into
+
+#+BEGIN_EXAMPLE
+set root=(hd
+#+END_EXAMPLE
+
+Grub will then tell you to either press 1 or 0.  hd0 is your hard drive.  You don't want that.  So type
+
+#+BEGIN_EXAMPLE
+set root=(hd1)
+#+END_EXAMPLE
+
+Now type
+
+#+BEGIN_EXAMPLE
+chainloader +1
+#+END_EXAMPLE
+
+That will essentially tell the grub that is on your harddisk, to chainload to the usb.  This means that the usb stick has grub (or some other similiar software on it).  So grub won't try to find a bootable kernel on the usb stick.  Instead, your harddrive's grub will hand over controll to the usb stick's grub.
+
+#+BEGIN_EXAMPLE
+boot
+#+END_EXAMPLE
+** boot to an installed GNU/Linux distro on your machine
+
+#+BEGIN_EXAMPLE
+set root=(hd0,PartionNumberWhere/BootIs)
+linux /boot/vmlinuz-linux-libre root=/dev/sdaPartionNumberWhereRootIs
+initrd /boot/initramfs-linux-libre.img
+boot
+#+END_EXAMPLE
+
+For me this looks like:
+
+#+BEGIN_EXAMPLE
+set root=(hd0,1)
+linux /boot/vmlinuz-linux-libre root=/dev/sda1
+initrd /boot/initramfs-linux-libre.img
+boot
+#+END_EXAMPLE
+* cool guix webpage
+http://dustycloud.org/misc/talks/guix/chicagolug_2015/guix_talk.html
+* DONE trying to get my mouse to work
+CLOSED: [2016-08-22 Mon 14:40]
+:LOGBOOK:
+- State "DONE"       from              [2016-08-22 Mon 14:40]
+:END:
+http://debbugs.gnu.org/cgi/bugreport.cgi?bug=20433
+
+I need to run
+#+BEGIN_SRC sh :results output
+$ guix pull
+# guix pull
+#+END_SRC
+
+;; Edit configuration.scm to add ‘kernel-arguments’ to the config:
+;; (operating-system
+;;    …
+;;    (kernel-arguments '("modprobe.blacklist=usbkbd")))
+* DONE trying to get Emacs to work
+CLOSED: [2016-08-22 Mon 14:40]
+:LOGBOOK:
+- State "DONE"       from              [2016-08-22 Mon 14:40]
+:END:
+move my set-default-font thing into init-editing utils.
+* DONE enabling swap on guix
+CLOSED: [2016-08-22 Mon 14:40]
+:LOGBOOK:
+- State "DONE"       from              [2016-08-22 Mon 14:40]
+:END:
+I belive it is /dev/sda2
+* DONE getting guixSD to reconfigure
+CLOSED: [2016-08-22 Mon 14:40]
+:LOGBOOK:
+- State "DONE"       from              [2016-08-22 Mon 14:40]
+:END:
+I get this error when I try
+
+#+BEGIN_SRC sh :results output
+guix system reconfigure /etc/config.scm
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+/gnu/store/bw3cdkc2cxpiiqi4afgk2vjgyqpzjrkv-system
+/gnu/store/79r4f4q85l4hmk69nm0xdmfq1rg82ws3-grub.cfg
+/gnu/store/gka9rl2k8mqqi27rrvjpgz6yw165d3if-grub-2.02beta3
+guix system: error: symlink: File exists: "/var/guix/profiles/system-2-link"
+#+end_example
+* make packages work well on both GuixSD and parabola
+** gpg
+
+My public key is available to GuixSD and my secret key seems to be available as well.
+
+#+BEGIN_SRC sh :results output
+gpg --list-keys
+#+END_SRC
+
+#+RESULTS:
+: /home/joshua/.gnupg/pubring.kbx
+: -------------------------------
+: pub   rsa2048 2016-05-17 [SC] [expires: 2017-05-17]
+:       AAD617F76D505C188A558D0BC8FA3D82C7B1326F
+: uid           [ultimate] Joshua Branson (This is my hotmail gpg key.) <bransoj@hotmail.com>
+: sub   rsa2048 2016-05-17 [E] [expires: 2017-05-17]
+:
+\\
+
+~gpg --list-secret-keys~
+\\
+
+So I can encrypt stuff, but NOT decrypt stuff.  I'm getting this error when I try decrypting a file with ~gpg -d filename~ \\
+
+~gpg: public key decryption failed: No pinentry~
+
+I need to have gpg-agent and pinentry installed, which I do.  I also have pinentry-gtk2 installed.
+
+Also gpg-agent does not seem to know where pinentry-gtk2 is.  So it is NOT able to ask my for a passphrase to decrypt a file.
+
+** emacs
+** awesome
+* making GuixSD automatically swap caps
+This email list letter might let me do it.  Also it looks like GuixSD uses Slim
+https://lists.gnu.org/archive/html/help-guix/2016-08/msg00070.html
+#+BEGIN_SRC sh :results output
+cat ~/.xsession
+#+END_SRC
+
+#+RESULTS:
+: #!/bin/sh
+:
+: setxkbmap dvorak
+: setxkbmap -option 'ctrl:swapcaps'
+
+
+* a sample guix config
+https://github.com/yenda/guix-con-fig
+* making X work again:
+
+list of errors:
+
+- Open ACPI failed /var/run/acpid.socket no such file or directory
+- failed to open module nv.  Module does not exist
+- failed to open fbdev.  does not exist
+- failed to load vesa.  Does not exist
+- loads in nouveau.

@@ -1,5 +1,4 @@
 #+TITLE: Auto-Complete - User Manual
-
 # Introduction
 
 Auto-Complete (a.k.a `auto-complete.el`, `auto-complete-mode`) is an

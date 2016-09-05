@@ -169,6 +169,49 @@ In emacs the entire emacs program takes up a *frame*.  But emacs allows you to v
   - =C-x -= shrink this window if it doesn't need that many lines.
   - =C-x += make all the windows the same height
 ** org-mode
+*** Org-mode's syntax structure
+# I can learn more here:  http://orgmode.org/worg/dev/org-syntax.html
+Org-mode lets you easily insert headings and sub headings with "C-RET".  If you press it many times, you'll have something like this:
+
+#+BEGIN_SRC org :exports code
+  ,*
+  ,*
+  ,*
+  ,*
+#+END_SRC
+
+A line with just one "*" is a top level heading.  If it has a two "**" below it, then it now has a sub-heading.  Just like the following:
+#+BEGIN_SRC org :exports code
+  ,* I am a top level heading
+  ,** I am a sub-heading.
+#+END_SRC
+
+You can use the tab key to show/hide any sub level headings.
+
+
+Org-mode is also great for todo lists.  Hitting ~C-c C-t~ lets you mark an item as TODO or DONE.
+
+# "-----"  5 hyphens in an org document makes a horizontal rule.
+**** Todo lists
+One can easily create simple todo lists with org-mode.  In any org file ~C-RET~ inserts a "*" into the buffer.  Pressing "C-c C-t" will add the words "TODO".  It'll look like:
+
+#+BEGIN_SRC org :exports code
+  ,* TODO
+#+END_SRC
+
+Pressing ~C-c C-t~ again, will change the status to DONE.  You will end up with something looking like:
+
+#+BEGIN_SRC org :exports code
+  ,* DONE
+#+END_SRC
+**** Tables
+
+If a column in an org table contains <N>, where N is a number, then that table column will be that many characters wide.
+|------------+-------+-----------------+----------------------|
+| <10>       | <5>   | <15>            | <20>                 |
+| I          | am    | a               | table                |
+|            |       |                 |                      |
+|------------+-------+-----------------+----------------------|
 *** org-babel
 Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  For example here is some javascript:
 
@@ -237,6 +280,8 @@ return 2 + 2
 - :dir
   Specify a default directory that the code is to be run in
   :dir <dir>
+*** Extending Org-mode
+read about org's parser here http://orgmode.org/worg/dev/org-element-api.html
 * Helpful Emacs modes
 ** bug-hunter
    This will help you find bugs in your init file. SOOO helpful.
@@ -520,6 +565,85 @@ This removes the parentheses around the current sexpression
      /USER@HOST#PORT:FILENAME
      /METHOD:USER@HOST:FILENAME
      /METHOD:USER@HOST#PORT:FILENAME
+** auto-insert mode
+Auto-insert mode is a minor mode that will automatically populate a newly created file with default text.  It is bundled with Emacs.
+*** Set up auto insertion
+Since autoinsert mode is bundled with Emacs, enabling it is trivial.  Simply, require the autoinsert library, and when you open up an empty file, perform auto-insertion, if applicable.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'autoinsert)
+  (add-hook 'find-file-hook 'auto-insert)
+#+END_SRC
+
+*** auto-insert variables
+- auto-insert-directory
+  A string variable that specifies where to look for default file templates to insert into newly created files.
+
+- auto-insert-mode
+  Enable auto-insert mode.
+Enable autoinsert mode, and do not ask me if I want to perform automatic insertion.  Just do it.
+
+- auto-insert-query
+  If the value is non-nil, then ask the user if they wish to perform auto-insertion.
+
+- auto-insert-alist
+  A list specifying text to insert by default into a new file. Elements look like (CONDITION . ACTION) or ((CONDITION . DESCRIPTION) . ACTION). CONDITION may be a regexp that must match the new file's name, or it may be a symbol that must match the major mode for this element to apply. Only the first matching element is effective. Optional DESCRIPTION is a string for filling `auto-insert-prompt'. ACTION may be a skeleton to insert (see `skeleton-insert'), an absolute file-name or one relative to `auto-insert-directory' or a function to call. ACTION may also be a vector containing several successive single actions as described above, e.g. [\"header.insert\" date-and-author-update].
+
+#+BEGIN_SRC emacs-lisp
+  (setq auto-insert-alist '((web-mode . my/yas-web-mode-snippet)
+                            (org-mode . my/yas-org-snippet)))
+#+END_SRC
+
+An minimal working setup of autoinsert-mode might look like this:
+
+#+BEGIN_SRC emacs-lisp
+  (require 'autoinsert)
+  (add-hook 'find-file-hook 'auto-insert)
+  (setq auto-insert-directory "~/.emacs.d/auto-insert-directory/")
+  (setq auto-insert-mode t
+        auto-insert-query nil)
+
+  (setq auto-insert-alist '((web-mode . my/web-mode-template-function)
+                            (org-mode . "my-default-org-mode-file.org")
+                            (text-mode . ["my-default-org-mode-file.org" my/finishing-function])))
+
+#+END_SRC
+
+*** Use Snippets instead of templates
+
+Insertion of template files into buffers is cool, but auto-insert mode is more powerful than than.  One can expand a yasnippet into a newly created file.  For example, if you write your Emacs init file in several org-mode files in "~/.emacs.d/lisp/", then you could insert a snippet specific to your Emacs configuration.  The following does this.
+
+#+BEGIN_SRC emacs-lisp
+  (defun my/yas-elisp-init-files-snippet ()
+    (interactive)
+    (yas-expand-snippet (yas-lookup-snippet "<elisp-init-files")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-insert-alist '((".*/lisp/.*\\.org$") . [my/yas-elisp-init-files-snippet]))
+#+END_SRC
+*** Set up yasnippet
+
+Inserting a predefined snippet via Emacs lisp is defined [[http://joaotavora.github.io/yasnippet/snippet-expansion.html#sec-1-6][here]].  In case you don't like reading, then just do the following:
+
+~(yas-expand-snippet (yas-lookup-snippet "SnippetName"))~
+
+I'm defining some functions that will automatically expand when I open a file.  Cool eh?
+#+BEGIN_SRC emacs-lisp
+  (defun my/yas-org-snippet ()
+    (interactive)
+    (yas-expand-snippet (yas-lookup-snippet "<org")))
+
+  (defun my/yas-elisp-init-files-snippet ()
+    (interactive)
+    (yas-expand-snippet (yas-lookup-snippet "<elisp-init-files")))
+
+
+  (defun my/yas-web-mode-snippet ()
+    (interactive)
+    (yas-expand-snippet (yas-lookup-snippet "<web-mode")))
+#+END_SRC
+
 * Regexp
   Regular expressions are nifty ways of searching/replacing regions of text.
 

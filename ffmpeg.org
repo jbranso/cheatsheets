@@ -1,0 +1,18 @@
+#+TITLE: FFMPEG Cheatsheet
+* Convert mp4 to ogg
+
+ffmpeg -i input.mp4 -acodec libvorbis -vcodec libtheora -f ogv output.ogv
+
+
+converting all mp4's in a directory to ogg
+
+systemctl | grep -m 1 ifplugd | awk '{print $1}' | xargs systemctl status {}
+#+BEGIN_SRC sh :results output :dir ~/videos
+for file in *.mp4
+do
+  echo "$file" "${file/.mp4/.ogg}"
+  ffmpeg -i "$file" -acodec libvorbis -vcodec libtheora -f ogv "${file/.mp4/.ogg}"
+done
+#+END_SRC
+
+#+RESULTS:

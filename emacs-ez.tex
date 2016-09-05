@@ -1,4 +1,4 @@
-% Created 2016-06-03 Fri 14:04
+% Created 2016-06-03 Fri 14:27
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -67,7 +67,7 @@ Since Emacs is so old, it created some terminology that modern text editors do n
 So go ahead and launch Emacs. When you do, you should see a blinking rectangle.  When you start to type this rectangle moves and letters appear.  That blinking rectangle is called \emph{point}.  When \emph{point} moves around the text, we say that point moves in the \emph{buffer}.  The \emph{buffer} then is a region in Emacs that contains text.  Since you've just started Emacs, the whole Emacs graphical display is one \emph{frame}.  You can also launch Emacs from the terminal and that is still just one frame of Emacs.  If you open a second instance of Emacs, you now have two frames.  Emacs also has windows.  An Emacs \emph{window} is the portion of Emacs that contains the buffer, or the text.  It's also possible to for a frame to have multiple windows.  You can read more about creating and deleting windows and frames in \hyperref[sec:orgheadline2]{Frame and Window Commands}.
 
 \section{Built in Emacs Features}
-\label{sec:orgheadline19}
+\label{sec:orgheadline21}
 \subsection{Movement}
 \label{sec:orgheadline4}
 One can always use the arrow keys to move point, but Emacs provides some nifty ways of moving point as well.  Pressing and holding the control key whilst hitting "f" will move point forward one character.  In Emacs lingo we call that a keychord, and it is denoted like this "C-f".  Similarly, holding and pressing the control key, then hitting "b" will move point backward one character.  That keychord is denoted as "C-b".  "C-p" will move point back to the up previous line, and "C-n" will move point down to the next line.  So the basic movement keys look like this:
@@ -92,17 +92,30 @@ One can always use the arrow keys to move point, but Emacs provides some nifty w
 
 \subsection{Yanking and Killing}
 \label{sec:orgheadline5}
-Most text editors use the words "cutting", "pasting", and "coping" for the commands \texttt{C-x}, \texttt{C-v}, and \texttt{C-c}.  Emacs used different words and different commands.  What is normally called cutting is \emph{killing} in Emacs.  In this way, one kills to the kill region, a section where emacs stores killed text.  Pasting is called \emph{yanking}.  One yanks from the kill region to past into the buffer.  Copying in Emacs is also called copying.
+Most text editors use the words "cutting", "pasting", and "coping" for the commands \texttt{C-x}, \texttt{C-v}, and \texttt{C-c}.  Emacs used different words and different commands.  What is normally called cutting is \emph{killing} in Emacs.  In this way, one kills to the kill region, a section where Emacs stores killed text.  Pasting is called \emph{yanking}.  One yanks from the kill region to past into the buffer.  Copying in Emacs is also called copying.
 
 To kill or copy a region of text, you must first \emph{mark} that region or highlight it.  To begin marking a region of text one presses \texttt{C-<space>} or \texttt{C-SPC}.  \texttt{<space>} and \texttt{SPC} means hitting the spacebar key.    Then you can move around point until you have marked the entire region.  To kill the region type \texttt{C-w}.  To copy the region type \texttt{M-w}.  M stands for the meta key, which on today's keyboard usually means the alt key.  So \texttt{M-w} means to press and hold the alt key, then hit the w key.  Alternatively hitting the ESC key is the same as pressing and holding the alt key.  So \texttt{M-w} is the same thing as \texttt{ESC-w}.
 
 To yank the killed or copied text back into the buffer press the \texttt{C-y} keychord.
 
+\subsection{Opening, Closing, and Saving Files}
+\label{sec:orgheadline7}
+When one opens and edits a file in Emacs, Emacs opens the file and puts the contents in an editable buffer.  As you edit the buffer, you only change the a region in memory.  When you type \texttt{C-x s} to save the current buffer, the buffer's content are saved in the file.
+
+Since I am constantly changing multiple files, I've modified my save function to save every open file.  If you would like to do the same, you can put the following in your init file:
+
+\begin{verbatim}
+(add-hook 'after-save-hook #'(lambda ()
+                               (interactive)
+                               (save-some-buffers 1)))
+\end{verbatim}
+
+Emacs' default method of opening a files is ido mode, which is pronounced like "I do mode".  \texttt{C-x C-f} or (find-file) opens a file in Emacs.  One can press the tab key to complete a partially completed file name.  Typing "\textasciitilde{}/" means to make ido search in the user's home directory.  I personally do not enjoy using ido-mode. Instead I prefer \hyperref[sec:orgheadline6]{helm-mode}.
 \subsection{Frame and Window Commands}
 \label{sec:orgheadline2}
 Emacs has windows and frames, and they are probably not what you think they are.  A Frame is probably what you would think a window is.  So when you follow a link in your browser in a new window, that is a window in browser terminology.  In Emacs you can do the same thing, but it is called opening a new frame.  Go ahead and open a new frame now by typing \texttt{C-x 5 2}.  To get back to one Emacs frame, you can either close the additional frame normally, or you can press \texttt{C-x 5 0}.
 
-An Emacs window then is the buffer portion of the frame that displays text.  One frame can have multiple windows.  If you type \texttt{C-x 1}, then Emacs is only displaying one window.  Then, if you type \texttt{C-x 2} or \texttt{C-x 3}, then Emacs is displaying 2 windows.  So a window then is a section of the Emacs Frame that contains text from a buffer.
+An Emacs window then is the buffer portion of the frame that displays text.  One frame can have multiple windows.  If you type \texttt{C-x 1}, then Emacs is only displaying one window.  Then, if you type \texttt{C-x 2} or \texttt{C-x 3}, then Emacs is displaying 2 windows.  So a window then is a section of the Emacs Frame that contains text from a buffer.  To make the current frame only display one buffer, you can press \texttt{C-x 1}.
 
 In emacs the entire emacs program takes up a \textbf{frame}.  But emacs allows you to view two different files in the same frame, by splitting the frame in half, or in two \textbf{windows}.
 \begin{itemize}
@@ -113,7 +126,7 @@ In emacs the entire emacs program takes up a \textbf{frame}.  But emacs allows y
 \item \texttt{C-x \}} make the selected window wider
 \end{itemize}
 \subsection{Bookmarks}
-\label{sec:orgheadline6}
+\label{sec:orgheadline8}
 Emacs bookmarks are nifty ways of saving your place in a file.  If you wish to return to some obscure local or remote file, you can easily save point's current position, and return to it later.
 
 \begin{itemize}
@@ -121,31 +134,31 @@ Emacs bookmarks are nifty ways of saving your place in a file.  If you wish to r
 \item \texttt{C-x r b}  jumps you to a bookmark
 \end{itemize}
 \subsection{Learning About Emacs}
-\label{sec:orgheadline7}
+\label{sec:orgheadline9}
 Emacs comes with some amazing documentation.  \texttt{M-x info} will show you a list of the available documentation that comes with Emacs.  This documentation is contained in info files, which can be easily navigated via Emacs.
 
 Emacs also has a pretty powerful help command:  \texttt{C-h}.  \texttt{C-h v} will let you learn some documentation about a particular Emacs variable, while \texttt{C-h f} will show you documentation for an Emacs elisp function.  Every time that you hit a keychord, an equivalent Emacs function is called.  In fact \texttt{C-h k KEYCHORD}, will tell you the documentation for the a function based on its keychord.  For example, \texttt{C-h k C-n} will display documentation for the function "next-line".
 
 \subsection{Configuring Emacs with Lisp}
-\label{sec:orgheadline8}
+\label{sec:orgheadline10}
 Emacs' flexibility stems from the ability to program-matically change it via Emacs lisp.  If you dislike a particular aspect of Emacs, then you can easily change it by putting in some Emacs lisp code into your init file.  This is the file that Emacs loads every time on startup.  Any Emacs lisp functionality that you code in your init file, will be available every time you start emacs. You can find your init file by checking out the variable \texttt{user-init-file}.  To do this press the keychord \texttt{C-h v RET user-init-file RET}.
 \subsection{Dired}
-\label{sec:orgheadline11}
+\label{sec:orgheadline13}
 Dired is the emacs file manager.  It opens a buffer displaying all your files in the specified directory.  With it you can perform numerous commands on marked files, like deleting, copying, moving, or even creating your own command.
 \subsubsection{Commands}
-\label{sec:orgheadline9}
+\label{sec:orgheadline11}
 \begin{itemize}
 \item \texttt{n} next line
 \item \texttt{p} previous line
 \item \texttt{m} mark the current file under point
-\item \textasciitilde{}\% m REGEXP <RET>  mark files based on a regular expression
+\item \texttt{\% m REGEXP <RET>}  mark files based on a regular expression
 \end{itemize}
 \subsubsection{Image Dired}
-\label{sec:orgheadline10}
+\label{sec:orgheadline12}
 You can also view images inside dired!  Mark the images you wish to view, then press C-t d (image-dired-display-thumbs). Alternatively, you could also just run the command M-x image-dired.
 \subsection{Macros}
-\label{sec:orgheadline12}
-A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat complicated commands.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys.  I could write the numbers 1 through 1,000 by typing 31 keys!
+\label{sec:orgheadline14}
+A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat complicated commands.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys, and I could write the numbers 1 through 1,000 by typing 31 keys.
 
 \begin{itemize}
 \item \texttt{C-x (} begin recording a keyboard macro
@@ -153,7 +166,7 @@ A Macro is a remembered sequence of Emacs keychords that can be repeated.  This 
 \item \texttt{C-x e}  performs the last created keyboard macro
 \end{itemize}
 \subsection{Narrowing}
-\label{sec:orgheadline13}
+\label{sec:orgheadline15}
 Narrowing commands make Emacs only display portions of the buffer, whilst hidding all other regions.  While Emacs is narrowed, all entered commands only affected the displayed regions.  This means any hidden area cannot be modified while Emacs is narrowed.  This is useful if you only want a macro to execute within a specific function.  Here are the relevant narrowing commands:
 
 \texttt{C-x n <letter>}
@@ -201,10 +214,10 @@ already narrowed."
 (define-key ctl-x-map "n" #'narrow-or-widen-dwim)
 \end{verbatim}
 \subsection{org-mode}
-\label{sec:orgheadline18}
+\label{sec:orgheadline20}
 Emacs org-mode really deserves its own cheatsheat, so I won't go into much detail here, but I'll start you off with the basics.  Org-mode is Emacs' organizational mode, and it's pure gold!  With Org-mode I organize my daily agenda, todo lists. Parts of my emacs init files are written in it.  I use it to keep track of my working hours, with which I then invoice clients.  I use its markup to write MIME emails.  I wrote all of my documentation in it, and I keep track of my finances with it!  It truly is a remarkable emacs mode!
 \subsubsection{Org-mode's hierarchical structure}
-\label{sec:orgheadline15}
+\label{sec:orgheadline17}
 Org-mode lets you easily insert headings and sub headings with "C-RET".  If you press it many times, you'll have something like this:
 
 \begin{verbatim}
@@ -223,24 +236,24 @@ A line with just one "*" is a top level heading.  If it has a two "**" below it,
 You can use the tab key to show/hide any sub level headings.
 
 
-Org-mode is also great for todo lists.  Pressing C-c C-t lets you mark an item as TODO or DONE.
+Org-mode is also great for todo lists.  Hitting \texttt{C-c C-t} lets you mark an item as TODO or DONE.
 \paragraph{Todo lists}
-\label{sec:orgheadline14}
-One can easily create simple todo lists with org-mode.  In any org file press "C-RET".  A "*" will have inserted itself into your buffer.  Pressing "C-c C-t" will add the words "TODO".  It'll look like:
+\label{sec:orgheadline16}
+One can easily create simple todo lists with org-mode.  In any org file \texttt{C-RET} inserts a "*" into the buffer.  Pressing "C-c C-t" will add the words "TODO".  It'll look like:
 
 \begin{verbatim}
 * TODO
 \end{verbatim}
 
-Pressing "C-c C-t" again, will change the status to DONE.  You will end up with something looking like:
+Pressing \texttt{C-c C-t} again, will change the status to DONE.  You will end up with something looking like:
 
 \begin{verbatim}
 * DONE
 \end{verbatim}
 
 \subsubsection{org-babel}
-\label{sec:orgheadline17}
-Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  It could probably be moved into its own cheatsheet, but I will describe the basics for you here.  For example here is some javascript:
+\label{sec:orgheadline19}
+Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  I will eventually move org babel into its own cheatsheet, but I will describe the basics for you here.  For example here is some javascript:
 
 \begin{verbatim}
 console.log("hello world")
@@ -260,16 +273,16 @@ Let's write a trivial js function the literate way
 
 Literate programming might not be the best method of coding large projects, but it incredibly useful for writing your Emacs config files.  You can see an example of my org more custom-izations \href{https://github.com/jbranso/.emacs.d/blob/master/lisp/init-org.org}{here}.
 \paragraph{Specific header arguments}
-\label{sec:orgheadline16}
-\url{http://orgmode.org/manual/Specific-header-arguments.html}
-\href{org#Specific\%20header\%20arguments}{\url{org#Specific} header arguments}
+\label{sec:orgheadline18}
+
+\url{http://orgmode.org/manual/Specific-header-arguments.html} \\
+\href{org#Specific\%20header\%20arguments}{\url{org#Specific} header arguments} \\
 
 \begin{itemize}
-\item :results
-syntax:
-:results [raw | silent | value | output ]
-value is function mode.  It means that org-mode will use the last executed command as the value of the output.
-ie:
+\item :results \\
+syntax: \\
+:results [raw | silent | value | output ] \\
+value is function mode.  It means that org-mode will use the last executed command as the value of the output. ie:
 
 \begin{verbatim}
 import time
@@ -286,7 +299,7 @@ ls -lh | grep emacs.org
 \item :exports [code | results | node | both]
 \item :dir
 Specify a default directory that the code is to be run in
-:dir <dir>
+:dir dir
 
 \begin{verbatim}
 ls
@@ -299,15 +312,15 @@ ls
 \end{verbatim}
 
 \section{Helpful Emacs modes}
-\label{sec:orgheadline30}
+\label{sec:orgheadline31}
 \subsection{Bug Hunter}
-\label{sec:orgheadline20}
+\label{sec:orgheadline22}
 If you fairly regularly change your init file, then you will at some point open your init file with a broken emacs.  Bug hunter helps you quickly narrow down the cause of the error.  You want to make sure that bug-hunter is loaded early in your init, but then anytime that you find another issue, just run.
   \texttt{M-x bug-hunter-init-file e RET}
 
 \url{https://github.com/Malabarba/elisp-bug-hunter}
 \subsection{Helm Mode}
-\label{sec:orgheadline22}
+\label{sec:orgheadline6}
 Helm mode is an interactive completetion framework that is much better than ido mode.
   C-c C-f helm-find-files
 
@@ -325,7 +338,7 @@ You can also bind a key to an action menu
 (define-key helm-map (kbd "<C-tab>") 'helm-select-4th-action)
 
 \subsubsection{commands}
-\label{sec:orgheadline21}
+\label{sec:orgheadline23}
 You can learn how to write your own helm commands here: \href{http://wikemacs.org/wiki/How_to_write_helm_extensions}{write your own helm extentions}
   \texttt{C-c h m}  open helm-man-woman
   \texttt{C-c h h g} open helm info gnus
@@ -334,19 +347,19 @@ You can learn how to write your own helm commands here: \href{http://wikemacs.or
   \texttt{M-<space>} mark candidate
   \texttt{C-h m} inside a helm window will show you all of helm's keybindings
 \subsection{El-doc}
-\label{sec:orgheadline23}
+\label{sec:orgheadline24}
 El-doc shows you a function's documentation in the mini-bar as you write it.  By default it works for emacs lisp extremely well.  functions.  You can add this to your init file if you'd like to try it for emacs lisp.
 \begin{verbatim}
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 \end{verbatim}
 
 \subsection{Yasnippet}
-\label{sec:orgheadline25}
+\label{sec:orgheadline26}
 Yasnippet is Emacs non-official but pretty much most commonly used snippet system.  You can define an abbreviation, then when expanded does what the snippet file says to do.
 \url{http://ergoemacs.org/emacs/yasnippet_templates_howto.html}
 
 \subsubsection{Important Characters}
-\label{sec:orgheadline24}
+\label{sec:orgheadline25}
 \begin{itemize}
 \item \texttt{\$\&} indents the line according to the major mode
 \item \texttt{`(some-lisp-code)`} embods lisp code
@@ -356,13 +369,13 @@ the other \$3.
 \item =\$\{n:<placeholder text>\}
 \end{itemize}
 \subsection{Undo Tree}
-\label{sec:orgheadline26}
+\label{sec:orgheadline27}
 Undo tree is a mode that lets you visually step through the changes that you have done to the buffer.  You can step backwards and forwards through time.  In normal creation of a documentent, a user typically creates several changes that the emacs undo command is not sufficient to solve.  A document's historical content is not always linear.  Instead, during normal editing, a user can write content that the normal emacs undo command forgets about.  This is where undo tree is helpful.  Invoking \texttt{M-x undo-tree} shows the user a visual representation of the buffer in time.  Using the arrow keys (or conventional emacs replacements), one can step through a documentent's progression.
 \subsection{Ediff}
-\label{sec:orgheadline28}
+\label{sec:orgheadline29}
 Ediff is emacs's cool way of comparing two files and merging them into one.  \texttt{M-x ediff} starts the process.  Emacs will prompt you to ediff two files, and then you can begin merging the files together.
 \subsubsection{Commands}
-\label{sec:orgheadline27}
+\label{sec:orgheadline28}
 \begin{itemize}
 \item \texttt{a} copies buffer a diff to buffer b
 \item \texttt{b} copies buffer b diff to buffer a
@@ -382,7 +395,7 @@ When you specify files, you can edit the files as root using tramp's syntax like
 
 /su::/path/to/file
 \subsection{Tramp}
-\label{sec:orgheadline29}
+\label{sec:orgheadline30}
 Tramp is an emacs extension that lets you edit remote files. To use tramp, just begin by opening a file via \texttt{C-x C-f} (find-file) then typing one of the following special syntaxes:
 
 /HOST:FILENAME
@@ -391,7 +404,7 @@ Tramp is an emacs extension that lets you edit remote files. To use tramp, just 
 /METHOD:USER@HOST:FILENAME
 /METHOD:USER@HOST\#PORT:FILENAME
 \section{Regexp}
-\label{sec:orgheadline31}
+\label{sec:orgheadline32}
 Regular expressions are nifty ways of searching/replacing regions of text.
 
 Consider this example
@@ -409,7 +422,7 @@ Suppose that you want to add a space between both "is" in the functions.  The fo
 But let's get a basic understanding of regexps.
 
 \section{Useful Elisp Libraries}
-\label{sec:orgheadline32}
+\label{sec:orgheadline33}
 \begin{itemize}
 \item ctable \url{https://github.com/kiwanami/emacs-ctable}
 \item s \url{https://github.com/magnars/s.el}

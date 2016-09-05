@@ -1,0 +1,335 @@
+#+TITLE:Hurd Cheatsheat
+#+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+* Introduction
+The GNU Hurd is a modular based operating kernel built on top the micro-kernel GNU Mach.  The Hurd has numerous advantages over the traditional and monolithic design of a Unix kernel.  Various parts of the Hurd can be separated and loaded and unloaded in ways that Linux cannot replicate.  If one part of the Hurd crashes, it won't crash the rest of the kernel.  It's also much smaller, elegant, and future looking than Linux.  The Linux kernel is close to 15 or 16 million lines of code!  It is a massive black hole, that is only getting bigger and harder to maintain.  In contrast, the Hurd is smaller and is designed so that it can be written with in languages other than C, applications can mount and start their own filesystem on the fly, and it is designed to lower the barrier of entry for young hackers.
+
+The Hurd is also more secure than a traditional Unix kernel.  A traditional unix user has certain permissions to read, write, or execute files they control.  Any time a user runs a program, traditionally a unix kernel runs that program with the full permissions of the original user.  This means any program that runs, can do things that the user could do!  Now this situation in the Linux kernel is better, thanks to the NSA's development of a new kernel module that allows restricting what permissions a program can have, but many distributions do not include this module be default.
+
+While there are numerous technological advantages to the Hurd, many of them have not been implemented yet.  The Hurd suffers from lack of funding and developers to extend it, but it is still an attractive platform to learn kernel hacking.  The Hurd allows one to modify running kernel servers, without affecting other users of the system and without rebooting.  If a kernel server is running slowly, one can attaching GDB to the running process and debug it!  This is something that Linux cannot easily be modified to do.
+
+# also use GNU coding standards
+# https://www.gnu.org/prep/standards/html_node/
+
+* Important programs to use
+** settrans
+settrans [option] node [translator arg]
+Settrans allows one to set a translator on a file or a directory.  If no translator is specified, then the existing translator on the node is cleared.
+
+** showtrans
+Shows the passive translators on a node.
+* Documentation things
+** Any documentation online that says "kvm" let it be known that qemu-system-i386 --enable-kvm is the same thing.
+** dde is not really being maintained.  These are drivers from the linux kernel.  The Rump kernel seems to be a better option.
+* Vocab
+** Port
+A port is a messaging passing highway implemented in the kernel.  One port allows one to either talk to or listen to a running process.
+*** Port Bucket
+A port bucket is a collection of ports with some extra data and an ability to lock the bucket so the ports cannot be used to communicate with any process.
+*** Port Class
+Is also a collection of ports, each of which can be conveniently manipulated.  A port class is not required to share any ports with a bucket and vice versa.
+** File
+Every file in the Hurd can be accessed via a port.  When a user wishes to access a file, it makes a remote procedure call to the server implementing the filesystem.
+** Capabilities
+*** Capabilities
+A capability is a process' right to perform various actions to another object.  A capability can be thought of as a car key.  The car key doesn't care who has the key.  If you have the key, then you can drive the car, listen to music, etc.
+
+The Hurd has capabilities implemented as Mach ports.  BUT these ports are not persistent.  So when you reboot all those capabilities are lost.   To work around it, ACLs (Access Control Lists) are used to figure out who has permissions to do what.  For example my current home directory looks like
+
+#+BEGIN_SRC sh :results output :dir ~/
+ls -l
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+total 108
+drwxr-xr-x  4 joshua home  4096 May 12 20:52 config-files
+drwxr-xr-x  2 joshua home  4096 May 12 20:44 Desktop
+drwxr-xr-x  3 joshua home  4096 Jun  8 14:55 documents
+drwx------  2 joshua home  4096 Jun  5 22:18 Downloads
+drwxr-xr-x 19 joshua home  4096 Jun  6 10:19 music
+drwxr-xr-x  2 joshua home  4096 Jun  7 13:33 videos
+#+end_example
+
+Each node in the filesystem begins with lots of "r"s, "w"s, and "x"s.  These specify which users can read, write, or execute those nodes in the filesystem.
+
+*** Capability based system
+Every process has some capabilities.  They have the least amount of capabilities in order to run.  These capabilities can be passed around so that other programs can have the same capabilities as other programs.
+
+Modern OSs like UNIX, have the https://en.wikipedia.org/wiki/Confused_deputy_problem where one program tricks another.  This can only happen in an operating system that has Access control lists, like UNIX, but in a capability based system, this cannot happen.
+
+https://en.wikipedia.org/wiki/Object-capability_model
+*** /Principle of least privilege/
+Principle of least privilege, means that every program runs with the least amount of privileges it needs in order to run.
+*** ABAC
+Authorization-based access control
+
+Access is granted by a server.  Some program wants access to some resource and an authorizing server create a capability that allows this to happen.
+** File Descriptor
+When a process on UNIX attempts to open a file, the kernel accesses the file and allows the process access.  The process does not directly have access to the hard drive.  So if you have 10 files open, then proc will have 10 entries like so: \\
+
+=/proc/PID/fd/= \\
+
+Allegedly, these are like capabilities, but they do not survive reboot.
+** Translator
+A translator is a Hurd process that implements a filesystem interface.  When one accesses any file on disk, a translator provides the file.  Users can write their own translators that act on portions of the filesystem.  For example, one could write a translator that turns an xml act like a directory.  For example, suppose you have a xml file (file.xml) like so
+
+#+BEGIN_HTML
+<div id="This is a directory">
+  <p id="file1"> this is a file </p>
+  <p id="file2"> this is another file </p>
+</div>
+#+END_HTML
+
+If you make a translator responsible for serving it, then ~cd file.xml; ls~ would produce:
+
+#+BEGIN_SRC latex
+file1
+file2
+#+END_SRC
+*** Active Translator
+An active translator is one is currently operating on a filesystem node, but will be lost on reboot.
+*** Passive Translator
+A passive translator is one that is persistent after reboots.  If a passive translator is set for /home/joshua/documents that connects documents to an network file system, then whenever joshua tries to access his documents, if the translator is not already running, it will start to connect to the network file system to access joshua's documents.
+*** Short Circuiting
+*** Translator problems
+**** TODO Translators set up by untrusted users
+:LOGBOOK:
+- State "TODO"       from              [2016-06-08 Wed 16:05]
+:END:
+
+I can write up the page to change the text on the wiki to be more readable.
+
+Suppose you have a translator that implements a softlink to another node in the filesystem without revealing that that is what it is doing.  So /home/User2/documents/secretDir points to /home/User1.  If root does a rm -r /home/User2/, then /home/User1 gets all of his data deleted!
+
+https://www.gnu.org/software/hurd/open_issues/translators_set_up_by_untrusted_users.html
+**** Trust the behavior of Translators
+https://www.gnu.org/software/hurd/open_issues/trust_the_behavior_of_translators.html
+*** Translator pages I should read:
+**** https://www.gnu.org/software/hurd/hurd/translator/writing/example.html
+**** Setting up translators - HowTo
+ https://www.gnu.org/software/hurd/hurd/translator/examples.html
+Additional translators can be got from incubator, or hurd-extras.
+
+cvs -z3 -d:pserver:anonymous@cvs.savannah.nongnu.org:/sources/hurdextras co <modulename>
+
+    httpfs translator
+
+$ settrans -a tmp/ /hurd/httpfs www.hurd-project.com/
+
+or
+
+$ settrans -a tmp/ /hurd/httpfs www.hurd-project.com/ --proxy=<proxy> --port=<port>
+$ cd tmp/
+$ ls -l
+
+    ?ftpfs translator
+
+$ settrans -cgap ftp /hurd/hostmux /hurd/ftpfs /
+$ cd ftp
+ftp$ ls
+ftp$ cd ftp.fr.debian.org
+ftp/ftp.fr.debian.org $ ls
+
+    tarfs translator
+
+You can use tarfs to mount (almost) any tar file (currently broken, 2010-08-25):
+
+$ settrans -ca a /hurd/tarfs -z myfile.tar.gz
+$ settrans -ca b /hurd/tarfs -y myfile.tar.bz2
+$ settrans -ca c /hurd/tarfs myfile.tar
+
+You can even use it to create new tar files:
+
+$ settrans -ca new /hurd/tarfs -cz newfile.tar.gz
+$ cp -r all my files  new/
+$ syncfs new
+
+This is not as fast as tar czvf newfile.tar.gz all my files, but at least it's more original. ;)
+
+    cvsfs translator
+
+$ settrans -ac cvsfs_testing /hurd/cvsfs cvs.savannah.nongnu.org /sources/hurdextras
+$ cd cvsfs_testing
+
+    pfinet translator -- configuring your network interface
+
+$ settrans -fgca /servers/socket/2 /hurd/pfinet -i <interface> -a <ip address> -m <subnet mask> -g <gateway ip>
+
+    Console translator -- setting up virtual consoles
+
+$ console -d vga -d pc_mouse -d pc_kbd -d generic_speaker /dev/vcs
+
+    ?iso9660fs translator -- 'mounting' your cdrom
+
+$ settrans -ac /cdrom /hurd/iso9660fs /dev/<cdrom device file>
+
+    ext2fs translator -- 'mounting' an ext2fs partition
+
+$ settrans -ac /linux /hurd/ext2fs /dev/<partition device file>
+
+    unionfs translator
+
+To join "foo/" "bar/" and "baz/" in the directory "quux/", just do:
+
+$ settrans -capfg quux/ /hurd/unionfs foo/ bar/ baz/
+
+If you want to join even quux/ contents in the union itself, add -u as a translator argument. You can add filesystems at run-time with the fsysopts command.
+**** TODO I can give more cool examples with translators
+:LOGBOOK:
+- State "TODO"       from              [2016-06-08 Wed 16:10]
+:END:
+
+https://www.gnu.org/software/hurd/hurd/documentation/translator_primer.html
+**** https://www.gnu.org/software/hurd/hurd/translator.html
+**** https://www.gnu.org/software/hurd/hurd/documentation/translators.html
+**** https://www.gnu.org/software/hurd/hurd/debugging/translator.html
+** protid
+A protid is short for a protected id.
+** Virtual File System
+So no single process serves the filesystem.  Suppose a user wants to access the file /home/USERNAME/Documents/resume.pdf.  First the process looking for the file, sees if there is a translator mounted on /.  If there is not, then it tries to access /home.  If there is no translator there, it tries to access /home/USERNAME.  If there is no translator there, then it tries to access /home/USERNAME/Documents, etc.  The reason the Hurd works like this, is because a user can easily assign a translator at any given file or directory in the filesystem.
+
+For example, consider that the user mounted an NSF filesystem (Network Filesystem) at /home/USERNAME/Documents.  When a process tries to access resume.pdf, then, if the nfs translator is started and mounts the remote filesystem.  When that happens the user can transparently open the remote file resume.pdf.
+** Computer Bought the Farm
+Computer bought the farm means that a server crashed.
+** Identity Based Access Control
+The Identity Based Access control is when permissions are given to a process based on its identity.  This can be problematic if one program attempts to do something on behalf on another.  If Firefox wants to access my filesystem, but uses gpg to decrypt a file, gpg now is accessing a file.  BUT gpg doesn't have Firefox's ID.  So how does one get gpg to access the file but ONLY have the permissions that Firefox has?  This is called the Confused Deputy Problem
+*** Access Control Lists
+An Access Control list says that a program can access a program if it has the proper permissions based on its ID.
+* Fixing corrupted filesystems
+
+If you get logged into a root shell and your root filesystem is corrupted to fix it, is quite easy:
+
+Use ~cat /etc/fstab~ to find the root filesystem, then run ~fsck.etx2 RootFileSystem~
+* Things the Hurd can do
+** SATA drives
+A SATA drive driver was added in 10th May 2013.
+It should work for many SATA drives.
+** The Hurd now supports 128GB partition sizes
+* Hurd Servers
+Some Hurd servers can be found in $(HURD)/trans/
+** Auth
+This is apparently a Access Control Lists server.  Suppose Firefox wishes to access a file on disk.  Firefox requests the file from the filesystem.  The filesystem wants to be sure that Firefox can do this, so it asks the Auth server.
+** pfinet
+This is the TCP/IP networking stack.  It is using dde
+* The Hurd Interfaces
+The Hurd provides interfaces so that one can create remote procedure calls.
+* Debugging Translators
+
+In order to debug translators and being able to step into glibc during it, on Debian you need the hurd-dbg and libc0.3-dbg packages installed. If you need to debug the initialization of the translator, start the translator like
+
+$ settrans -Pa /foo /usr/bin/env LD_LIBRARY_PATH=/usr/lib/debug /hurd/foofs
+
+The -P option will make it pause and you will be able to attach ?GDB to the process.
+* Writing C programs in the Hurd
+The top of your file needs to be
+
+#+BEGIN_SRC C
+#define _GNU_SOURCE 1
+#+END_SRC
+
+You can compile a program with ~gcc -g -o <program name> <program file>~.  For example, ~gcc -g -o cat cat.c~.
+* Things I could potentially write for the Hurd
+** ext3fs
+http://savannah.gnu.org/task/?5498
+** nfs and nfsd
+
+** firewall translator
+http://savannah.gnu.org/task/?12723
+** multiprocessor support
+http://savannah.gnu.org/task/?7179
+** random translator
+http://savannah.gnu.org/task/?5130
+** rewrite pfinet
+http://savannah.gnu.org/task/?5469
+** overwriting default servers
+http://savannah.gnu.org/task/?6612
+** gtk+ driver
+** copy and paste support for console
+http://savannah.gnu.org/task/?1427
+** ftpfs hangs
+http://savannah.gnu.org/bugs/?24383
+** pfinet hangs
+http://savannah.gnu.org/bugs/?27539
+** string_t is limited to 1024 bytes
+http://savannah.gnu.org/bugs/?28511
+** ext2fs memory leak
+http://savannah.gnu.org/bugs/?30096
+** make a /proc/cpuinfo
+* The hurd in qemu
+** Installing
+#+BEGIN_SRC sh :results output
+  $ qemu-img create hd0.img 4G
+  $ qemu-system-i386 -net nic,model=ne2k_pci -net user -hda hd0.img -m 2G --no-reboot -no-kvm-irqchip -cdrom cd-1.iso --enable-kvm  -boot d
+#+END_SRC
+
+Make sure you DO not put your user's home directory in a separate partition that is mounted on /home.  The current debian port does not support this.
+** Running
+qemu-system-i386 -m 2G -net nic -net user,hostfwd=tcp::5555-:22 -drive file=hd0.img,cache=writeback,format=raw --curses --enable-kvm --no-reboot -vga vmware
+
+
+When you see graphic mode, press enter a couple of times
+** Transferring files from host to qemu
+Mounting Disk Image on Host
+
+You may wish to mount your disk image on your host system to transfer files. To do this you will first need to find the offset of the partition you wish to mount.
+
+#+BEGIN_SRC sh :results output :dir ~/programming/gnu/hurd/vm
+ fdisk -l hd0.img
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Disk hd0.img: 4 GiB, 4294967296 bytes, 8388608 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0xb5b4d7a0
+
+Device     Boot   Start     End Sectors  Size Id Type
+hd0.img1           2048 7938047 7936000  3.8G 83 Linux
+hd0.img2        7940094 8386559  446466  218M  5 Extended
+hd0.img5        7940096 8386559  446464  218M 82 Linux swap / Solaris
+#+end_example
+
+Now take the number of sectors for the beginning of the partition and multiply it by the sector size. My / partition starts at sector 2048 and I have a sector size of 512 therefore my offset is 1048576.
+
+# mount -o loop,offset=1048576 hd0.img /mnt/diskimage
+** Running fsck when you can't boot the machine
+use ~loseupt -P~  -P forces the kernel to scan the partition table on a newly create loop device
+
+The offset for partition one is 512 * 2048 = 1048576
+
+~losetup -o 1048576 --find --show hd0.img~
+
+The above command will print out the loop device that the partition in installed on.  You can then run
+
+~fsck.ext2 /dev/loop0~
+
+These links seem to be some good information:
+
+http://serverfault.com/questions/380186/how-to-run-fsck-on-guest-vms-from-kvm
+
+http://www.ingent.net/en/tag/kvm/
+* Things to do after installing the hurd
+** set up sudo
+#+BEGIN_SRC sh :results output :export code
+$ apt-get install sudo
+$ export EDITOR=nano
+# visudo
+#+END_SRC
+
+#+RESULTS:
+
+You'll want to add yourself the ability to run sudo, so add this line
+~joshua ALL=(ALL) ALL~
+
+Control-X will let you close the file.  Press "y" to save the file.
+
+** Enable automatic filesystem fscking of the / partition in
+
+/etc/default/rcS

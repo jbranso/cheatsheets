@@ -1,0 +1,172 @@
+#+TITLE:Hurd EZ Manual
+#+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+* Introduction
+Mach is an operating system kernel.  Windows, OS X, GNU/Linux, and the *BSDs are all popular operating systems.  Each of these has a kernel, which is software that handles resources and schedules processes' computation time with the CPU.  Traditional kernel's, including the kernels that run Windows, GNU/Linux, and the *BSDs, all use monolithic kernels.  These kernels are huge!  Linux for example is 16 millions lines of code at the time of this writing, while a traditional microkernel can be written in under 10,000 lines of code.
+
+A microkernel then is much smaller, easier to maintain, usually is more secure and is a fundamental better design.  Mach was designed to be rather minimal, so that it could virtually run 3 or 4 different OSes on top of it, seamlessly to the user.  A variant of Mach is the kernel that runs OS X these days, but Mach's dream of virtually running various OSes on top of it was never realized.  In fact some of its original design goals were compromised.  While it is much smaller than a traditional monolithic kernel, it does have some unnecessary features in kernel space.
+
+A small caveat.  Mach is not truly a nanokernel or a microkernel for that matter.  Mach is a hybrid kernel, because it's handling of virtual memory is quite large.  https://www.gnu.org/software/hurd/open_issues/user-space_device_drivers.html
+* Building Mach from source
+** First Build MIG
+https://www.gnu.org/software/hurd/microkernel/mach/mig/gnu_mig/building.html
+
+apt-get source mig
+
+apt-get install build-essential fakeroot
+apt-get build-dep mig
+
+cd mig-X.X.X.XX
+
+Start the build process:
+
+$ dpkg-buildpackage -us -uc -b -rfakeroot
+
+This will create a .deb package in the parent directory, which you can then install on your system with dpkg -i <.deb file>
+** Now build Mach
+https://www.gnu.org/software/hurd/microkernel/mach/gnumach/building.html
+
+git clone http://git.savannah.gnu.org/cgit/hurd/gnumach.git/
+
+Building GNU Mach requires the build-essential and fakeroot packages, and some additional dependencies specified by the gnumach source package:
+
+apt-get install build-essential fakeroot
+apt-get build-dep gnumach
+
+* Mach log
+Mach dumps all of its logs into: /var/log/dmesg
+
+So I can always check that file for stuff.
+* Vocab
+** Ports
+*** Port
+A port is like a means of communication.  Consider for example that 1 port is like highway 52.  In order for two cities (processes or a process and a user) to communicate messages must be sent on highway 52.  There are many different highways, just like there are many different ports.
+
+Just like highways, ports can only allow so many people to be on them at a time.  The fixed number of people that are allowed to send messages is called the queue.
+
+There is no global reference for all ports.  A thread can only see ports, to which its task gives it access.
+*** Port Rights
+A port right, is the right to communicate on a port.  This is like having a traveling visa that grants you the right to travel on a particular highway.
+
+The following macros are of type typedef natural_t mach_port_right_t; they may be of use.  They are the individual rights on a port.
+
+- MACH_PORT_RIGHT_RECEIVE
+  Only one task can own the receive right for a port.  This right is killed after the message is sent.
+- MACH_PORT_RIGHT_SEND
+- MACH_PORT_RIGHT_SEND_ONCE
+- MACH_PORT_RIGHT_PORT_SET
+- MACH_PORT_RIGHT_DEAD_NAME
+- MACH_PORT_RIGHT_NUMBER
+
+But on a port, one might have many different point rights.  There are some pre-defined combinations:
+
+|-----------------------------+-------------------------------------------------|
+| macro                       | combination                                     |
+|-----------------------------+-------------------------------------------------|
+| MACH_PORT_TYPE_SEND_RECEIVE | MACH_PORT_TYPE_SEND  and MACH_PORT_TYPE_RECEIVE |
+| MACH_PORT_TYPE_SEND_RIGHTS  |                                                 |
+| MACH_PORT_TYPE_PORT_RIGHTS  |                                                 |
+| MACH_PORT_TYPE_PORT_OR_DEAD |                                                 |
+| MACH_PORT_TYPE_ALL_RIGHTS   |                                                 |
+
+*** Task Port
+A task port is also a kernel port, and it's a communication highway between a task and the kernel (ie: mach).
+
+This is probably where mach_msg or mach_msg_trap is used to communicate with the kernel.
+*** Control Port
+This port is a port that lets one manipulate an entity.
+*** Port Name
+A port name is a uniquely identifying integer, that specifies a port.
+
+The port name can either be
+- an integer specify what port
+- MACH_PORT_NULL
+  no port port rights are available to this process
+- MACH_PORT_DEAD
+  There was a port associated with this name, but the port has been killed
+- A port set name
+  This acts like a receiving right, but it allows a process to receive messages from multiple ports.
+*** Port Sets
+A port set is a collection of ports that can act as multiple ports from which to receive messages.  mach_msg is used to do this.  When the kernel does send a message to a port set, it has no priority is picking a particular port.
+
+I can create and delete port sets as well as query the kernel about port membership.
+** Tasks and Threads
+*** Tasks
+- A task provides a way for a process to execute.  It contains at least 4 ports and a virtual paged address space.
+- Contains n number of threads.
+- Does not execute anything
+- 2 different tasks, do not share any common thing
+
+Task_info () will give you various information about the port.  A task is created with task_create ().  A task is destroyed with task_terminate ();
+
+Each task has 3 special ports assigned to it.
+
+- the kernel port (at least usually).  This is the port that the task can use to request that the kernel do things that the task cannot.
+- the port used by a thread to have the kernel do stuff that the thread cannot.
+- bootstrap port  This is supposed to be the port that a task has to communicate with another service, but it can be any other thing.
+
+  One of those special ports is an array of registered ports.
+
+The task can set these ports from task_set_special_port () and can get these ports from task_get_special_port ().
+*** Threads
+- Is one execution element in a task
+- Can accesses any element of the task that holds it
+- Can execute at the same time as other threads, even the threads within the same task
+- Keeps small amount of info for itself.  That way it doesn't cost much to set up the thread
+- Computes stuff
+- All threads in the same task, share just about everything.
+** Microkernel
+A small kernel that provides basic operating system functions.
+** Virtual Address Space
+A task ownes a virtual address space, which is a region of memory that it is allowed to change/edit/remove at will.  The executing thead/s are allowed to access any address within this space.  In C lingo this can mean referencing a pointer.
+** Nanokernel
+An even smaller kernel.
+** Processor Sets
+A grouping mechanism that allows scheduling of tasks assigned to a processor set.  These also assign threads and tasks.
+** Node
+Mach does have support for multiprocessing, but it is not mainlined or currently used.  If you connect two processors together to run Mach, then each processor is called a node.  Suppose you connect 2 machines together and each machine has 5 processors, then there are 10 nodes, each with a node ID (integer).  There are 2 mach hosts, which are the two computers.
+** Hosts
+When you connect 2 mach machines together to form a supercomputer, each machine is called a host.  Each host both runs mach.
+** Devices
+Mach builds an internal lists of all devices.  When a task wishes to speak with a device (via device master port), mach builds a new port that provides access the device.  Operations on that port then manipulate the device until the port is closed.
+** Events
+Actions that threads can wait on. After they happen, threads to specific things.
+* What services Mach provides
+** memory management
+*** Virtual address
+This section is copied from http://kilobug.free.fr/hurd/pres-en/slides/slides.html
+- Paging
+  - The virtual address space is linear and contiguous
+  - Memory is divided in small pages (4K on ia-32)
+  - Allows a far better granularity
+  - Transparent for programs
+- A page can be :
+    - Active and mapped into a physical location (green)
+    - Disabled, and transferred to side-storage (yellow)
+    - Invalid (red)
+    - When a program tries to use a non-mapped page, it triggers a `page fault'
+
+[[~/pictures/vm-memory.png]]
+**** A paging example
+- Principles
+   - Mach chooses which page to keep or discard
+   - The `pagers' are in user-space
+   - When a program faults an IPC is sent to its `pager'
+
+[[~/pictures/vm-memory.png]]
+
+** I/O
+** process management
+** communication between processes
+*** Port communication Example
+
+Suppose service A wants to communicate with another service B to produce result C.  In order to do this, service A sends a message on the port, to which B owns the receive right.
+
+A's message -->   B's Receive Port    -->   B does some stuff
+
+Now B has to send a message back
+
+B sends C -->  A's Receive Port      -->  A Does stuff.

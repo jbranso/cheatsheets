@@ -56,6 +56,7 @@ The flex container can either be vertically or horizontally based.  You can even
 | 3 | 2 | 1 |
 
 * positioning
+** relative positioning
 ** absolute positioning
 
 When you position an element absolutely, it is fixed.  If you put an absolute positioned element inside a div, then the div cannot calculate the height of the child.
@@ -69,3 +70,9 @@ When you position an element absolutely, it is fixed.  If you put an absolute po
  It'll look like this:
 
  [[./images/abs-pos-height.png]]
+
+ You can see that the containing div (the green box), cannot determine the height of the image.  That is why, the green div is only 30 pixels or so tall.  [fn:1]
+
+* Footnotes
+
+[fn:1] In actuality, it would only be 1 or 2 pixels tall, but I make it taller so you could see it.

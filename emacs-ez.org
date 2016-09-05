@@ -66,10 +66,18 @@ To kill or copy a region of text, you must first /mark/ that region or highlight
 
 To yank the killed or copied text back into the buffer press the ~C-y~ keychord.
 
-** Opening and Closing Buffers
+** Opening, Closing, and Saving Files
 When one opens and edits a file in Emacs, Emacs opens the file and puts the contents in an editable buffer.  As you edit the buffer, you only change the a region in memory.  When you type ~C-x s~ to save the current buffer, the buffer's content are saved in the file.
 
-Emacs' default method of opening a files is ido mode, which is pronounced like "I do mode".  ~C-x C-f~ or (find-file) opens a file in Emacs.  One can press the tab key to complete a partially completed file name.  Typing "~/" means to make ido search in the user's home directory.
+Since I am constantly changing multiple files, I've modified my save function to save every open file.  If you would like to do the same, you can put the following in your init file:
+
+#+BEGIN_SRC emacs-lisp :exports code
+(add-hook 'after-save-hook #'(lambda ()
+                               (interactive)
+                               (save-some-buffers 1)))
+#+END_SRC
+
+Emacs' default method of opening a files is ido mode, which is pronounced like "I do mode".  ~C-x C-f~ or (find-file) opens a file in Emacs.  One can press the tab key to complete a partially completed file name.  Typing "~/" means to make ido search in the user's home directory.  I personally do not enjoy using ido-mode. Instead I prefer [[#helmMode][helm-mode]].
 ** Frame and Window Commands
 :PROPERTIES:
 :CUSTOM_ID: frameAndWindow
@@ -102,11 +110,11 @@ Dired is the emacs file manager.  It opens a buffer displaying all your files in
   - ~n~ next line
   - ~p~ previous line
   - ~m~ mark the current file under point
-  - ~% m REGEXP <RET>  mark files based on a regular expression
+  - ~% m REGEXP <RET>~  mark files based on a regular expression
 *** Image Dired
 You can also view images inside dired!  Mark the images you wish to view, then press C-t d (image-dired-display-thumbs). Alternatively, you could also just run the command M-x image-dired.
 ** Macros
-A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat complicated commands.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys.  I could write the numbers 1 through 1,000 by typing 31 keys!
+A Macro is a remembered sequence of Emacs keychords that can be repeated.  This is useful to easily repeat complicated commands.  For example, I can write out the numbers 1 through a 100, if I hit 30 keys, and I could write the numbers 1 through 1,000 by typing 31 keys.
 
   - ~C-x (~ begin recording a keyboard macro
   - ~C-x )~ end recording a keyboard macro
@@ -161,7 +169,7 @@ Emacs org-mode really deserves its own cheatsheat, so I won't go into much detai
 *** Org-mode's hierarchical structure
 Org-mode lets you easily insert headings and sub headings with "C-RET".  If you press it many times, you'll have something like this:
 
-#+BEGIN_SRC org
+#+BEGIN_SRC org :exports code
   ,*
   ,*
   ,*
@@ -169,7 +177,7 @@ Org-mode lets you easily insert headings and sub headings with "C-RET".  If you 
 #+END_SRC
 
 A line with just one "*" is a top level heading.  If it has a two "**" below it, then it now has a sub-heading.  Just like the following:
-#+BEGIN_SRC org
+#+BEGIN_SRC org :exports code
   ,* I am a top level heading
   ,** I am a sub-heading.
 #+END_SRC
@@ -177,22 +185,22 @@ A line with just one "*" is a top level heading.  If it has a two "**" below it,
 You can use the tab key to show/hide any sub level headings.
 
 
-Org-mode is also great for todo lists.  Pressing C-c C-t lets you mark an item as TODO or DONE.
+Org-mode is also great for todo lists.  Hitting ~C-c C-t~ lets you mark an item as TODO or DONE.
 **** Todo lists
-One can easily create simple todo lists with org-mode.  In any org file press "C-RET".  A "*" will have inserted itself into your buffer.  Pressing "C-c C-t" will add the words "TODO".  It'll look like:
+One can easily create simple todo lists with org-mode.  In any org file ~C-RET~ inserts a "*" into the buffer.  Pressing "C-c C-t" will add the words "TODO".  It'll look like:
 
-#+BEGIN_SRC org
+#+BEGIN_SRC org :exports code
   ,* TODO
 #+END_SRC
 
-Pressing "C-c C-t" again, will change the status to DONE.  You will end up with something looking like:
+Pressing ~C-c C-t~ again, will change the status to DONE.  You will end up with something looking like:
 
-#+BEGIN_SRC org
+#+BEGIN_SRC org :exports code
   ,* DONE
 #+END_SRC
 
 *** org-babel
-Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  It could probably be moved into its own cheatsheet, but I will describe the basics for you here.  For example here is some javascript:
+Org babel is a the best approach towards literate programming ever attempted, and it works!  Almost all programming languages treat code as the first order citizen and hides comments behind a simple syntax.  I will eventually move org babel into its own cheatsheet, but I will describe the basics for you here.  For example here is some javascript:
 
 #+BEGIN_SRC js :exports code
   console.log("hello world")
@@ -212,14 +220,14 @@ Let's write a trivial js function the literate way
 
 Literate programming might not be the best method of coding large projects, but it incredibly useful for writing your Emacs config files.  You can see an example of my org more custom-izations [[https://github.com/jbranso/.emacs.d/blob/master/lisp/init-org.org][here]].
 **** Specific header arguments
-http://orgmode.org/manual/Specific-header-arguments.html
-[[info:org#Specific%20header%20arguments][info:org#Specific header arguments]]
 
-- :results
-  syntax:
-  :results [raw | silent | value | output ]
-  value is function mode.  It means that org-mode will use the last executed command as the value of the output.
-  ie:
+http://orgmode.org/manual/Specific-header-arguments.html \\
+[[info:org#Specific%20header%20arguments][info:org#Specific header arguments]] \\
+
+- :results \\
+  syntax: \\
+  :results [raw | silent | value | output ] \\
+  value is function mode.  It means that org-mode will use the last executed command as the value of the output. ie:
 
   #+BEGIN_SRC python :results value
     import time
@@ -244,7 +252,7 @@ http://orgmode.org/manual/Specific-header-arguments.html
 - :exports [code | results | node | both]
 - :dir
   Specify a default directory that the code is to be run in
-  :dir <dir>
+  :dir dir
 
   #+BEGIN_SRC sh :results output :dir ~/pictures
   ls
@@ -272,6 +280,9 @@ If you fairly regularly change your init file, then you will at some point open 
 
   https://github.com/Malabarba/elisp-bug-hunter
 ** Helm Mode
+:PROPERTIES:
+:CUSTOM_ID: helmMode
+:END:
 Helm mode is an interactive completetion framework that is much better than ido mode.
   C-c C-f helm-find-files
 

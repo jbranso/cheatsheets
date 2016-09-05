@@ -1,0 +1,7 @@
+#+TITLE:MIG EZ Manual
+#+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+Creating remote procedure calls via mach is a challenging task, but MIG or the Mach Interface Generator makes this task much easier.  You only need to do this if you need to define your own interfaces.  The Hurd already contains various interfaces.

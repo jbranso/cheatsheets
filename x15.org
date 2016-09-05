@@ -1,0 +1,8 @@
+#+TITLE:X15 EZ Manual
+#+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+https://www.gnu.org/software/hurd/microkernel/mach/deficiencies.html
+https://git.sceen.net/rbraun/x15.git/

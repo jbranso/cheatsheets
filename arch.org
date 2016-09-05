@@ -1,6 +1,5 @@
 #+Author: Joshua Branson
 #+Title: Arch GNU/Linux CheatSheet
-
 * Change the virtual console keyboard layout
 The virtual console is the "shell" that you use to log into and startx.  The virtual console is started before any graphical interface, and it's implemented in the kernel!!! wow!!!
 
@@ -116,6 +115,38 @@ EndSection
 
 EndSection
  #+END_SRC
+** 60-libinput.conf
+The /etc/X11/xorg.conf.d/ directory stores host-specific configuration. You are free to add configuration files there, but they must have a .conf suffix: the files are read in ASCII order, and by convention their names start with XX- (two digits and a hyphen, so that for example 10 is read before 20). These files are parsed by the X server upon startup and are treated like part of the traditional xorg.conf configuration file. The X server essentially treats the collection of configuration files as one big file with entries from xorg.conf at the end.
+
+# Match on all types of devices but tablet devices and joysticks
+Section "InputClass"
+        Identifier "libinput pointer catchall"
+        MatchIsPointer "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
+EndSection
+
+Section "InputClass"
+        Identifier "libinput keyboard catchall"
+        MatchIsKeyboard "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
+EndSection
+
+Section "InputClass"
+        Identifier "libinput touchpad catchall"
+        MatchIsTouchpad "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
+EndSection
+
+Section "InputClass"
+        Identifier "libinput touchscreen catchall"
+        MatchIsTouchscreen "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
+EndSection
+
 * auto login at end of boot and auto start x non-graphically
 ** [[https://wiki.archlinux.org/index.php/Automatic_login_to_virtual_console][autologin to virtual console]]
 
@@ -1315,13 +1346,8 @@ CLOSED: [2016-04-15 Fri 07:59]
 The problem was laptop mode tools. This thread suggested that I should uninstall laptop mode tools, which I did.
 https://bbs.archlinux.org/viewtopic.php?id=209100
 
-And I uninstalled hdparm.
-<<<<<<< variant A
 ** DONE How do I kill a program if killall PROGRAMNAME and kill PID fails?
 CLOSED: [2016-04-16 Sat 09:58]
->>>>>>> variant B
-** TODO How do I kill a program if killall PROGRAMNAME and kill PID fails?
-======= end
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2016-04-16 Sat 09:58]
 - State "TODO"       from              [2016-04-01 Fri 08:31]
@@ -1398,6 +1424,28 @@ Apr 18 08:11:17 parabola emacs[508]: http://bugzilla.gnome.org/show_bug.cgi?id=8
 Apr 18 08:11:17 parabola emacs[508]: Emacs might crash when run in daemon mode and the X11 connection is unexpectedly lost.
 Apr 18 08:11:17 parabola emacs[508]: Using an Emacs configured with --with-x-toolkit=lucid does not have this problem.
 #+END_EXAMPLE
+** gpg does not work on Parabola anymore.
+
+This is why.
+  #+BEGIN_SRC sh :results output
+  cat ~/.gnupg/gpg-agent.conf
+  #+END_SRC
+
+  #+RESULTS:
+  : enable-ssh-support
+  : pinentry-program /home/joshua/.guix-profile/bin/pinentry-gtk-2
+
+  This fix makes gpg work on GuixSD, but then Parabola cannot find that program.
+
+* mount iso images
+# http://www.cyberciti.biz/tips/how-to-mount-iso-image-under-linux.html#more-558
+
+In unix this is called a loop device.  It's a way to mount files on the filesystem.
+* php
+** installing xdebug
+#+BEGIN_SRC sh :results output
+sudo pacman -S xdebug
+#+END_SRC
 * grub
 ** boot from grub to a usb stick
 As soon as you see the grub command line press the "c" key. You'll be dropped into a grub shell.  You'll know you're there, because you'll see
@@ -1450,3 +1498,13 @@ linux /boot/vmlinuz-linux-libre root=/dev/sda1
 initrd /boot/initramfs-linux-libre.img
 boot
 #+END_EXAMPLE
+* bluetooth
+** the CLI client seems to be the only one that works.
+I'm trying to figure out how to send files from my phone to my computer, and I'm not able to do it.
+You can read more [[https://wiki.archlinux.org/index.php/Bluetooth#Configuration_via_the_CLI][here.]]  To get started install ~bluez~ and ~bluez-utils~ package.  Then do this:
+
+- bluetoothctl
+- power on
+-
+
+*

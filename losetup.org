@@ -1,0 +1,26 @@
+#+TITLE:losetup Cheatsheat
+#+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+
+* Get information
+~losetup loopdev~
+
+* set up a loop device
+
+# http://bochs.sourceforge.net/doc/docbook/user/loop-device-usage.html
+Set up a loop device:
+
+          losetup [-o offset] [--sizelimit size]
+                  [-Pr] [--show] -f|loopdev file
+
+Apparently I'm not supposed to use -P and -o together.
+
+This command will tell you which loop device is currently unused.
+~# losetup -f~
+
+losetup /dev/loopN hd0.img
+
+Alternatively ~losetup -o 1048576 --find --show hd0.img~ will also set up the loop device.

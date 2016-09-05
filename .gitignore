@@ -2,3 +2,9 @@ ltxpng/
 org/
 reference/
 *.pdf
+*.txt
+*.tex
+*.log
+*.log
+/*log
+*log*

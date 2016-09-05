@@ -1,5 +1,8 @@
 #+TITLE:GPG Cheatsheet
 #+AUTHOR:Joshua Branson
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
 
 * receive gpg keys:
 
@@ -8,3 +11,56 @@ gpg --recv-keys 0x7BD63126
 #+END_SRC
 
 #+RESULTS:
+* list keys
+#+BEGIN_SRC sh :results output :export code
+gpg --list-keys
+#+END_SRC
+
+#+RESULTS:
+: /home/joshua/.gnupg/pubring.kbx
+: -------------------------------
+: pub   rsa2048/C7B1326F 2016-05-17 [SC] [expires: 2017-05-17]
+: uid         [ultimate] Joshua Branson (This is my hotmail gpg key.)
+: sub   rsa2048/5989FACF 2016-05-17 [E] [expires: 2017-05-17]
+:
+
+My userID is then C7B1326F
+* Export your gpg key
+#+BEGIN_SRC sh :results output :export code
+gpg --armor --export C7B1326F
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2
+
+mQENBFc7GcUBCAC4MLbnQJ2Hjh3xBRcTupmJuzFJzu8zx6bb0GBzucg+gDZ0PES9
+pZWW7vekeoqkoFImeo/eaEzYSzqCdFb/p02mWEjpP4+DPv2qRYbDg3xGdvlxkPqi
+MmdiOCRaAdEBKtAaPJdm1yio2I5zVqK0fBumdrL47UTpeh4IZF1h+srKZNY7Ylaq
+E8FhjTVJLAaVbcC84xzAP+pJSHwu8jR/xJEo/p/GCMFd1TiOKEl+7imogd1iJRNC
+1pRS52CAqYO5GPUOu5bLMC0O3npiJCcebJ84oaIwu7YPjsUv/ZXKbw2Bw8Sg9ZZD
+uUASdB8K2FFidJByV3q5UB58Tv1JSAg5xEepABEBAAG0Qkpvc2h1YSBCcmFuc29u
+IChUaGlzIGlzIG15IGhvdG1haWwgZ3BnIGtleS4pIDxicmFuc29qQGhvdG1haWwu
+Y29tPokBPQQTAQgAJwUCVzsZxQIbAwUJAeEzgAULCQgHAgYVCAkKCwIEFgIDAQIe
+AQIXgAAKCRDI+j2Cx7Eyb0LyCACw2SR+pavE3RzSo86zy/mRFLn+UkpmYXqBp8sB
+j24ogRs2kI0VeM1kS1tKZ6h9IsWFuiQHtCCgD17mGmxZ51Uvx27aWfzlN91gmY4C
+DpZVX3PAZ4h5Q2jWNhkZE1K3U8GBzApYnwN0uJ5CT+oiLweCOQJqwDdKfalAwoH+
+/eTbezip8DTD5hgaBu3day6LyJ6ajDIYL6jn/uUcXhGrykBUjqfe3rpeIRSjIlAt
+PwzBWlceRAYGgpUi6g5SBpjG6vP53X91U3fN7qqy6YNzLW3iGa9a/p7AsTBZFLgp
+E0VtN42uOJ2Vc8UhD3wdeYqf6HxUTpDoviDoc608SJuALUK8uQENBFc7GcUBCADE
+a5JosRi4VX4VYUdzXDhgoCRV0kl6TU304+D6Q27/k+Yy99txwClD3ug9JeLMiZ0L
+e2Sm/jkmPiivW68yV3Ipt800n8YB4SeEWJcOZH5E8MQyKX1DxAS28kG6XTU3CiCY
+gQDhWKcTkdptA74pq836EypBw7zwK/qKI66PefHccAKRe5ckNzhmuOgHaD47wtzC
+mxiKaTft883S8lidxVgbTa0pY22A1S8HlCxg56kStg2OHhwyPNSoasZJ4wkt95Ii
+xQS6qH7uNfTxQmwVslY9uSgO7H5CTMQJHBUYlqWSNmAvD1cW7W7yPC1JKE1Y2Lbt
+Fg859J7Z5kmMzCnXfVeNABEBAAGJASUEGAEIAA8FAlc7GcUCGwwFCQHhM4AACgkQ
+yPo9gsexMm8Uegf/f3mcwyeCcBZB/i0yxqkjcHky8OL77lUyIznTXhngd6xxh/kz
+OId4ixZ17LQSJfDINMZYMvC2YmlM8Q+RPcrVmtVGHlzGlDYziOb0GOX6ZZgi+uuI
+pbRi6mXMXLBjdJ8Az6JhnZTEbcLX36C7PrsYy6Vf/mkJWQ9dXiiWStZFkwH+jhux
+/5iEyzif4ufk2gMfaWE7pGO3PLewQyZYnvVBPmlb2EM7UbEXbKGjh0d0rwmljXBp
+Nm93zwF0DIhmaAVOGNlteScjCo07LPcAcb3RZJu9MM3vlnOuRWDJGYEkkQzoOAOt
+WARlwOYBOT7hp5sQKnwg2EKH+MF6yMu3HHso2g==
+=Oj1H
+-----END PGP PUBLIC KEY BLOCK-----
+#+end_example
