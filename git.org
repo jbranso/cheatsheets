@@ -19,14 +19,29 @@
  - pulling changes from a remote repo and discarding your local changes
    git fetch origin
    git reset --hard origin/[master | tag | branch | commit-id ]
+ - git rm FILE
+   Stop tracking a file.  Notice that these files can still be found in the repo.  Any updates to these files will not be added to the repo, BUT the file can still be found in git.
 
+*** git rm FILE/S
+Suppose that you have a file that contains a user's various passwords.  You then mistakenly add that file to the repo, and commit it.
+
+ ~git add passwords.txt~
+ ~git commit -m "some commit"\~
+
+You then realize that you want to remove that file from the repo.
+
+~git rm passwords.txt~
+~git commit~
+
+BUT the file is still in the repo!  You can still see it in the repo history.
 ** common tasks
 *** Removing a file from git
 =git rm -r --cached /path/to/file=
 
 Note that this DOES not delete the file.  It only makes git stop keeping track of it, and it removes it completely from the repo.
 To stop git from tracking the file add =/path/to/file= into the =.gitignore= file.
-
+*** git gc
+cleans up a git repo.  Tries to automatically purge files in the tree that cannot be accessed anymore.
 *** push an existing repo to github
 
 Create a repo on github, and don't add a license or a readme.

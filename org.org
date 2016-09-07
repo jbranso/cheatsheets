@@ -709,3 +709,8 @@ For example,  suppose your local bowling team goes bowling on the 3rd Tuesday of
 If you would like to know more, the documentation for the function "diary-float", is quite sufficient.
 =======
 >>>>>>> f1151bf9728e23e2eb55a7d45b3d78f1b2048a79
+* Archiving
+
+http://stackoverflow.com/questions/10143959/keeping-the-context-when-archiving-in-emacs-org-mode
+http://orgmode.org/manual/Moving-subtrees.html#Moving-subtrees
+http://orgmode.org/worg/org-hacks.html
