@@ -8,23 +8,68 @@
 
   You can always look up help on a specific git command with man git-<command>
 ** Basic vocab
+
+man gitglossary
 - Repository
   A copy of a directory tree.  It has the complete history for that directory.  It has snapshots of how the project looked when you first got started up until now.  A repository can be a local repository, in which case it resides on your computer.  Or it can be a remote repository, in which case it is on someone else' computer.
-- commit
-  Once you have your repository set up, whenever you make a change to any file in the repository, git tracks those changes.  It then will let you create a new snapshot of your repository with these new changes.  One can have a program that has features a, b in commit 3aeusn4tuhsantehusn...;  when you create features c and d, one then commits those changes to the repository.  Now the latest commit is 398gasuth349ageuntsh...  Now your program has features a, b, c, d.  AND, at any point you can revisit your program when it only had features a and b.
-- history
-  Your repository evolves over time.  Features are added, improved or removed.  All of this is tracked.  And one is always able to look back in the history of the project to see how things differed.
+- blob
+  A git object representing a file.  Each blob has an associated sha-1 hash that refers to it.  With git cat-file blog "commitHash"
 - branches
   A repository can store different versions of the same program.  Suppose you wish that your program had a stable version and a developmental version.  Branches give you that.  Your stable branch will probably share lots of code with your developmental branch, but they can differ.  Git lets you keep many different versions (branches) of your program.
+- commit
+  Once you have your repository set up, whenever you make a change to any file in the repository, git tracks those changes.  It then will let you create a new snapshot of your repository with these new changes.  One can have a program that has features a, b in commit 3aeusn4tuhsantehusn...;  when you create features c and d, one then commits those changes to the repository.  Now the latest commit is 398gasuth349ageuntsh...  Now your program has features a, b, c, d.  AND, at any point you can revisit your program when it only had features a and b.
+- chain
+  A list of objects that each refer to parent changes.
+- cherry pick
+  To pick a subset of commits and commit them to your HEAD.  If a development branch has changes that you want master to have, then you can cherry pick them.
+- clean
+  A working directory is clean, if corresponds to HEAD.  There is nothing to commit.
+- dangling object
+  An object that no other object references.
+- detaches HEAD
+  Your latest commit has not been attached to any branches.  If you visit a branch, then your latest changes with be lost, but you can recover them.
+- dirty
+  A working tree is dirty if it contains uncommitted changes.
+- fast forward
+  A special type of merge that where you are updating your outdated branch to someone else's updated changes.
+- glob
+  like regexps.
+  - ~a/**/b~
+    can refer to a/b/b or a/c/d/b or a/f/g/h/i/b
+  - ~a/**~
+    Means  match everything under a
+  - **/a
+    means match any directories named a
+- head
+  A named reference to the tip of one of your branches.
+- HEAD
+  HEAD refers to a specific snapshot of your repository.  It is the current checked out commit.  So when you add feature a, then commit it.  That commit is referred to as HEAD.  HEAD can be on any branch.  So your repository might say, HEAD is on branch master.
+- history
+  Your repository evolves over time.  Features are added, improved or removed.  All of this is tracked.  And one is always able to look back in the history of the project to see how things differed.
+- hook
+  git lets you run arbitrary scripts before it does certain actions.  This could check to see if you are trying to stage or commit
+  your ssh key for instance and then stop you.
+- octopus
+  to merge more than 2 branches.
+- origin
+  the default upstream repository.
 - merge
   Ayouge occurs when two branches are fused into one, which sometimes requires a developer to resolve incompatibilities between them.
   This can happen when you wish to update your stable branch with some of the features of a developmental branch.
 - master
   This is the default branch of your repository.  Traditionally it is also the developmental branch.
-- HEAD
-  HEAD refers to a specific snapshot of your repository.  It is the current checked out commit.  So when you add feature a, then commit it.  That commit is referred to as HEAD.  HEAD can be on any branch.  So your repository might say, HEAD is on branch master.
-- dangling HEAD
-  Your latest commit has not been attached to any branches.  If you visit a branch, then your latest changes with be lost, but you can recover them.
+  you can examine it.
+- pull
+  to fetch a branch and merge it into HEAD
+- push
+  Push your changes to a remote repository.  If the remote is an ancestor to your repository, that remote is fast forwarded to match your current HEAD.
+- tree
+  A git object that represents the state of a single directory.  It stores any files in the directory into blobs and any sub directories into other trees.
+- working tree
+  This is similar to HEAD.  When you make a commit, you commit it into your working tree.  So a working tree is the current branch and commit upon which HEAD rests.
+- index file
+  This represents staged and uncommitted changes to your repository.
+
 ** Basic commands
 
  - push your changes to a remote git repo
@@ -63,6 +108,9 @@ Go to the directory where you want to create the git repo:
   Make all of your future commits in a repo to be signed by default.
 - ~git config --global commit.gpgsign true~
 
+https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work
+git config --global user.signingkey 0A46826A
+
   make all repos on your computer sign commits by default
 * Make git remember your password
 
@@ -91,3 +139,5 @@ git fsck
 If you see "dangling commit", then you have found a dangling commit that is NOT merged with your head.
 
 ~git checkout HASH~ will switch HEAD to that commit.  You can then merge HEAD with master.  OR you can create a new branch and merge master to that branch.
+* removing secret files from the git history
+https://help.github.com/articles/remove-sensitive-data/

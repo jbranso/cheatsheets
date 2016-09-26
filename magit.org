@@ -1,5 +1,3 @@
-
-
 #+TITLE:Magit Cheatsheat
 # The next lines says that I can make 10 levels of headlines, and org will treat those headlines as how to structure the book into
 
@@ -9,6 +7,9 @@
 * Introduction to Magit
 Many commands in magit pop up a small buffer prompting you to specify options.  To see the commits for a specific file, in the git status buffer type "l -f <filename>".  Then you will see all of the commits for 1 file! cool!
 * Basic commands
+You typically start a magit section by running ~magit-status~.  You can stage un-staged with "s".  You can commit those changes with "cc".  You can push those changes with "Pp".
+
+Un-staging commits can be done via "u".
 * magit commands in the status buffer
 
    - ~$~ will add another buffer that shows you the commands magit is commiting
@@ -49,3 +50,9 @@ Many commands in magit pop up a small buffer prompting you to specify options.  
    - ~r~ renames the branch
 
    - ~T~ on a local branch changes which remote branch it tracks
+* magit blame
+Visit a magit buffer and run ~magit-blame~.  Magit will divide the buffer into regions, and list which region belongs to which git author and in what commit.  It awesome!
+
+M-w saves the hash of the current region to the kill ring.
+
+"n" and "p" move to the next and previous hunks.

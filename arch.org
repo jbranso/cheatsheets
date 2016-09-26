@@ -1498,6 +1498,18 @@ linux /boot/vmlinuz-linux-libre root=/dev/sda1
 initrd /boot/initramfs-linux-libre.img
 boot
 #+END_EXAMPLE
+* gpg
+** using a gpg key as an ssh authorized key to connect to servers.
+https://incenp.org/notes/2015/gnupg-for-ssh-authentication.html
+http://lists.gnupg.org/pipermail/gnupg-users/2012-July/045059.html
+http://budts.be/weblog/2012/08/ssh-authentication-with-your-pgp-key
+https://blogs.s-osg.org/using-openpgp-keys-ssh-authentication/
+
+http://security.stackexchange.com/questions/1806/why-should-one-not-use-the-same-asymmetric-key-for-encryption-as-they-do-for-sig
+http://superuser.com/questions/360507/are-gpg-and-ssh-keys-interchangable
+https://www.digitalocean.com/community/tutorials/how-to-authenticate-users-to-a-ssh-server-using-monkeysphere-on-an-ubuntu-vps
+
+- caching my keys for the whole session
 * bluetooth
 ** the CLI client seems to be the only one that works.
 I'm trying to figure out how to send files from my phone to my computer, and I'm not able to do it.

@@ -565,6 +565,24 @@ This removes the parentheses around the current sexpression
      /USER@HOST#PORT:FILENAME
      /METHOD:USER@HOST:FILENAME
      /METHOD:USER@HOST#PORT:FILENAME
+** etags
+Etags is Emacs solution to creating elisp based tagging in Emacs.  It is the prefect tagging system for your init files.
+
+The shell command Etags needs to be run to generate a TAGS file.  This looks like ~etags files~ or ~COMMAND | etags -~
+
+The simple way to do it is, which finds certain types of files and throws them in the TAGS file.
+
+#+BEGIN_SRC sh :results output :exports both :dir ~/.emacs.d/
+find . -wholename "*lisp/[a-zA-Z-]*.el" -print | etags -
+#+END_SRC
+
+#+RESULTS:
+
+The command ~(xref-find-definitions)~ does the rest.  I bind it like so:
+
+
+~(global-set-key (kbd "C-c .") #'xref-find-definitions)~
+
 ** auto-insert mode
 Auto-insert mode is a minor mode that will automatically populate a newly created file with default text.  It is bundled with Emacs.
 *** Set up auto insertion
