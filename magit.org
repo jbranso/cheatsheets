@@ -50,6 +50,9 @@ Un-staging commits can be done via "u".
    - ~r~ renames the branch
 
    - ~T~ on a local branch changes which remote branch it tracks
+* magit bisect
+Wow!  Super easy way to narrow down to commit that caused an issue!
+http://oremacs.com/2014/12/31/keymap-arms-race/
 * magit blame
 Visit a magit buffer and run ~magit-blame~.  Magit will divide the buffer into regions, and list which region belongs to which git author and in what commit.  It awesome!
 

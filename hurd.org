@@ -24,6 +24,11 @@ Shows the passive translators on a node.
 * Documentation things
 ** Any documentation online that says "kvm" let it be known that qemu-system-i386 --enable-kvm is the same thing.
 ** dde is not really being maintained.  These are drivers from the linux kernel.  The Rump kernel seems to be a better option.
+** http://xkbcommon.org/doc/current/index.html  could be used for
+Make the Hurd console's configuration use xkb layout/variant instead of keymap.
+
+On the contributing page
+https://www.gnu.org/software/hurd/contributing.html
 * Vocab
 ** Port
 A port is a messaging passing highway implemented in the kernel.  One port allows one to either talk to or listen to a running process.
@@ -204,6 +209,9 @@ An Access Control list says that a program can access a program if it has the pr
 If you get logged into a root shell and your root filesystem is corrupted to fix it, is quite easy:
 
 Use ~cat /etc/fstab~ to find the root filesystem, then run ~fsck.etx2 RootFileSystem~
+Then run ~exit~ to shutdown.
+
+If you are not able to access the root shell, then just run the command ~fix-hurd~, that I've created [[file:~/programming/bash/fix-hurd][here]].
 * Things the Hurd can do
 ** SATA drives
 A SATA drive driver was added in 10th May 2013.
@@ -215,6 +223,15 @@ Some Hurd servers can be found in $(HURD)/trans/
 This is apparently a Access Control Lists server.  Suppose Firefox wishes to access a file on disk.  Firefox requests the file from the filesystem.  The filesystem wants to be sure that Firefox can do this, so it asks the Auth server.
 ** pfinet
 This is the TCP/IP networking stack.  It is using dde
+** hello
+#+BEGIN_SRC sh :results output :exports both
+touch hello
+cat hello
+settrans -a ./hello /hurd/hello
+cat hello # Hello World!
+settrans -g ./hello
+cat hello
+#+END_SRC
 * The Hurd Interfaces
 The Hurd provides interfaces so that one can create remote procedure calls.
 * Debugging Translators
@@ -235,16 +252,15 @@ You can compile a program with ~gcc -g -o <program name> <program file>~.  For e
 * Things I could potentially write for the Hurd
 ** ext3fs
 http://savannah.gnu.org/task/?5498
-** nfs and nfsd
 
+I've downloaded the patch to support ext3fs: [[file:~/Downloads/ext2fs_20050822.patch::console/][here.]]
+** nfs and nfsd
 ** firewall translator
 http://savannah.gnu.org/task/?12723
 ** multiprocessor support
 http://savannah.gnu.org/task/?7179
 ** random translator
 http://savannah.gnu.org/task/?5130
-** rewrite pfinet
-http://savannah.gnu.org/task/?5469
 ** overwriting default servers
 http://savannah.gnu.org/task/?6612
 ** gtk+ driver
@@ -252,26 +268,48 @@ http://savannah.gnu.org/task/?6612
 http://savannah.gnu.org/task/?1427
 ** ftpfs hangs
 http://savannah.gnu.org/bugs/?24383
-** pfinet hangs
-http://savannah.gnu.org/bugs/?27539
 ** string_t is limited to 1024 bytes
 http://savannah.gnu.org/bugs/?28511
 ** ext2fs memory leak
 http://savannah.gnu.org/bugs/?30096
 ** make a /proc/cpuinfo
+** test driver development
+https://www.gnu.org/software/hurd/community/gsoc/project_ideas/testing_framework.html
+** run glib's and other software's test-suites
+https://www.gnu.org/software/hurd/community/gsoc/project_ideas/testsuites.html
+** pfinet
+*** rewrite pfinet
+http://savannah.gnu.org/task/?5469
+*** pfinet hangs
+http://savannah.gnu.org/bugs/?27539
 * The hurd in qemu
 ** Installing
 #+BEGIN_SRC sh :results output
+  $ wget https://people.debian.org/~sthibault/hurd-i386/installer/cdimage/netinst.iso
   $ qemu-img create hd0.img 4G
-  $ qemu-system-i386 -net nic,model=ne2k_pci -net user -hda hd0.img -m 2G --no-reboot -no-kvm-irqchip -cdrom cd-1.iso --enable-kvm  -boot d
+  $ qemu-system-i386 -net nic,model=ne2k_pci -net user -hda hd0.img -m 2G --no-reboot -no-kvm-irqchip -cdrom netinst.iso -enable-kvm -curses -drive cache=writeback,file=hd0.img,format=raw
 #+END_SRC
+
+If you do not specify format=raw, then you won't be able to write changes to your image.
+If you do not specify -curses, then you will run the installer graphically, and it may not let you use the up or down arrow keys.
 
 Make sure you DO not put your user's home directory in a separate partition that is mounted on /home.  The current debian port does not support this.
 ** Running
-qemu-system-i386 -m 2G -net nic -net user,hostfwd=tcp::5555-:22 -drive file=hd0.img,cache=writeback,format=raw --curses --enable-kvm --no-reboot -vga vmware
+*** regularly running
+qemu-system-i386 -m 2G -net nic -net user,hostfwd=tcp::5555-:22 -drive file=hd0.img,cache=writeback,format=raw -curses -enable-kvm -no-reboot
 
 
 When you see graphic mode, press enter a couple of times
+*** connecting to the box via ssh
+It is often convenient to connect through ssh to the box, instead of logging on
+the console, this can be done by forwarding the ssh port:
+
+$ kvm -net user,hostfwd=tcp:127.0.0.1:2222-:22 -net nic -drive file=debian-hurd*.img,cache=writeback -m 1G
+
+and then you can connect through ssh:
+
+ssh demo@localhost -p 2222
+
 ** Transferring files from host to qemu
 Mounting Disk Image on Host
 
@@ -333,3 +371,17 @@ Control-X will let you close the file.  Press "y" to save the file.
 ** Enable automatic filesystem fscking of the / partition in
 
 /etc/default/rcS
+
+* booting the Hurd from grub
+#+BEGIN_SRC sh :results output :exports both
+grub> multiboot /boot/gnumach.gz root=device:hd0s6
+grub> module  /hurd/ext2fs.static ext2fs --readonly \
+                   --multiboot-command-line='${kernel-command-line}' \
+                   --host-priv-port='${host-port}' \
+                   --device-master-port='${device-port}' \
+                   --exec-server-task='${exec-task}' -T typed '${root}' \
+                   '$(task-create)' '$(task-resume)'
+grub> module /lib/ld.so.1 exec /hurd/exec '$(exec-task=task-create)'
+grub> boot
+#+END_SRC
+* read man qemu-system

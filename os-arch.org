@@ -1,0 +1,87 @@
+#+AUTHOR:Joshua Branson
+#+TITLE: OS Arch
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+* OS Arch
+This is my cherishedof [[https://en.wikibooks.org/wiki/Operating_System_Design][this]] wikibook.
+
+An operating system is the fundamental bits of software that make your computer function.  Your computer is a number crunching machine.  Specifically, your processor performs calculations all day long.  Your processor has to do various things for different applications.  All of the applications on your computer fight for processor time.  It is the job of your OS to ensure that all applications efficiently perform their function.
+
+OS do some of this with threads and processes.  Let's explain what a process is first.  When every application starts, your OS starts that application inside a process.  The OS then schedules that process CPU time.  That process has a list of open files, a certain amount of memory, and dates with which to work with the CPU.  However, there are times when two different processes need to communicate to other processes.  This is called IPC or inter-process communication.  Each process has its own amount of memory reserved, its own list of open files, and its own dates to talk to the CPU.  A process is like a like a boat with one occupant.  The occupant, by virtue of being the only occupant, is the captain.  He dictates where the ship goes, who eats the food, etc.
+
+In order to effective communicate well between processes, an operating system uses locks, mutexes, semaphores, etc.
+
+IPC can be done via
+
+1) socket programming TCP/UDP
+2) Pipes
+3) shared memory
+
+One the other hand a thread is a small clone of a process.  A thread inherits the amount of information that the process has.  The thread can look at the files its parent process has, can look at the variables its parent process has set.  A thread takes less time to spawn than a process, so you can think of it as a light-weight process.
+
+[[./images/OS-structure.png]]
+
+** 4 main kernel types
+*** monolithic
+A monolithic kernel runs everything in kernel space, except for user applications.
+*** microkernel
+A micro-kernel runs as few things as possible in kernel space.  A true micro kernel-will only have the virtual file system, IPC, and scheduling inside the kernel.  Everything else is outside the kernel.
+
+So device drivers and file servers run as user space processes.
+
+Theoretically, a micro kernel-is more stable than a monolithic kernel.  Consider that in a micro-kernel the internet runs as a process in user-space. If this user-space process crashes, the whole system does not crash.  In fact the internet connection could be restarted and processes that were using it would be connect to the new instance.
+
+There is a problem with this model though.  State is not preserved when the internet server (users pace process) crashes and restarts.  A file that is connected to over say ssh, may not be aware that its connection was lost.
+
+*** hybrid
+A hybrid tries to mix both a micro-kernel and a monolithic kernel.
+*** exokernel
+An exokernel is a kernel where each application connects to a sub-operating system.  It is a recent development.
+** More Processes
+*** Interrupts
+An interrupt is a signal sent to the CPU that something has happened that demands its immediatelyte attention.  This can happen from the keyboard (when a key is pressed), or by a number of other things.
+*** Content switch
+The CPU is told that some process needs its attention.  The CPU then saves information on its current process.  Does some computation on the other process, and when it has more time, it will get back to processing the save process.  The CPU has to save the processes stack (or variables that the program has defined).  Most of this information is saved in thee stack itself.
+
+Context switches are expensive.  So the OS tries to avoid doing them.
+** Scheduling
+A processor can only do one thing at one time.  It cannot perform computations on two different processes at once.  Therefore it has to schedule when processes can access the CPU.  There are several different strategies
+*** First come, first served
+This is the simplest scheduler and it is a poor choice.  It does not allow for preemption.  If a process takes a long amount of time, then it has to complete the entire process, before doing anything else.
+
+This means that a small process must wait for the VERY LONG process to finish.
+*** Shortest Process Next
+This schedules that the next process is the shortest process.  This is an OK way to schedule a process, but it effectively stops long processes from accessing the CPU, this is called /live lock/.
+
+It also creates the /halting problem/.  If we do not know how long it will take a process to execute, we can never really know if a process will ever finish.  Run a program and wait 5 minutes.
+*** Shortest Remaining Time
+This allows short processes to skip ahead of long processes as they appear.
+
+It can still have problems with the /halting problem/ or /live lock/.
+*** Round Robin
+Round Robin scheduling schedules a certain amount of time a process has with the CPU set over periodic and separate points in time.  When a process uses enough CPU time for one session, it is put back at the end of the queue.
+*** Preemption
+Preemption allows a process to interrupt another process, because it has a higher priority.
+*** Priority Scheduling
+Each process has a priority.  Higher priority processes get access to the CPU sooner than lower ones.  In the Linux kernel priority numbers are nice numbers.
+** Concurrency
+Concurrency can be melted into 4 main issues:
+- Concurrent processes or threads often need to access shared date and shared resources
+- The OS must control access to shared data, otherwise data can become inconsistent, corrupted, deleted, etc.
+- Maintaining data means that one needs to orderly schedule cooperating processes
+- various programs may cause race conditions
+*** deadlock
+
+A deadlock occurs when two processes are waiting for the other to give up a resource.  Neither gives up the resource, and both processes wait indefinitely.
+
+This is like two people trying to draw a straight line.  One reaches for the pencil, the other reaches for the ruler.  Neither can draw a straight line, so they wait.
+
+When two processes are fighting for software based resources (memory) this is a soft (software) lock.
+
+When two processes are fighting for hardware this is a hard (hardware) lock.
+*** livelock
+Two processes commit livelock when both processes effectively achieve nothing, but continue doing things.
+
+A good example is when I need to buy a new social security card because someone stole money from my account..  To generate a new social security card, costs $10, but all of my money is in the bank.  So I go to the bank to get money out of it.  But they ask me to prove who I am via a social security card, which I don't have.

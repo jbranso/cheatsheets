@@ -5,6 +5,9 @@
 
 * Flexbox
 
+Try playing this game:
+http://flexboxfroggy.com/
+
 # Much of this content comes from [[https://css-tricks.com/snippets/css/a-guide-to-flexbox/][css tricks]] https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 
 The traditional CSS layout is crusty and does not work well for responsive design.  =display:inline;= is great for vertical layouts and =display:block;= is great for horizontal layouts.  But you can't mix and match both well, nor do these designs work well when the width and height of sections of your page are dynamic.  With flexbox, one can create layouts that are designed to expand and contract depending on the device used, or as the browser page is manually adjusted.

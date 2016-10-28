@@ -586,10 +586,6 @@ When you have a list like the one above, to add to it just type C-RET, but when 
      #+INDEX: Application!CV
 
 * Agenda
-<<<<<<< HEAD
-=======
-
->>>>>>> f1151bf9728e23e2eb55a7d45b3d78f1b2048a79
 ** Agenda commands
    - =A= redraw the agenda view and prompt for how you want it
    - =d= show the day's view

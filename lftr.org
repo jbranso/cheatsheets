@@ -1,0 +1,105 @@
+#+AUTHOR:Joshua Branson
+#+TITLE: LFTR
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+* LFTR
+** It uses 99% of the fuel and only 1% is left.  That 1% is Plutonium-238, which NASA is desperate for.
+It's how all of NASA's deep space missions operate.  Plutonium-238 is worthless for bombs.  Plutonium-239 is really good for bombs.
+
+1,000 KG,  only 15 kg of plutonium-238 is left over.  That's 98.5% of fuel being used.  (https://youtu.be/P9M__yYbsZ4?t=4391)
+
+The U.S. in the only country in the world that has sent space probes beyond the asteroid belt, and it's been based on
+Plutonium-238.
+** could make Molybdenum-99, which is used for diagnostic procedures.
+https://youtu.be/P9M__yYbsZ4?t=4414
+
+Canada shut it down in 2015.  (check this)
+** Bismuth-213 cancer research.  Alpha emitting particle.  All cancer research is based on beta emitting particles
+https://youtu.be/P9M__yYbsZ4?t=4441
+
+Beta has a big kill radius and is not very direct-able.
+
+
+Alpha is great for dispersed cancers leukemia, pancreatic.
+
+bismuth 213 can only be generated from the decay of uranium-233.  https://youtu.be/P9M__yYbsZ4?t=4520
+** low pressure operation
+Don't need 9 inch thick steel.  Huge concrete confinement areas.
+
+https://youtu.be/P9M__yYbsZ4?t=4659
+** don't need to fabricate or enrich fuel.
+https://youtu.be/P9M__yYbsZ4?t=4666
+** No disposal approach.
+** Huge level of safety
+
+
+https://youtu.be/P9M__yYbsZ4?t=4676
+** civilian nuclear power in the U.S.  has not killed anyone.
+https://youtu.be/P9M__yYbsZ4?t=5119
+** linear no threshold hypothesis
+
+Not based on epidemiological data.
+
+It's based on the assumption that radiation will harm you at whatever degree to whatever degree you are exposed.
+
+It is established in policy, but there is no study that confirms this.  No study says, we have taken a small portion of people, exposed them to 1% for radiation, and have seen 1% more cancer.  In fact, there are many places in the world where background radiation is substantially higher than elsewhere.  But those areas have less areas of cancers.
+
+Hormesis a little bit is good for you.
+
+
+https://youtu.be/P9M__yYbsZ4?t=5133
+
+People aren't really worried about natural radiation.  artificial radiation is the same thing.
+
+NORM naturally occurring radioactive materials. Frack a shale and pull gas out, a lot of radon comes out too.  You burn the gas that radon is being released.
+
+Coal contains small amounts of thorium and uranium.  They get dispersed in the air.
+
+Coal releases more radiation that nuclear power plants do.
+
+A sunburn is radiation damage.  It's radiation burn.
+** radon is the biggest amount of radioactivity
+It comes out of the ground and we are breathing it right now
+
+https://youtu.be/P9M__yYbsZ4?t=5378
+** burning fuel you get 30% of the energy
+When you put $1 in your car in gas, kill 60 cents goodbye.
+
+10% goes away on transmission lines.
+
+https://youtu.be/P9M__yYbsZ4?t=5489
+** china is going LFTR
+** he said that LFTR uses fluoride as a fuel
+I thought thorium was the fuel?
+** 1 kilogram of fissile material produces as much energy as 13,000 barrels of oil.
+** Thorium-232 (natural thorium) is not a nuclear fuel,
+but if it consumes a neutron, then it'll become TH-233, which has a half life of 20 minutes. WOW!
+TH-233 decays into Protactinium-233, which in one month will decay into uranium-233 an ideal fuel.
+Thermal reaction...?
+
+If you hit uranium-233 with a neutron, it'll fission and release a neutron that'll hit natural thorium
+to start the whole thing all over.
+** reactors today burn uranium-235, which is like burning platinum.
+** molten salt reactor
+LFTR is a type of molten salt reactor
+** ARE
+Aircraft reactor experiment
+a proof of concept molten salt reactor that ran for 100 hours reaching temperatures up to 1150 K
+ran for 11 days.
+operated from <1954-11-03 Sun>-<1954-11-12>
+
+Very stable...as salt heated up, less fissile material in the core.  So fission became less likely.
+
+As the salt cooled down, there was more fissile material in the core, so fission become more likely.
+
+This is a dynamically stable system.
+** molten salt reactor experiment
+ran from 1965-1969
+** 2 fluid MSR design.
+Core fluid (lithium bar ilium salt ) with uranium tetra-fluoride in there.
+
+
+* Bruce Hoglund
+MSR research

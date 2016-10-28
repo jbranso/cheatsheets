@@ -7,9 +7,9 @@
 * Introduction
 Mach is an operating system kernel.  Windows, OS X, GNU/Linux, and the *BSDs are all popular operating systems.  Each of these has a kernel, which is software that handles resources and schedules processes' computation time with the CPU.  Traditional kernel's, including the kernels that run Windows, GNU/Linux, and the *BSDs, all use monolithic kernels.  These kernels are huge!  Linux for example is 16 millions lines of code at the time of this writing, while a traditional microkernel can be written in under 10,000 lines of code.
 
-A microkernel then is much smaller, easier to maintain, usually is more secure and is a fundamental better design.  Mach was designed to be rather minimal, so that it could virtually run 3 or 4 different OSes on top of it, seamlessly to the user.  A variant of Mach is the kernel that runs OS X these days, but Mach's dream of virtually running various OSes on top of it was never realized.  In fact some of its original design goals were compromised.  While it is much smaller than a traditional monolithic kernel, it does have some unnecessary features in kernel space.
+A microkernel then is much smaller, easier to maintain, usually is more secure and is a better design.  Mach was designed to be rather minimal, so that it could virtually run 3 or 4 different OSes on top of it, seamlessly to the user.  A variant of Mach is the kernel that runs OS X these days, but Mach's dream of virtually running various OSes on top of it was never realized.  In fact some of its original design goals were compromised.  While it is much smaller than a traditional monolithic kernel, it does have some unnecessary features in kernel space.
 
-A small caveat.  Mach is not truly a nanokernel or a microkernel for that matter.  Mach is a hybrid kernel, because it's handling of virtual memory is quite large.  https://www.gnu.org/software/hurd/open_issues/user-space_device_drivers.html
+A small caveat.  Mach is not truly a nanokernel or a microkernel for that matter.  Mach is a hybrid kernel, because it's handling of virtual memory is quite large.  https://www.gnu.org/software/hurd/open_issues/user-space_device_drivers.html  Also mach's current way of connecting to the internet, uses drivers that are located in kernel space and not user space.
 * Building Mach from source
 ** First Build MIG
 https://www.gnu.org/software/hurd/microkernel/mach/mig/gnu_mig/building.html
@@ -120,10 +120,13 @@ The task can set these ports from task_set_special_port () and can get these por
 - All threads in the same task, share just about everything.
 ** Microkernel
 A small kernel that provides basic operating system functions.
+** nano-kernel
+A truly small kernel. This is smaller than a microkernel.
 ** Virtual Address Space
-A task ownes a virtual address space, which is a region of memory that it is allowed to change/edit/remove at will.  The executing thead/s are allowed to access any address within this space.  In C lingo this can mean referencing a pointer.
-** Nanokernel
-An even smaller kernel.
+A task owns a virtual address space, which is a region of memory that it is allowed to change/edit/remove at will.  The executing thead/s are allowed to access any address within this space.  In C lingo this can mean referencing a pointer.
+
+Virtual Address Space is one method of allowing programs to have more memory than they actually do.  The virtual memory is mapped to actual memory.
+
 ** Processor Sets
 A grouping mechanism that allows scheduling of tasks assigned to a processor set.  These also assign threads and tasks.
 ** Node
@@ -170,3 +173,52 @@ A's message -->   B's Receive Port    -->   B does some stuff
 Now B has to send a message back
 
 B sends C -->  A's Receive Port      -->  A Does stuff.
+** Ports
+A port is a unidirectional channel where a client who requests a service from a server.  Server servers can send messages to the client via 1 port.
+
+If the port represents a resource that the kernel controls, then the receiver is the kernel and this cannot change.  If the port is anything else, then the receiver is the task, and the receiver can change.
+
+A port has a message queue and a list of who has what rights to it.
+*** Messages
+A message comprises a fixed sized header (mach_msg_header_t), which specifies the port that the message is going to, and, if a reply is wanted, which port the recipient should send a reply.  It also specifies the size of the message and operation code fields.
+
+Data items follow the header (mach_msg_type_t or mach_msg_type_long_t).  The type descriptor specifies the type of data as well a counting the number of data items.
+
+Message queues can be limited in size via mach_port_set_qlimit.
+**** Message Transmission
+The send operation queues a message to a port.  The caller blocks until the message can be queued, unless one of the follow happen:
+
+- The message was being sent to a send-once right.  Th-eraare always forcible queued.
+- The queue was full, but the caller specific MACH_SEND_NOTIFY.  So the receiver of the message is then forced to accept the message, and notify the caller when the message is queued.
+- The message was aborted.
+- The send operation exceeds its time out value
+- The port was destroyed.
+*** Port Rights
+A can only be accessed via a port right.  All port rights and ports are securely controlled by the kernel.  It is very unlikely that a process can manipulate a port, if they do not have the rights to do so.
+
+There are 3 types of rights:
+- receive rights
+  1 port has 1 receive right.  Only one task has the receive rights for a specific port
+- send rights
+  Many tasks can have multiple send rights to numerous ports
+- send-once right
+  A task can send 1 message to the port, and they the task loses the right to send any more messages to that port.
+
+Rights can be copied/transfered to many different tasks.  Rights can also be forcibly deleted.
+*** Port Name Space
+Ports have names via the port name space, which is an index to the port name space.  An entry in a port name space can have 4 values:
+
+- MACH_PORT_NULL no associated right
+- MACH_PORT_DEAD A right was associated with this port, but the port has died.
+- a port right:  a send once, send or receive rights for the port
+- a port set name:  A name that acts like a receive right, but allows a task to receive messages from multiple ports.
+
+
+
+* booting
+grub loads mach, ext2, and ld.so/exec.
+Mach starts ext2.
+ext2 starts exec.
+ext2 execs a few other servers.
+ext2 execs init.
+From there on, it's just standard UNIX stuff

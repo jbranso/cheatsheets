@@ -284,11 +284,23 @@ return 2 + 2
 read about org's parser here http://orgmode.org/worg/dev/org-element-api.html
 * Helpful Emacs modes
 ** bug-hunter
-   This will help you find bugs in your init file. SOOO helpful.
+   This will help you find bugs in your init file.  Ensure that you have installed bug-hunter toward the top of your init file.  That way, when something breaks later in your init file, you can run ~M-x bug-hunter-init-file~ to find the problem.
+
+   So your init file would look like this:
+
+   #+BEGIN_SRC emacs-lisp :exports code
+     (require 'package)
+     (add-to-list 'package-archives '("gnu"   . "http://elpa.gnu.org/packages/"))
+     ;;; Also use Melpa for most packages
+     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+     (use-package bug-hunter :ensure t :defer t)
+
+     ;;the rest of your init file
+   #+END_SRC
+
   https://github.com/Malabarba/elisp-bug-hunter
-  M-x bug-hunter-init-file
 ** helm mode
-  HOLY BLIMEY COW!!! THIS MODE IS AWESOME enable it!
+Helm mode is a completion framework.  The default Emacs completion framework is ido-mode.  You can see ido-mode in action with ~M-x ID-find-file~.
 
   C-c C-f helm-find-files
 
@@ -343,7 +355,8 @@ read about org's parser here http://orgmode.org/worg/dev/org-element-api.html
   check out filters. It lets you take a line, and throw that line as a command.
   It lets you create macros that you can take a line as a command to line in bash.
   interesting
-*** filters VERY cool. put the contents of the buffer through a shell command!
+*** filters
+Evil-mode lets you put the contents of the buffer through a shell command!
 
    You can take a line like
 
@@ -360,87 +373,13 @@ read about org's parser here http://orgmode.org/worg/dev/org-element-api.html
 
  Sort has lots of options.  I can do sort -r by reverse order, sort -k4  the 4th column, sort -n sort numerically
 
-
- hello how are you
- hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
-
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you
- hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
-
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you
- hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you
- hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
-
- hello how are you
- hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
- hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you hello how are you
 ** El-doc
   El-doc shows you what a function in the mini-bar as you write it.  By default it works for emacs lisp extremely well.  You'll notice that my emacs-lisp-mode-hook sharp quotes eldoc-mode, which means it's using the syntax =#'eldoc-mode=.  Sharping quoting is only necessary if you are quoting named emacs lisp functions.
 #+BEGIN_SRC emacs-lisp
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
 #+END_SRC
 
-** Semantic
+** COMMENT Semantic
 
    Most emacs modes use a bunch of regular expressions to highlight source code. BUT semantic tries to make this better by
    parsing the code and creating grammar with it.
@@ -673,10 +612,9 @@ I'm defining some functions that will automatically expand when I open a file.  
     }
   #+END_SRC
 
-  Suppose that you want to add a space between both "is" in the functions.
+  Suppose that you want to add a space between both "is" in the function names.  The following will do just that.
 
-  M-x dired-do-query-replace-regexp is\(admin\|manager\) RET is \1 RET
-
+  ~M-x dired-do-query-replace-regexp is\(admin\|manager\) RET is \1 RET~
 
   But let's get a basic understanding of regexps.
 
@@ -752,3 +690,7 @@ If you get a weird error like "wrong type argument : arrayp , nil", or "wrong ty
 You will probably want to use eclim  https://github.com/ervandew/eclim
 
 It turns eclipse into a server.  Emacs sends info to that server, the server responds back, and Emacs shows you code errors, code completion, etc.  It's probably the best way to do java development in Emacs.
+* building Emacs
+--with-cairo builds Emacs with the ability to render Emacs with Cairo.  Cairo is a 2D drawing library.  It is failing its own test suite.  So it might not be a great thing for Emacs.  And currently it doesn't work so well.
+
+sudo ../emacs-src/configure --with-modules --enable-link-time-optimization  --with-x-toolkit=gtk3 --with-xwidgets

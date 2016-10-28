@@ -1,0 +1,104 @@
+#+AUTHOR:Joshua Branson
+#+TITLE: Find
+#+LATEX_HEADER: \usepackage{lmodern}
+#+LATEX_HEADER: \usepackage[QX]{fontenc}
+#+OPTIONS: H:10 toc:nil
+
+* Find
+** Basic operation
+~find DIRECTORY EXPRESSION~
+
+As an example, here is the command that looks for a file with "captcha" somewhere in the name and the file name ends in "html".
+
+#+BEGIN_SRC sh :results output :exports both :dir ~/programming/html/
+find ./ -name '*captcha*html'
+#+END_SRC
+
+#+RESULTS:
+: ./math-captcha.html
+
+You can also search using some basic regexp functionality.  It uses bash's [[info:find#Shell%20Pattern%20Matching][Shell Pattern Matching]], which is
+
+- *
+
+  match any 0 or more characters.
+
+- ?
+
+  matches any 1 character
+
+- [STRING]
+
+  This is a character class.  It matches one character in the string.  ~[aA]~ will match both "a" and "A".  ~[a-zA-Z]~ matches all letters.  If the character class starts with the "!" in "^" it will match 1 character that is not in the string.  So ~[^0-9]~ will find any non-numbers.
+
+#+BEGIN_SRC sh :results output :exports both
+find ~/programming/html/ -name '*[gG][nN][uU]*'
+#+END_SRC
+
+#+RESULTS:
+: /home/joshua/programming/html/assign-copyright-to-GNU
+: /home/joshua/programming/html/my-wordpress-blog/images/GNUGuileLogo.png
+: /home/joshua/programming/html/GNUSites
+: /home/joshua/programming/html/my-portfolio-site/images/gnu.png
+
+The above command was a bit cumbersome to write.  Luckily, find lets you search case insensitively.
+#+BEGIN_SRC sh :results output :exports both
+find ~/programming/html/ -iname '*gnu*'
+#+END_SRC
+
+#+RESULTS:
+: /home/joshua/programming/html/assign-copyright-to-GNU
+: /home/joshua/programming/html/my-wordpress-blog/images/GNUGuileLogo.png
+: /home/joshua/programming/html/GNUSites
+: /home/joshua/programming/html/my-portfolio-site/images/gnu.png
+
+Find also lets you combine options together.
+#+BEGIN_SRC sh :results output :exports both
+find ~/programming/html/ -iname '*gnu*' -path '*images*'
+#+END_SRC
+
+#+RESULTS:
+: /home/joshua/programming/html/my-wordpress-blog/images/GNUGuileLogo.png
+: /home/joshua/programming/html/my-portfolio-site/images/gnu.png
+
+
+#+BEGIN_SRC sh :results output :exports both
+find ~/manuals/ -regex '.*manuals.*yas.*org'
+#+END_SRC
+
+#+RESULTS:
+: /home/joshua/manuals/cheatsheets/yasnippet.org
+
+You can also have find print like ~ls -l~ does.
+
+#+BEGIN_SRC sh :results output :exports both
+find . -name '*arch.org' -ls
+#+END_SRC
+
+#+RESULTS:
+:   8260652     60 -rw-r--r--   1  joshua   home        57385 Sep 20 12:01 ./arch.org
+
+
+Find also supports running commands on the files that are found.  For example here I am looking for a particular manual with the word keyboard in it.
+
+
+#+BEGIN_SRC sh :results output :exports both
+find ~/manuals -name '*arch*' -execdir grep 'keyboard' '{}' ';'
+#+END_SRC
+
+#+RESULTS:
+: * Change the virtual console keyboard layout
+: * Configuring Xorg Settings (keyboard layout)
+: ** change the X keyboard layout & swap caps
+:         Identifier "libinput keyboard catchall"
+: * Change the virtual console keyboard layout
+: * Configuring Xorg Settings (keyboard layout)
+: ** change the X keyboard layout & swap caps
+:         Identifier "libinput keyboard catchall"
+
+** Find expressions
+Find has several groups of expressions.
+- options
+- tests
+- actions
+- operators

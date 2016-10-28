@@ -12,3 +12,64 @@ if (is_numeric ($number) && is_numeric ($number2) && is_numeric ($number3)) {
 echo "they are all numeric strings!";
 }
 #+END_SRC
+
+* Database connections
+PHP is smart enough to let you connect to a database in a procedural way or in an OO way.
+
+You can mix and match the ways you access the database.
+
+Here is the OO style.
+#+BEGIN_EXAMPLE
+<?php
+$mysqli = new mysqli("localhost", "my_user", "my_password", "world");
+
+/* check connection */
+if ($mysqli->connect_errno) {
+    printf("Connect failed: %s\n", $mysqli->connect_error);
+    exit();
+}
+
+/* Create table doesn't return a resultset */
+if ($mysqli->query("CREATE TEMPORARY TABLE myCity LIKE City") === TRUE) {
+    printf("Table myCity successfully created.\n");
+}
+?>
+#+END_EXAMPLE
+
+Here is the procedural style
+
+#+BEGIN_EXAMPLE
+<?php
+$link = mysqli_connect("localhost", "my_user", "my_password", "world");
+
+/* check connection */
+if (mysqli_connect_errno()) {
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
+}
+
+/* Create table doesn't return a resultset */
+if (mysqli_query($link, "CREATE TEMPORARY TABLE myCity LIKE City") === TRUE) {
+    printf("Table myCity successfully created.\n");
+}
+
+/* Select queries return a resultset */
+if ($result = mysqli_query($link, "SELECT Name FROM City LIMIT 10")) {
+    printf("Select returned %d rows.\n", mysqli_num_rows($result));
+
+#+END_EXAMPLE
+
+Now here is how one might mix them via using the procedural style in setting up the connection,
+but querying via the OO style.
+
+
+#+BEGIN_EXAMPLE
+<?php
+$link = mysqli_connect("localhost", "my_user", "my_password", "world");
+
+
+/* Create table doesn't return a resultset */
+if ($link->query("CREATE TEMPORARY TABLE myCity LIKE City") === TRUE) {
+    printf("Table myCity successfully created.\n");
+}
+#+END_EXAMPLE

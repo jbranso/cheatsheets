@@ -349,3 +349,5 @@
 ** pressing RET on a folder will show you "smart messages" that gnus thinks are important.
   These messages are usually the unread messages.
   pressing C-u RET will show you all messages
+** online documentation
+http://www.xsteve.at/prg/gnus/
